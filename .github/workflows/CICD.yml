@@ -20,8 +20,8 @@ jobs:
 
       - name: Setup dqlang access
         run: |
-          - mkdir -p  ~/.gradle && touch ~/.gradle/init.gradle
-          - echo "allprojects {
+          mkdir -p  ~/.gradle && touch ~/.gradle/init.gradle
+          echo "allprojects {
                    repositories {
                    maven {
                      url 'https://maven.pkg.github.com/dqualizer/dqlang'
