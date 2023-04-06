@@ -3,9 +3,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.1.0-M2"
     id("io.spring.dependency-management") version "1.1.0"
-    id("net.researchgate.release") version "3.0.2"
     kotlin("jvm") version "1.8.20"
     kotlin("plugin.spring") version "1.8.20"
+
+    id("net.researchgate.release") version "3.0.2"
     id("maven-publish")
 }
 
@@ -15,17 +16,14 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 release {
-    failOnCommitNeeded.set(false)
-    git {
-        requireBranch.set(".*")
-    }
+    //no config needed, see https://github.com/researchgate/gradle-release for options
 }
 
 publishing{
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/litschiw/dqexec")
+            url = uri("https://maven.pkg.github.com/dqualizer/dqexec")
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
@@ -35,7 +33,7 @@ publishing{
             register("jar", MavenPublication::class) {
                 from(components["java"])
                 pom {
-                    url.set("https://github.com/litschiw/dqexec.git")
+                    url.set("https://github.com/dqualizer/dqexec.git")
                 }
             }
         }
@@ -65,7 +63,7 @@ dependencies {
     implementation("io.zipkin.reporter2:zipkin-reporter-brave")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-//    implementation("dqualizer:dqlang:0.1.0")
+    implementation("dqualizer:dqlang:0.1.0")
 
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.h2database:h2")
