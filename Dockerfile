@@ -52,7 +52,6 @@ RUN cd gradle \
 
 ### ----------- Builder Resolver and Executor ----------- ###
 FROM ${EXECUTION_ENV}-builder as build-executor
-RUN cat gradle/init.gradle
 RUN gradle --init-script gradle/init.gradle assemble
 
 
