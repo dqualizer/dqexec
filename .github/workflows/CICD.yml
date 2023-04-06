@@ -1,4 +1,4 @@
-name: CI/CD Pipeline of dqexec
+name: CI/CD Pipeline of ${{ github.event.repository.name }}
 
 on:
   push:
@@ -10,7 +10,8 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Set up Java 17
         uses: actions/setup-java@v2
         with:
@@ -18,27 +19,11 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - name: Setup dqlang access
-        run: |
-          mkdir -p  ~/.gradle && touch ~/.gradle/init.gradle
-          echo "allprojects {
-                   repositories {
-                   maven {
-                     url 'https://maven.pkg.github.com/dqualizer/dqlang'
-                     credentials(HttpHeaderCredentials) {
-                       name = 'authorization'
-                       value = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
-                   }
-                   authentication {
-                       header(HttpHeaderAuthentication)
-                   }
-                 }}}" > ~/.gradle/init.gradle
-
       - name: Build with Gradle
-        run: ./gradlew assemble
+        run: ./gradlew --init-script gradle/init.gradle assemble 
 
       - name: Test with Gradle
-        run: ./gradlew test
+        run: ./gradlew --init-script gradle/init.gradle test
 
       - name: Upload build jar
         uses: actions/upload-artifact@v3
@@ -50,7 +35,8 @@ jobs:
   create_container:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
