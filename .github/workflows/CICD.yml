@@ -9,6 +9,8 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    permissions:
+      packages: read
     steps:
       - uses: actions/checkout@v3
       - name: Set up Java 17
@@ -26,8 +28,8 @@ jobs:
                    maven {
                      url 'https://maven.pkg.github.com/dqualizer/dqlang'
                      credentials(HttpHeaderCredentials) {
-                       name = 'GITHUB_TOKEN'
-                       value = '${{ secrets.GITHUB_TOKEN }}'
+                       name = 'authorization'
+                       value = 'Bearer ${{ secrets.GITHUB_TOKEN }}'
                    }
                    authentication {
                        header(HttpHeaderAuthentication)
