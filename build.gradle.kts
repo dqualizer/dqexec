@@ -3,14 +3,36 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.1.0-M2"
     id("io.spring.dependency-management") version "1.1.0"
+    id("net.researchgate.release") version "3.0.2"
     kotlin("jvm") version "1.8.20"
     kotlin("plugin.spring") version "1.8.20"
-}
+    id("maven-publish")
 
 group = "dqualizer"
-version = "0.0.1-SNAPSHOT"
+
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
+
+release {
+    failOnCommitNeeded.set(false)
+    git {
+        requireBranch.set(".*")
+        pushToRemote.set("litschiw")
+    }
+}
+
+publishing{
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/litschiw/dqexec")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
 
 
 configurations {

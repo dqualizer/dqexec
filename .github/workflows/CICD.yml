@@ -2,9 +2,6 @@ name: CI/CD Pipeline of ${{ github.event.repository.name }}
 
 on:
   push:
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build_and_test:
@@ -19,18 +16,42 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
       - name: Build with Gradle
-        run: ./gradlew --init-script gradle/init.gradle assemble 
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            --init-script gradle/init.gradle assemble
+            assemble
 
       - name: Test with Gradle
-        run: ./gradlew --init-script gradle/init.gradle test
-
-      - name: Upload build jar
-        uses: actions/upload-artifact@v3
+        uses: gradle/gradle-build-action@v2
         with:
-          name: dqexec
-          path: build/libs/*.jar
-          retention-days: 14
+          arguments: |
+            --init-script gradle/init.gradle test
+            test        
+
+      - name: Prepare Release
+        if : github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            --init-script gradle/init.gradle prepareRelease
+            release
+            -Prelease.useAutomaticVersion=true
+
+      - name: Distribute to GitHub Package Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: |
+            --init-script gradle/init.gradle publish
+            publish
+
 
   create_container:
     runs-on: ubuntu-latest
