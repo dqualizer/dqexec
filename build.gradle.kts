@@ -18,7 +18,6 @@ release {
     failOnCommitNeeded.set(false)
     git {
         requireBranch.set(".*")
-        pushToRemote.set("litschiw")
     }
 }
 
