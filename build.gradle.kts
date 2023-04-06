@@ -5,12 +5,40 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     kotlin("jvm") version "1.8.20"
     kotlin("plugin.spring") version "1.8.20"
+
+    id("net.researchgate.release") version "3.0.2"
+    id("maven-publish")
 }
 
 group = "dqualizer"
-version = "0.0.1-SNAPSHOT"
+
 java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
+
+release {
+    //no config needed, see https://github.com/researchgate/gradle-release for options
+}
+
+publishing{
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/dqualizer/dqexec")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+        publications {
+            register("jar", MavenPublication::class) {
+                from(components["java"])
+                pom {
+                    url.set("https://github.com/dqualizer/dqexec.git")
+                }
+            }
+        }
+    }
+}
 
 
 configurations {
