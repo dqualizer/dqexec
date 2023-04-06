@@ -45,3 +45,22 @@ jobs:
         with:
           name: dqexec
           path: build/libs/*.jar
+          retention-days: 14
+
+  create_container:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main'}}
+          tags: dqualizer/dqexec:latest
+          build-args: |
+            EXECUTION_ENV=ci
+            GITHUB_PACKAGE_READ_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

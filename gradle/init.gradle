@@ -1,0 +1,14 @@
+allprojects {
+    repositories {
+        maven {
+            url 'https://maven.pkg.github.com/dqualizer/dqlang'
+            credentials(HttpHeaderCredentials) {
+                name = 'authorization'
+                value = 'Bearer ' + System.getenv('GITHUB_TOKEN')
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
+    }
+}
