@@ -19,9 +19,6 @@ jobs:
           cache: 'gradle'
 
       - name: Setup dqlang access
-        env:
-          GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_PASSWORD }}
         run: |
           mkdir -p  ~/.gradle && touch ~/.gradle/init.gradle
           echo "allprojects {
@@ -29,8 +26,8 @@ jobs:
                    maven {
                      url 'https://maven.pkg.github.com/dqualizer/dqlang'
                      credentials {
-                       name = '${GITHUB_USERNAME}'
-                       password = '${GITHUB_TOKEN}'
+                       name = '${{ secrets.GITHUB_USERNAME }}'
+                       password = '${{ secrets.GITHUB_TOKEN }}'
                    }
                  }}}" > ~/.gradle/init.gradle
 
