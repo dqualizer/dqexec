@@ -5,6 +5,7 @@ on:
 
 jobs:
   build_and_test:
+    name: Build, Test and Publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -61,6 +62,7 @@ jobs:
 
 
   create_container:
+    name: Create Docker Container in GitHub Package Registry
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
