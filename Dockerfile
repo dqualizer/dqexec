@@ -65,5 +65,8 @@ WORKDIR /app
 # Copy the jar file from the build stage
 COPY --from=build-executor /app/build/libs/*.jar /app/app.jar
 
+EXPOSE 8080
+
 # Run the jar file
 CMD ["java", "-jar", "app.jar"]
+
