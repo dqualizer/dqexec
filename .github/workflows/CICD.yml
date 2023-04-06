@@ -48,7 +48,6 @@ jobs:
           retention-days: 14
 
   create_container:
-    needs: build_and_test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -62,5 +61,3 @@ jobs:
           build-args: |
             EXECUTION_ENV=ci
             GITHUB_PACKAGE_READ_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
