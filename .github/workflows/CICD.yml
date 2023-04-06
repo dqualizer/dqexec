@@ -9,8 +9,6 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-    permissions:
-      packages: read
     steps:
       - uses: actions/checkout@v3
       - name: Set up Java 17
