@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm") version "1.8.20"
     kotlin("plugin.spring") version "1.8.20"
     id("maven-publish")
+}
 
 group = "dqualizer"
 
