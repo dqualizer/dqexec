@@ -31,6 +31,14 @@ publishing{
                 password = System.getenv("GITHUB_TOKEN")
             }
         }
+        publications {
+            register("jar", MavenPublication::class) {
+                from(components["java"])
+                pom {
+                    url.set("https://github.com/litschiw/dqexec.git")
+                }
+            }
+        }
     }
 }
 
