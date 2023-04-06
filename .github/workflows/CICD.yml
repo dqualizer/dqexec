@@ -26,13 +26,13 @@ jobs:
                    maven {
                      url 'https://maven.pkg.github.com/dqualizer/dqlang'
                      credentials {
-                       name = '${{ secrets.GITHUB_USERNAME }}'
+                       name = '${{ secrets.GITHUB_ACTOR }}'
                        password = '${{ secrets.GITHUB_TOKEN }}'
                    }
                  }}}" > ~/.gradle/init.gradle
 
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew assemble
 
       - name: Test with Gradle
         run: ./gradlew test
