@@ -25,9 +25,12 @@ jobs:
                    repositories {
                    maven {
                      url 'https://maven.pkg.github.com/dqualizer/dqlang'
-                     credentials {
-                       name = '${{ secrets.GITHUB_ACTOR }}'
-                       password = '${{ secrets.GITHUB_TOKEN }}'
+                     credentials(HttpHeaderCredentials) {
+                       name = 'GITHUB_TOKEN'
+                       value = '${{ secrets.GITHUB_TOKEN }}'
+                   }
+                   authentication {
+                       header(HttpHeaderAuthentication)
                    }
                  }}}" > ~/.gradle/init.gradle
 
