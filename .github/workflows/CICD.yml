@@ -1,4 +1,4 @@
-name: CI/CD Pipeline of ${{ github.event.repository.name }}
+name: CI/CD Pipeline of dqexec
 
 on:
   push:
