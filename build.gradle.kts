@@ -63,7 +63,7 @@ dependencies {
     implementation("io.zipkin.reporter2:zipkin-reporter-brave")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation("dqualizer:dqlang:0.1.0")
+    implementation("dqualizer:dqlang:0.2.0")
 
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.h2database:h2")
