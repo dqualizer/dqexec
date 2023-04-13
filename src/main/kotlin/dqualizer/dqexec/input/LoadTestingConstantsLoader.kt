@@ -19,7 +19,7 @@ class LoadTestingConstantsLoader(
     @Bean
     fun loadTestConstants(): LoadTestConstants {
         try {
-            val resourceText = loadTestingConstants.file.inputStream().bufferedReader().use { it.readText() }
+            val resourceText = loadTestingConstants.inputStream.bufferedReader().use { it.readText() }
             return objectMapper.readValue(resourceText, LoadTestConstants::class.java)
         } catch (e: Exception) {
             throw InvalidConstantsSchemaException(e.message)
