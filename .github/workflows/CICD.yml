@@ -59,22 +59,3 @@ jobs:
           arguments: |
             --init-script gradle/init.gradle
             publish
-
-
-  create_container:
-    name: Create Docker Container in GitHub Package Registry
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./Dockerfile
-          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main'}}
-          tags: dqualizer/dqexec:latest
-          build-args: |
-            EXECUTION_ENV=ci
-            GITHUB_PACKAGE_READ_TOKEN=${{ secrets.GITHUB_TOKEN }}
-            # TODO: ADD tokens for dockerhub/github package registry publish
