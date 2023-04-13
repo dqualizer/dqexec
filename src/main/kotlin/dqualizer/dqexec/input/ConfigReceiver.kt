@@ -1,10 +1,10 @@
 package dqualizer.dqexec.input
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.loadtest.ConfigRunner
 import dqualizer.dqlang.archive.k6configurationrunner.dqlang.Config
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.messaging.handler.annotation.Payload
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.util.logging.Logger
 
@@ -12,7 +12,7 @@ import java.util.logging.Logger
  * Imports a k6 loadtest configuration via RabbitMQ
  */
 @Service
-class ConfigReceiver(private val runner: ConfigRunner) {
+class ConfigReceiver(private val runner: ConfigRunner, private val objectMapper: ObjectMapper) {
 
     private val logger = Logger.getLogger(this.javaClass.name)
 
@@ -21,8 +21,10 @@ class ConfigReceiver(private val runner: ConfigRunner) {
      * @param config An inofficial k6 configuration
      */
     @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.k6}"])
-    fun receive(@Payload config: Config) {
-        logger.info("Received k6 configuration\n" + config.toString())
-        runner!!.start(config)
+    fun receive(@Payload config: String) {
+        logger.info("Received k6 configuration\n" + config)
+
+        val loadtestConfig = objectMapper.readValue(config, Config::class.java)
+        runner.start(loadtestConfig)
     }
 }
