@@ -17,14 +17,14 @@ class TranslatorMQConfig {
     @Bean
     @Qualifier("loadtest")
     fun loadTestExchange(
-        @Value("\${dqualizer.rabbitmq.exchanges.loadtest:translator-loadtest}") loadtestExchange: String?
+        @Value("\${dqualizer.rabbitmq.exchanges.loadtest}") loadtestExchange: String?
     ): TopicExchange {
         return TopicExchange(loadtestExchange)
     }
 
     @Bean
     @Qualifier("loadtest")
-    fun loadTestQueue(@Value("\${dqualizer.rabbitmq.queues.loadtest:translator-loadtest}") loadtestQueue: String?): Queue {
+    fun loadTestQueue(@Value("\${dqualizer.rabbitmq.queues.loadtest}") loadtestQueue: String?): Queue {
         return Queue(loadtestQueue, false)
     }
 

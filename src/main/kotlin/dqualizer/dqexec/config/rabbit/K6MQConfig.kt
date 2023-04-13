@@ -16,13 +16,13 @@ import org.springframework.context.annotation.Configuration
 class K6MQConfig {
     @Bean
     @Qualifier("k6")
-    fun k6Exchange(@Value("\${dqualizer.rabbitmq.exchanges.k6:loadtest-k6}") k6Exchange: String?): TopicExchange {
+    fun k6Exchange(@Value("\${dqualizer.rabbitmq.exchanges.k6}") k6Exchange: String?): TopicExchange {
         return TopicExchange(k6Exchange)
     }
 
     @Bean
     @Qualifier("k6")
-    fun k6Queue(@Value("\${dqualizer.rabbitmq.queues.k6:k6}") k6Queue: String?): Queue {
+    fun k6Queue(@Value("\${dqualizer.rabbitmq.queues.k6}") k6Queue: String?): Queue {
         return Queue(k6Queue, false)
     }
 

@@ -20,7 +20,7 @@ class ConfigReceiver(private val runner: ConfigRunner) {
      * Import the k6 configuration and start the configuration runner
      * @param config An inofficial k6 configuration
      */
-    @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.k6:k6}"])
+    @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.k6}"])
     fun receive(@Payload config: Config) {
         logger.info("Received k6 configuration\n" + config.toString())
         runner!!.start(config)
