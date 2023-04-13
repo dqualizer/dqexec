@@ -1,9 +1,6 @@
 server:
   port: 8090
-api:
-  host: 127.0.0.1
-influx:
-  host: localhost
+
 
 dqualizer:
   rabbitmq:
@@ -13,3 +10,7 @@ dqualizer:
     exchanges:
       loadtest: translator-loadtest
       k6: loadtest-k6
+  influx:
+    host: localhost
+  api:
+    host: 127.0.0.1

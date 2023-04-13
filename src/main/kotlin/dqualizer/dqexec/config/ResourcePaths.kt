@@ -12,15 +12,15 @@ class ResourcePaths {
     val scripts: Path = Path.of("poc", "scripts", "createdScript")
     val logging: Path = Path.of("poc", "logging", "logging")
 
-    fun getResourcesPath(): Path {
-        return ClassPathResource("application.yaml").file.parentFile.toPath()
+    fun readResourceFile(resourcePath: String): String {
+        return ClassPathResource(resourcePath).inputStream.bufferedReader().readText()
     }
 
     fun getScriptFilePath(counter: Int): Path {
-        return getResourcesPath().resolve(scripts).resolve("$counter.js")
+        return scripts.resolve("$counter.js")
     }
 
     fun getLogFilePath(counter1: Int, counter2: Int): Path {
-        return getResourcesPath().resolve(logging).resolve("$counter1-$counter2.txt")
+        return logging.resolve("$counter1-$counter2.txt")
     }
 }

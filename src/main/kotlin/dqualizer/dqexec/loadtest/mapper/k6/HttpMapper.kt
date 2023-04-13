@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.UnknownRequestTypeException
-import dqualizer.dqexec.util.SafeFileReader
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 import org.springframework.stereotype.Component
 import java.util.*
@@ -13,15 +12,14 @@ import java.util.*
  * Maps the specified request to a k6 'default function()'
  */
 @Component
-class HttpMapper(private val reader: SafeFileReader, private val paths: ResourcePaths) : K6Mapper {
+class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
 
     override fun map(request: Request): String {
         val httpBuilder = StringBuilder()
         httpBuilder.append(exportFunctionScript())
         val path = request.path
         val type = request.type.uppercase(Locale.getDefault())
-        val method = when
-                             (type) {
+        val method = when(type) {
             "GET" -> "get"
             "POST" -> "post"
             "PUT" -> "put"
@@ -33,9 +31,7 @@ class HttpMapper(private val reader: SafeFileReader, private val paths: Resource
         val pathVariables = request.pathVariables
         val maybeReference = pathVariables.values.stream().findFirst()
         if (maybeReference.isPresent) {
-            val referencePath = paths.getResourcesPath().resolve(maybeReference.get())
-
-            val pathVariablesString = reader.readFile(referencePath)
+            val pathVariablesString = resourcePaths.readResourceFile(maybeReference.get())
             try {
                 val node = ObjectMapper().readTree(pathVariablesString)
                 val variables = node.fieldNames()

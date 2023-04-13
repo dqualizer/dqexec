@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.loadtest.mapper.k6.ScriptMapper
-import dqualizer.dqexec.util.HostRetriever
 import dqualizer.dqexec.util.ProcessLogger
 import dqualizer.dqlang.archive.k6configurationrunner.dqlang.Config
 import org.springframework.amqp.rabbit.annotation.RabbitListener
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
 import java.io.IOException
@@ -26,11 +26,12 @@ class ConfigRunner(
     private val processLogger: ProcessLogger,
     private val writer: MultiLineFileWriter,
     private val mapper: ScriptMapper,
-    private val hostRetriever: HostRetriever,
     private val paths: ResourcePaths,
-    private val objectMapper: ObjectMapper
+    @Value("\${api.host:127.0.0.1}") private val APIHost: String,
+    @Value("\${dqualizer.influx.host:localhost}") private val influxHost: String
 ) {
     private val logger = Logger.getLogger(this.javaClass.name)
+
 
     /**
      * Import the k6 configuration and start the configuration runner
@@ -74,7 +75,7 @@ class ConfigRunner(
         logger.info(om.writeValueAsString(config))
         val localBaseURL = config.baseURL
         //If config-runner runs inside docker, localhost can´t be used
-        val baseURL = localBaseURL.replace("127.0.0.1", hostRetriever.APIHost!!)
+        val baseURL = localBaseURL.replace("127.0.0.1", APIHost)
         val loadTests = config.loadTests
         var testCounter = 1
 
@@ -110,7 +111,6 @@ class ConfigRunner(
      */
     @Throws(IOException::class, InterruptedException::class)
     private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
-        val influxHost = hostRetriever.influxHost
         val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
         val process = Runtime.getRuntime().exec(command)
         val loggingPath = paths.getLogFilePath(testCounter, runCounter)
