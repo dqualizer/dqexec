@@ -19,7 +19,7 @@ class ConstantsLoader(private val paths: PathConfig) {
         val constantsPath = paths.constants
         var constantsString: String? = ""
         constantsString = try {
-            Files.readString(Paths.get(constantsPath))
+            Files.readString(constantsPath)
         } catch (e: IOException) {
             throw RuntimeException(e)
         }

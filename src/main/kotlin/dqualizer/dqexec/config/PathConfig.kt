@@ -1,35 +1,27 @@
 package dqualizer.dqexec.config
 
 import org.springframework.context.annotation.Configuration
+import java.nio.file.Path
 
 /**
  * Configuration for local file paths
  */
 @Configuration
 class PathConfig {
+    val scripts = Path.of("poc", "scripts", "createdScript")
+    val logging = Path.of("poc", "logging", "logging")
 
-    val script = "poc/scripts/createdScript"
-    val logging = "poc/logging/logging"
+    final val resourcePath = Path.of(
+        this.javaClass.classLoader.getResource("")!!.toURI()
+    )
 
-    val constants = "constant/constants.json"
-        get() = resources + field
-    val resources = resourcePath
+    val constants: Path = resourcePath.resolve(Path.of("constants", "constants.json"))
 
-    //remove '/' at the beginning of the string
-    final val resourcePath: String
-        get() = this.javaClass.classLoader
-            .getResource("")
-            .file
-            .substring(1) //remove '/' at the beginning of the string
-
-
-    fun getScript(counter: Int): String {
-        return resources + script + counter + ".js"
+    fun getScript(counter: Int): Path {
+        return resourcePath.resolve(scripts.resolve("$counter.js"))
     }
 
-    fun getLogging(counter1: Int, counter2: Int): String {
-        return resources + logging + counter1 + "-" + counter2 + ".txt"
+    fun getLogging(counter1: Int, counter2: Int): Path {
+        return resourcePath.resolve(logging.resolve("$counter1-$counter2.txt"))
     }
-
-
 }

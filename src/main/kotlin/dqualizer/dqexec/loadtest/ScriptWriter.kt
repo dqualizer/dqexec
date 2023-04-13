@@ -3,6 +3,7 @@ package dqualizer.dqexec.loadtest
 import org.springframework.stereotype.Component
 import java.io.FileWriter
 import java.io.IOException
+import java.nio.file.Path
 
 /**
  * Writes a k6-script
@@ -16,8 +17,8 @@ class ScriptWriter {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun write(script: List<String?>, scriptPath: String?) {
-        val writer = FileWriter(scriptPath)
+    fun write(script: List<String?>, scriptPath: Path) {
+        val writer = FileWriter(scriptPath.toFile())
         for (line in script) writer.write(line)
         writer.close()
     }

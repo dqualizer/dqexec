@@ -20,10 +20,10 @@ import java.util.logging.Logger
 @Component
 class ProcessLogger {
     private val logger = Logger.getGlobal()
+
     @Throws(IOException::class, InterruptedException::class)
-    fun log(process: Process, file: String?) {
+    fun log(process: Process, logFile: File) {
         val inputStream = process.inputStream
-        val logFile = File(file)
         val outputStream: OutputStream = FileOutputStream(logFile)
         IOUtils.copy(inputStream, outputStream)
         waitForProcess(process)

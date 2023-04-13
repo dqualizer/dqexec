@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component
 import poc.util.HostRetriever
 import poc.util.ProcessLogger
 import java.io.IOException
+import java.nio.file.Path
 import java.util.logging.Logger
 
 /**
@@ -93,12 +94,12 @@ class ConfigRunner {
      * @throws InterruptedException
      */
     @Throws(IOException::class, InterruptedException::class)
-    private fun runTest(scriptPath: String, testCounter: Int, runCounter: Int): Int {
+    private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
         val influxHost = hostRetriever!!.influxHost
         val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
         val process = Runtime.getRuntime().exec(command)
         val loggingPath = paths!!.getLogging(testCounter, runCounter)
-        processLogger!!.log(process, loggingPath)
+        processLogger!!.log(process, loggingPath.toFile())
         return process.exitValue()
     }
 }

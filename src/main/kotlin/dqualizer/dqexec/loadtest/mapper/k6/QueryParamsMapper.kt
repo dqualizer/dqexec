@@ -19,7 +19,7 @@ class QueryParamsMapper : k6Mapper {
         val queryParams = request!!.queryParams
         val maybeReference = queryParams.values.stream().findFirst()
         if (maybeReference.isEmpty) throw NoReferenceFoundException(queryParams)
-        val referencePath = paths!!.resourcePath + maybeReference.get()
+        val referencePath = paths!!.resourcePath.resolve(maybeReference.get())
         val queryParamsObject = reader!!.readFile(referencePath)
 
         return """

@@ -9,6 +9,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.lang.RuntimeException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
@@ -17,10 +18,10 @@ import java.nio.file.Paths
  */
 @Service
 class SafeFileReader {
-    fun readFile(path: String?): String {
+    fun readFile(path: Path): String {
         val text: String
         text = try {
-            Files.readString(Paths.get(path))
+            Files.readString(path)
         } catch (e: IOException) {
             throw RuntimeException(e)
         }

@@ -19,7 +19,7 @@ class PayloadMapper : k6Mapper {
         val payload = request!!.payload
         val maybeReference = payload.values.stream().findFirst()
         if (maybeReference.isEmpty) throw NoReferenceFoundException(payload)
-        val referencePath = paths!!.resourcePath + maybeReference.get()
+        val referencePath = paths!!.resourcePath.resolve( maybeReference.get())
         val payloadObject = reader!!.readFile(referencePath)
 
         return """
