@@ -16,7 +16,7 @@ class PayloadMapper(private val reader: SafeFileReader, private val paths: PathC
         val payload = request.payload
         val maybeReference = payload.values.stream().findFirst()
         if (maybeReference.isEmpty) throw NoReferenceFoundException(payload)
-        val referencePath = paths.resourcePath.resolve(maybeReference.get())
+        val referencePath = paths.getResourcesPath().resolve(maybeReference.get())
         val payloadObject = reader.readFile(referencePath)
 
         return """

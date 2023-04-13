@@ -14,7 +14,7 @@ class ParamsMapper(private val reader: SafeFileReader, private val paths: PathCo
         val params = request.params
         val maybeReference = params.values.stream().findFirst()
         if (maybeReference.isEmpty) return String.format("%sconst params = {}%s", K6Mapper.newLine, K6Mapper.newLine)
-        val referencePath = paths.resourcePath.resolve(maybeReference.get())
+        val referencePath = paths.getResourcesPath().resolve(maybeReference.get())
         val paramsObject = reader.readFile(referencePath)
         return String.format(
             "%sconst params = %s%s",

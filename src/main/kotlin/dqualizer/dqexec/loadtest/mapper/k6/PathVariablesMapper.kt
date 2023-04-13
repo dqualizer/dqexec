@@ -19,8 +19,8 @@ class PathVariablesMapper(private val reader: SafeFileReader, private val paths:
         val pathVariables = request.pathVariables
         val maybeReference = pathVariables.values.stream().findFirst()
         if (maybeReference.isEmpty) throw NoReferenceFoundException(pathVariables)
-        val referencePath = paths!!.resourcePath.resolve(maybeReference.get())
-        val pathVariablesString = reader!!.readFile(referencePath)
+        val referencePath = paths.getResourcesPath().resolve(maybeReference.get())
+        val pathVariablesString = reader.readFile(referencePath)
         val pathVariablesScript = String.format(
             "%sconst path_variables = %s",
             K6Mapper.newLine, pathVariablesString

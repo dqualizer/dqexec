@@ -16,7 +16,7 @@ class QueryParamsMapper(private val reader: SafeFileReader, private val paths: P
         val queryParams = request.queryParams
         val maybeReference = queryParams.values.stream().findFirst()
         if (maybeReference.isEmpty) throw NoReferenceFoundException(queryParams)
-        val referencePath = paths.resourcePath.resolve(maybeReference.get())
+        val referencePath = paths.getResourcesPath().resolve(maybeReference.get())
         val queryParamsObject = reader.readFile(referencePath)
 
         return """

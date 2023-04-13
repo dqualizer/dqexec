@@ -33,9 +33,9 @@ class HttpMapper(private val reader: SafeFileReader, private val paths: PathConf
         val pathVariables = request.pathVariables
         val maybeReference = pathVariables.values.stream().findFirst()
         if (maybeReference.isPresent) {
-            val referencePath = paths!!.resourcePath.resolve(maybeReference.get())
+            val referencePath = paths.getResourcesPath().resolve(maybeReference.get())
 
-            val pathVariablesString = reader!!.readFile(referencePath)
+            val pathVariablesString = reader.readFile(referencePath)
             try {
                 val node = ObjectMapper().readTree(pathVariablesString)
                 val variables = node.fieldNames()

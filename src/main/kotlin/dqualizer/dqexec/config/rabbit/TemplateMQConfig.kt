@@ -12,16 +12,15 @@ import org.springframework.context.annotation.Configuration
  */
 @Configuration
 class TemplateMQConfig {
-
-    @Bean
-    fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate? {
-        val rabbitTemplate = RabbitTemplate(connectionFactory)
-        rabbitTemplate.messageConverter = producerJackson2MessageConverter()
-        return rabbitTemplate
-    }
-
-    @Bean
-    fun producerJackson2MessageConverter(): Jackson2JsonMessageConverter {
-        return Jackson2JsonMessageConverter()
-    }
+//    @Bean
+//    fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate? {
+//        val rabbitTemplate = RabbitTemplate(connectionFactory)
+//        rabbitTemplate.messageConverter = producerJackson2MessageConverter()
+//        return rabbitTemplate
+//    }
+//
+//    @Bean
+//    fun producerJackson2MessageConverter(): Jackson2JsonMessageConverter {
+//        return Jackson2JsonMessageConverter()
+//    }
 }
