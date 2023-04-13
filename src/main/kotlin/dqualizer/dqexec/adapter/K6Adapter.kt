@@ -1,6 +1,6 @@
 package dqualizer.dqexec.adapter
 
-import dqualizer.dqexec.input.ConstantsLoader
+import dqualizer.dqexec.input.LoadTestingConstantsLoader
 import dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.K6Config
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.K6LoadTest
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class K6Adapter(
-    private val constantsLoader: ConstantsLoader,
+    private val loadTestingConstantsLoader: LoadTestingConstantsLoader,
     private val endpointAdapter: EndpointAdapter,
     private val stimulusAdapter: StimulusAdapter,
     private val loadtestConstants: LoadTestConstants

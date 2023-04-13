@@ -17,7 +17,7 @@ class ScriptWriter {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun write(script: List<String?>, scriptPath: Path) {
+    fun write(script: List<String>, scriptPath: Path) {
         val writer = FileWriter(scriptPath.toFile())
         for (line in script) writer.write(line)
         writer.close()

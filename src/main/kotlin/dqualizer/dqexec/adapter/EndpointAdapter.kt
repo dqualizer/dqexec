@@ -1,16 +1,13 @@
 package dqualizer.dqexec.adapter
 
 import dqualizer.dqexec.exception.UnknownTermException
-import org.springframework.beans.factory.annotation.Autowired
-import dqualizer.dqexec.input.ConstantsLoader
 import dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Checks
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.Endpoint
 import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.ResponseMeasure
 import org.springframework.stereotype.Component
-import java.util.LinkedHashSet
-import java.util.LinkedList
+import java.util.*
 import java.util.regex.Pattern
 
 /**

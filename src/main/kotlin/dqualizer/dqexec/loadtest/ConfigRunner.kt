@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.config.PathConfig
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.loadtest.mapper.k6.ScriptMapper
+import dqualizer.dqexec.util.HostRetriever
+import dqualizer.dqexec.util.ProcessLogger
 import dqualizer.dqlang.archive.k6configurationrunner.dqlang.Config
-import lombok.RequiredArgsConstructor
-import org.springframework.stereotype.Component
-import poc.util.HostRetriever
-import poc.util.ProcessLogger
+import org.springframework.amqp.rabbit.annotation.RabbitListener
+import org.springframework.messaging.handler.annotation.Payload
+import org.springframework.stereotype.Service
 import java.io.IOException
 import java.nio.file.Path
 import java.util.logging.Logger
@@ -20,22 +21,36 @@ import java.util.logging.Logger
  * 3. For every execution the k6 console log will be written to text file
  * 4. After one execution, the result metrics will be exported to InfluxDB
  */
-@Component
-@RequiredArgsConstructor
-class ConfigRunner {
+@Service
+class ConfigRunner(
+    private val processLogger: ProcessLogger,
+    private val writer: ScriptWriter,
+    private val mapper: ScriptMapper,
+    private val hostRetriever: HostRetriever,
+    private val paths: PathConfig,
+    private val objectMapper: ObjectMapper
+) {
     private val logger = Logger.getLogger(this.javaClass.name)
-    private val paths: PathConfig? = null
-    private val hostRetriever: HostRetriever? = null
-    private val mapper: ScriptMapper? = null
-    private val writer: ScriptWriter? = null
-    private val processLogger: ProcessLogger? = null
+
+    /**
+     * Import the k6 configuration and start the configuration runner
+     * @param config An inofficial k6 configuration
+     */
+    @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.k6}"])
+    fun receive(@Payload config: String) {
+        logger.info("Received k6 configuration\n" + config)
+
+        val parsedAdaptedLoadTestConfig = objectMapper.readValue(config, Config::class.java)
+        start(parsedAdaptedLoadTestConfig)
+    }
+
 
     /**
      * Start the configuration-runner
      *
      * @param config Received inofficial k6-configuration
      */
-    fun start(config: Config) {
+    private fun start(config: Config) {
         logger.info("### LOAD TEST CONFIGURATION RECEIVED ###")
         try {
             this.run(config)
@@ -59,15 +74,15 @@ class ConfigRunner {
         logger.info(om.writeValueAsString(config))
         val localBaseURL = config.baseURL
         //If config-runner runs inside docker, localhost can´t be used
-        val baseURL = localBaseURL.replace("127.0.0.1", hostRetriever!!.aPIHost!!)
+        val baseURL = localBaseURL.replace("127.0.0.1", hostRetriever.APIHost!!)
         val loadTests = config.loadTests
         var testCounter = 1
 
         //iterate through all loadtests inside the configuration
         for (loadTest in loadTests) {
-            val script = mapper!!.getScript(baseURL, loadTest)
-            val scriptPath = paths!!.getScriptFilePath(testCounter)
-            writer!!.write(script, scriptPath)
+            val script = mapper.getScript(baseURL, loadTest)
+            val scriptPath = paths.getScriptFilePath(testCounter)
+            writer.write(script, scriptPath)
             logger.info("### SCRIPT $testCounter WAS CREATED ###")
             val repetition = loadTest.repetition
             var runCounter = 1
@@ -95,11 +110,11 @@ class ConfigRunner {
      */
     @Throws(IOException::class, InterruptedException::class)
     private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
-        val influxHost = hostRetriever!!.influxHost
+        val influxHost = hostRetriever.influxHost
         val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
         val process = Runtime.getRuntime().exec(command)
-        val loggingPath = paths!!.getLogFilePath(testCounter, runCounter)
-        processLogger!!.log(process, loggingPath.toFile())
+        val loggingPath = paths.getLogFilePath(testCounter, runCounter)
+        processLogger.log(process, loggingPath.toFile())
         return process.exitValue()
     }
 }

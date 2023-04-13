@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
  * Adapts the stimulus to a k6 'options' object
  */
 @Component
-class StimulusAdapter(private val loadtestConstants: LoadTestConstants) {
+class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
 
     /**
      * Create a k6 'options' objects based on the stimulus for the loadtest
@@ -53,7 +53,7 @@ class StimulusAdapter(private val loadtestConstants: LoadTestConstants) {
      */
     fun getLoadPeakScenario(stimulus: Stimulus): Scenario {
 
-        val loadPeak = loadtestConstants.loadProfile.loadPeak
+        val loadPeak = loadTestConstants.loadProfile.loadPeak
 
         val highestLoad = stimulus.highestLoad
         val target: Int = when (PeakHeight.valueOf(highestLoad)) {
@@ -114,7 +114,7 @@ class StimulusAdapter(private val loadtestConstants: LoadTestConstants) {
      * @return A k6 'scenario' object with increasing virtual user ramp-up
      */
     fun getLoadIncreaseScenario(stimulus: Stimulus): Scenario {
-        val loadIncrease = loadtestConstants.loadProfile.loadIncrease
+        val loadIncrease = loadTestConstants.loadProfile.loadIncrease
 
         val typeOfIncrease = stimulus.typeOfIncrease
         val exponent: Int = when (TypeOfIncrease.valueOf(typeOfIncrease)) {
@@ -184,7 +184,7 @@ class StimulusAdapter(private val loadtestConstants: LoadTestConstants) {
      * @return A k6 'scenario' object with constant virtual users
      */
     fun getConstantLoadScenario(stimulus: Stimulus): Scenario {
-        val constantLoad = loadtestConstants.loadProfile.constantLoad
+        val constantLoad = loadTestConstants.loadProfile.constantLoad
 
         val baseLoad = stimulus.baseLoad
         val vus: Int = when (BaseLoad.valueOf(baseLoad)) {

@@ -6,18 +6,19 @@ import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 /**
  * An interface for all mappers necessary for creating a k6-script
  */
-interface k6Mapper {
+interface K6Mapper {
     /**
      * Map one part of request object to a String, which can be written inside a Javascript file
      * @param request
      * @return String that can be written inside a Javascript file
      */
-    fun map(request: Request?): String?
+    fun map(request: Request): String
 
     companion object {
-        @kotlin.jvm.JvmField
+        @JvmField
         val newLine = System.lineSeparator()
-        @kotlin.jvm.JvmField
+
+        @JvmField
         val objectMapper = ObjectMapper()
     }
 }

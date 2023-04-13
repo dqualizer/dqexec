@@ -7,14 +7,14 @@ import org.springframework.stereotype.Component
  * Maps the expected responses to Javascript-Code
  */
 @Component
-class ChecksMapper : k6Mapper {
-    override fun map(request: Request?): String? {
+class ChecksMapper : K6Mapper {
+    override fun map(request: Request): String {
         val checksBuilder = StringBuilder()
-        val checks = request!!.checks
+        val checks = request.checks
         val duration = checks.duration
         val durationScript = String.format(
             "\t'Duration < %d': x => x.timings && x.timings.duration < %d,%s",
-            duration, duration, k6Mapper.newLine
+            duration, duration, K6Mapper.newLine
         )
         checksBuilder.append(durationScript)
         val type = request.type
@@ -26,12 +26,12 @@ class ChecksMapper : k6Mapper {
         }
         val statusScript = String.format(
             "\t'%s status was expected': x => x.status && (%sfalse),%s",
-            type, statusBuilder, k6Mapper.newLine
+            type, statusBuilder, K6Mapper.newLine
         )
         checksBuilder.append(statusScript)
         return String.format(
             "check(response, {%s%s});%s",
-            k6Mapper.newLine, checksBuilder, k6Mapper.newLine
+            K6Mapper.newLine, checksBuilder, K6Mapper.newLine
         )
     }
 }

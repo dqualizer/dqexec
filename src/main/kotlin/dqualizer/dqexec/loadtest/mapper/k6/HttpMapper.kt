@@ -6,7 +6,6 @@ import dqualizer.dqexec.config.PathConfig
 import dqualizer.dqexec.exception.UnknownRequestTypeException
 import dqualizer.dqexec.util.SafeFileReader
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
-import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -14,17 +13,15 @@ import java.util.*
  * Maps the specified request to a k6 'default function()'
  */
 @Component
-@RequiredArgsConstructor
-class HttpMapper : k6Mapper {
-    private val paths: PathConfig? = null
-    private val reader: SafeFileReader? = null
-    override fun map(request: Request?): String? {
+class HttpMapper(private val reader: SafeFileReader, private val paths: PathConfig) : K6Mapper {
+
+    override fun map(request: Request): String {
         val httpBuilder = StringBuilder()
         httpBuilder.append(exportFunctionScript())
-        val path = request!!.path
+        val path = request.path
         val type = request.type.uppercase(Locale.getDefault())
         val method = when
-            (type) {
+                             (type) {
             "GET" -> "get"
             "POST" -> "post"
             "PUT" -> "put"
@@ -71,7 +68,7 @@ class HttpMapper : k6Mapper {
         }
         val httpRequest = java.lang.String.format(
             "%slet response = http.%s(baseURL + `%s`%s, params);%s",
-            k6Mapper.newLine, method, path, extraParams, k6Mapper.newLine
+            K6Mapper.newLine, method, path, extraParams, K6Mapper.newLine
         )
         httpBuilder.append(httpRequest)
         return httpBuilder.toString()
@@ -80,21 +77,21 @@ class HttpMapper : k6Mapper {
     private fun exportFunctionScript(): String {
         return String.format(
             "%sexport default function() {%s",
-            k6Mapper.newLine, k6Mapper.newLine
+            K6Mapper.newLine, K6Mapper.newLine
         )
     }
 
     private fun randomPathVaribleScript(variable: String): String {
         return String.format(
             "%slet %s = %s_array[Math.floor(Math.random() * %s_array.length)];%s",
-            k6Mapper.newLine, variable, variable, variable, k6Mapper.newLine
+            K6Mapper.newLine, variable, variable, variable, K6Mapper.newLine
         )
     }
 
     private fun randomPayloadScript(): String {
         return String.format(
             "%slet payload = payloads[Math.floor(Math.random() * payloads.length)];%s",
-            k6Mapper.newLine, k6Mapper.newLine
+            K6Mapper.newLine, K6Mapper.newLine
         )
     }
 

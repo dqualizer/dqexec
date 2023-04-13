@@ -12,11 +12,10 @@ import org.springframework.core.io.Resource
  * Load a local file with load test constants
  */
 @Configuration
-class ConstantsLoader(
+class LoadTestingConstantsLoader(
     private val objectMapper: ObjectMapper,
-    @Value("classpath:constant\\constants.json") private val loadTestingConstants: Resource
+    @Value("classpath:constant/constants.json") private val loadTestingConstants: Resource
 ) {
-
     @Bean
     fun loadTestConstants(): LoadTestConstants {
         try {

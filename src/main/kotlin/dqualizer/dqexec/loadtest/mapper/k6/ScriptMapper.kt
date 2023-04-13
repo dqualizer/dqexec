@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.Options
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 import dqualizer.dqlang.archive.k6configurationrunner.dqlang.LoadTest
-import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -12,14 +11,14 @@ import java.util.*
  * Maps the one loadtest from the inofficial k6-configuration to k6-script
  */
 @Component
-@RequiredArgsConstructor
-class ScriptMapper : k6Mapper {
-    private val paramsMapper: ParamsMapper? = null
-    private val payloadMapper: PayloadMapper? = null
-    private val queryParamsMapper: QueryParamsMapper? = null
-    private val pathVariablesMapper: PathVariablesMapper? = null
-    private val httpMapper: HttpMapper? = null
-    private val checksMapper: ChecksMapper? = null
+class ScriptMapper(
+    private val paramsMapper: ParamsMapper,
+    private val payloadMapper: PayloadMapper,
+    private val queryParamsMapper: QueryParamsMapper,
+    private val httpMapper: HttpMapper,
+    private val checksMapper: ChecksMapper,
+    private val pathVariablesMapper: PathVariablesMapper
+) : K6Mapper {
 
     /**
      * Map one loadtest to a k6-script
@@ -30,8 +29,8 @@ class ScriptMapper : k6Mapper {
      * @throws JsonProcessingException
      */
     @Throws(JsonProcessingException::class)
-    fun getScript(baseURL: String, loadTest: LoadTest): List<String?> {
-        val script: MutableList<String?> = LinkedList()
+    fun getScript(baseURL: String, loadTest: LoadTest): List<String> {
+        val script: MutableList<String> = LinkedList()
         val options = loadTest.options
         script.add(startScript(baseURL, options))
         val request = loadTest.request
@@ -41,27 +40,27 @@ class ScriptMapper : k6Mapper {
         return script
     }
 
-    override fun map(request: Request?): String? {
+    override fun map(request: Request): String {
         val requestBuilder = StringBuilder()
-        val paramsScript = paramsMapper!!.map(request)
+        val paramsScript = paramsMapper.map(request)
         requestBuilder.append(paramsScript)
-        if (!request!!.payload.isEmpty()) {
-            val payloadScript = payloadMapper!!.map(request)
+        if (request.payload.isNotEmpty()) {
+            val payloadScript = payloadMapper.map(request)
             requestBuilder.append(payloadScript)
         }
-        if (!request.queryParams.isEmpty()) {
-            val queryParamsScript = queryParamsMapper!!.map(request)
+        if (request.queryParams.isNotEmpty()) {
+            val queryParamsScript = queryParamsMapper.map(request)
             requestBuilder.append(queryParamsScript)
         }
-        if (!request.pathVariables.isEmpty()) {
-            val pathVariablesScript = pathVariablesMapper!!.map(request)
+        if (request.pathVariables.isNotEmpty()) {
+            val pathVariablesScript = pathVariablesMapper.map(request)
             requestBuilder.append(pathVariablesScript)
         }
-        val httpScript = httpMapper!!.map(request)
+        val httpScript = httpMapper.map(request)
         requestBuilder.append(httpScript)
         requestBuilder.append(trackDataPerURLScript())
         if (request.checks != null) {
-            val checksScript = checksMapper!!.map(request)
+            val checksScript = checksMapper.map(request)
             requestBuilder.append(checksScript)
         }
         requestBuilder.append(sleepScript())
@@ -78,9 +77,9 @@ class ScriptMapper : k6Mapper {
      */
     @Throws(JsonProcessingException::class)
     private fun startScript(baseURL: String, options: Options): String {
-        val optionsString = k6Mapper.objectMapper.writeValueAsString(options)
+        val optionsString = K6Mapper.objectMapper.writeValueAsString(options)
         val trackDataPerURL = trackDataPerURLInitScript()
-                return """
+        return """
                 import http from 'k6/http';
                 import {URLSearchParams} from 'https://jslib.k6.io/url/1.0.0/index.js';
                 import {check, sleep} from 'k6';
@@ -117,7 +116,7 @@ class ScriptMapper : k6Mapper {
     }
 
     private fun trackDataPerURLScript(): String {
-        return String.format("trackDataMetricsPerURL(response);%s", k6Mapper.newLine)
+        return String.format("trackDataMetricsPerURL(response);%s", K6Mapper.newLine)
     }
 
     private fun sleepScript(): String {
@@ -125,7 +124,7 @@ class ScriptMapper : k6Mapper {
         val duration = random.nextInt(5) + 1
         return String.format(
             "sleep(%d);%s",
-            duration, k6Mapper.newLine
+            duration, K6Mapper.newLine
         )
     }
 }

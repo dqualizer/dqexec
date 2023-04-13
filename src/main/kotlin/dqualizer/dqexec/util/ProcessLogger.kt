@@ -1,15 +1,11 @@
-package poc.util
+package dqualizer.dqexec.util
 
 import org.apache.tomcat.util.http.fileupload.IOUtils
 import org.springframework.stereotype.Component
-import kotlin.Throws
-import java.io.IOException
-import java.lang.InterruptedException
-import java.lang.Process
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.OutputStream
-import java.lang.RuntimeException
 import java.nio.charset.StandardCharsets
 import java.util.logging.Logger
 
@@ -40,9 +36,11 @@ class ProcessLogger {
 
     @Throws(InterruptedException::class)
     private fun waitForProcess(process: Process) {
+        println()
         while (process.isAlive) {
-            Thread.sleep(2000)
-            println("...")
+            Thread.sleep(1000)
+            print(".")
         }
+        println(".")
     }
 }
