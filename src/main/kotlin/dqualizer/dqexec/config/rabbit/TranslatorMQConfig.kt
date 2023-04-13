@@ -24,7 +24,7 @@ class TranslatorMQConfig {
 
     @Bean
     @Qualifier("loadtest")
-    fun loadTestQueue(@Value("\${dqualizer.rabbitmq.queues.loadtest:loadtest") loadtestQueue: String?): Queue {
+    fun loadTestQueue(@Value("\${dqualizer.rabbitmq.queues.loadtest:translator-loadtest}") loadtestQueue: String?): Queue {
         return Queue(loadtestQueue, false)
     }
 
