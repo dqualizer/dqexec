@@ -55,10 +55,10 @@ RUN gradle --init-script gradle/init.gradle assemble
 
 ### ----------- K6 Installer ----------- ###
 # Copied xk6-Dockerfile from: https://github.com/grafana/xk6-output-influxdb/blob/main/Dockerfile
-FROM golang:1.17-alpine as k6
+FROM golang:1.20-alpine as k6
 WORKDIR $GOPATH/src/go.k6.io/k6
 
-RUN apk --no-cache add git && go install go.k6.io/xk6/cmd/xk6@latest
+RUN apk --no-cache add git && go install go.k6.io/xk6/cmd/xk6@v0.9.0
 RUN xk6 build --with github.com/grafana/xk6-output-influxdb --output /tmp/k6
 
 
