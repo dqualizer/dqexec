@@ -2,7 +2,7 @@ package dqualizer.dqexec.loadtest.mapper.k6
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import dqualizer.dqexec.config.PathConfig
+import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.UnknownRequestTypeException
 import dqualizer.dqexec.util.SafeFileReader
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
@@ -13,7 +13,7 @@ import java.util.*
  * Maps the specified request to a k6 'default function()'
  */
 @Component
-class HttpMapper(private val reader: SafeFileReader, private val paths: PathConfig) : K6Mapper {
+class HttpMapper(private val reader: SafeFileReader, private val paths: ResourcePaths) : K6Mapper {
 
     override fun map(request: Request): String {
         val httpBuilder = StringBuilder()

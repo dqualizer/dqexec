@@ -1,7 +1,7 @@
 package dqualizer.dqexec.loadtest
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dqualizer.dqexec.config.PathConfig
+import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.loadtest.mapper.k6.ScriptMapper
 import dqualizer.dqexec.util.HostRetriever
@@ -24,10 +24,10 @@ import java.util.logging.Logger
 @Service
 class ConfigRunner(
     private val processLogger: ProcessLogger,
-    private val writer: ScriptWriter,
+    private val writer: MultiLineFileWriter,
     private val mapper: ScriptMapper,
     private val hostRetriever: HostRetriever,
-    private val paths: PathConfig,
+    private val paths: ResourcePaths,
     private val objectMapper: ObjectMapper
 ) {
     private val logger = Logger.getLogger(this.javaClass.name)
@@ -37,11 +37,11 @@ class ConfigRunner(
      * @param config An inofficial k6 configuration
      */
     @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.k6}"])
-    fun receive(@Payload config: String) {
+    fun receive(@Payload config: Config) {
         logger.info("Received k6 configuration\n" + config)
 
-        val parsedAdaptedLoadTestConfig = objectMapper.readValue(config, Config::class.java)
-        start(parsedAdaptedLoadTestConfig)
+//        val parsedAdaptedLoadTestConfig = objectMapper.readValue(config, Config::class.java)
+        start(config)
     }
 
 
@@ -82,7 +82,7 @@ class ConfigRunner(
         for (loadTest in loadTests) {
             val script = mapper.getScript(baseURL, loadTest)
             val scriptPath = paths.getScriptFilePath(testCounter)
-            writer.write(script, scriptPath)
+            writer.write(script, scriptPath.toFile())
             logger.info("### SCRIPT $testCounter WAS CREATED ###")
             val repetition = loadTest.repetition
             var runCounter = 1

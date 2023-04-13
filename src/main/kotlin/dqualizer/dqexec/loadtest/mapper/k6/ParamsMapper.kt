@@ -1,6 +1,6 @@
 package dqualizer.dqexec.loadtest.mapper.k6
 
-import dqualizer.dqexec.config.PathConfig
+import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.util.SafeFileReader
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 import org.springframework.stereotype.Component
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
  * Maps the request-parameter to Javascript-Code
  */
 @Component
-class ParamsMapper(private val reader: SafeFileReader, private val paths: PathConfig) : K6Mapper {
+class ParamsMapper(private val reader: SafeFileReader, private val paths: ResourcePaths) : K6Mapper {
     override fun map(request: Request): String {
         val params = request.params
         val maybeReference = params.values.stream().findFirst()

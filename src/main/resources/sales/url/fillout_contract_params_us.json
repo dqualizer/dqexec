@@ -1,0 +1,32 @@
+{
+  "params": [
+    [
+      ["contractNumber", "5"],
+      ["lessee", "Tim"],
+      ["car", "blueCar"],
+      ["price_amount", 4000],
+      ["price_currency", "USD"]
+    ],
+    [
+      ["contractNumber", "6"],
+      ["lessee", "Tom"],
+      ["car", "redCar"],
+      ["price_amount", 5000],
+      ["price_currency", "USD"]
+    ],
+    [
+      ["contractNumber", "7"],
+      ["lessee", "Jim"],
+      ["car", "blueCar"],
+      ["price_amount", 4000],
+      ["price_currency", "USD"]
+    ],
+    [
+      ["contractNumber", "8"],
+      ["lessee", "John"],
+      ["car", "blackCar"],
+      ["price_amount", 4500],
+      ["price_currency", "USD"]
+    ]
+  ]
+}

@@ -28,11 +28,11 @@ class K6AdaptationService(
      */
     //TODO: extract and make generic for different load types
     @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.loadtest}"])
-    private fun receive(@Payload loadTestConfig: String) {
+    private fun receive(@Payload loadTestConfig: LoadTestConfig) {
         log.info("Received loadtest configuration\n$loadTestConfig")
 
-        val parsedConfig = objectMapper.readValue(loadTestConfig, LoadTestConfig::class.java)
-        start(parsedConfig)
+//        val parsedConfig = objectMapper.readValue(loadTestConfig, LoadTestConfig::class.java)
+        start(loadTestConfig)
     }
 
     private fun start(loadTestConfig: LoadTestConfig) {
