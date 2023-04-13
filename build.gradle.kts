@@ -91,7 +91,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:$spring_boot_starter_version")
     testImplementation("org.springframework.amqp:spring-rabbit-test:3.0.2")
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
-    testImplementation("org.testcontainers:rabbitmq:1.17.6")
+    testImplementation("org.testcontainers:rabbitmq:1.18.0")
 }
 
 dependencyManagement {

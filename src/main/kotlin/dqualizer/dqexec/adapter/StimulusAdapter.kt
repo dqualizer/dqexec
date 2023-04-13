@@ -1,27 +1,16 @@
 package dqualizer.dqexec.adapter
 
-import dqualizer.dqexec.exception.UnknownTermException
-import dqualizer.dqexec.input.ConstantsLoader
 import dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
-import dqualizer.dqlang.archive.k6adapter.dqlang.constants.loadprofile.ConstantLoad
-import dqualizer.dqlang.archive.k6adapter.dqlang.constants.loadprofile.LoadIncrease
-import dqualizer.dqlang.archive.k6adapter.dqlang.constants.loadprofile.LoadPeak
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.Stage
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.*
 import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.Stimulus
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-
-import java.util.LinkedHashSet
 
 /**
  * Adapts the stimulus to a k6 'options' object
  */
 @Component
-class StimulusAdapter {
-
-    @Autowired
-    private val constantsLoader: ConstantsLoader? = null
+class StimulusAdapter(private val loadtestConstants: LoadTestConstants) {
 
     /**
      * Create a k6 'options' objects based on the stimulus for the loadtest
@@ -31,20 +20,18 @@ class StimulusAdapter {
      */
     fun adaptStimulus(stimulus: Stimulus): Options {
         val loadProfile = stimulus.loadProfile
-        val scenario: Scenario
 
-        when (LoadProfileType.valueOf(loadProfile)) {
+        val scenario: Scenario = when (LoadProfileType.valueOf(loadProfile)) {
             LoadProfileType.LOAD_PEAK -> {
-                scenario = getLoadPeakScenario(stimulus)
+                getLoadPeakScenario(stimulus)
             }
+
             LoadProfileType.LOAD_INCREASE -> {
-                scenario = getLoadIncreaseScenario(stimulus)
+                getLoadIncreaseScenario(stimulus)
             }
+
             LoadProfileType.CONSTANT_LOAD -> {
-                scenario = getConstantLoadScenario(stimulus)
-            }
-            else -> {
-                throw UnknownTermException("Unknown load profile type: $loadProfile")
+                getConstantLoadScenario(stimulus)
             }
         }
         val scenarios = Scenarios(scenario)
@@ -65,40 +52,36 @@ class StimulusAdapter {
      * @return A k6 'scenario' object with virtual user ramp-up
      */
     fun getLoadPeakScenario(stimulus: Stimulus): Scenario {
-        val constants = constantsLoader!!.load()
-        val loadPeak = constants.loadProfile.loadPeak
+
+        val loadPeak = loadtestConstants.loadProfile.loadPeak
 
         val highestLoad = stimulus.highestLoad
-        val target: Int
-        target = when (PeakHeight.valueOf(highestLoad)) {
+        val target: Int = when (PeakHeight.valueOf(highestLoad)) {
             PeakHeight.HIGH -> {
                 loadPeak.high
             }
+
             PeakHeight.VERY_HIGH -> {
                 loadPeak.veryHigh
             }
+
             PeakHeight.EXTREMELY_HIGH -> {
                 loadPeak.extremelyHigh
-            }
-            else -> {
-                throw UnknownTermException("Unknown peak height: $highestLoad")
             }
         }
 
         val timeToHighestLoad = stimulus.timeToHighestLoad
-        val duration: String
-        when (TimeToHighestLoad.valueOf(timeToHighestLoad)) {
+        val duration: String = when (TimeToHighestLoad.valueOf(timeToHighestLoad)) {
             TimeToHighestLoad.SLOW -> {
-                duration = loadPeak.slow
+                loadPeak.slow
             }
+
             TimeToHighestLoad.FAST -> {
-                duration = loadPeak.fast
+                loadPeak.fast
             }
+
             TimeToHighestLoad.VERY_FAST -> {
-                duration = loadPeak.veryFast
-            }
-            else -> {
-                throw UnknownTermException("Unknown time to highest load: $timeToHighestLoad")
+                loadPeak.veryFast
             }
         }
         val coolDownDuration = loadPeak.coolDownDuration
@@ -131,23 +114,20 @@ class StimulusAdapter {
      * @return A k6 'scenario' object with increasing virtual user ramp-up
      */
     fun getLoadIncreaseScenario(stimulus: Stimulus): Scenario {
-        val constants = constantsLoader!!.load()
-        val loadIncrease = constants.loadProfile.loadIncrease
+        val loadIncrease = loadtestConstants.loadProfile.loadIncrease
 
         val typeOfIncrease = stimulus.typeOfIncrease
-        val exponent: Int
-        when (TypeOfIncrease.valueOf(typeOfIncrease)) {
+        val exponent: Int = when (TypeOfIncrease.valueOf(typeOfIncrease)) {
             TypeOfIncrease.CUBIC -> {
-                exponent = loadIncrease.cubic
+                loadIncrease.cubic
             }
+
             TypeOfIncrease.QUADRATIC -> {
-                exponent = loadIncrease.quadratic
+                loadIncrease.quadratic
             }
+
             TypeOfIncrease.LINEAR -> {
-                exponent = loadIncrease.linear
-            }
-            else -> {
-                throw UnknownTermException("Unknown type of increase: $typeOfIncrease")
+                loadIncrease.linear
             }
         }
 
@@ -204,23 +184,20 @@ class StimulusAdapter {
      * @return A k6 'scenario' object with constant virtual users
      */
     fun getConstantLoadScenario(stimulus: Stimulus): Scenario {
-        val constants = constantsLoader!!.load()
-        val constantLoad = constants.loadProfile.constantLoad
+        val constantLoad = loadtestConstants.loadProfile.constantLoad
 
         val baseLoad = stimulus.baseLoad
-        val vus: Int
-        when (BaseLoad.valueOf(baseLoad)) {
+        val vus: Int = when (BaseLoad.valueOf(baseLoad)) {
             BaseLoad.LOW -> {
-                vus = constantLoad.low
+                constantLoad.low
             }
+
             BaseLoad.MEDIUM -> {
-                vus = constantLoad.medium
+                constantLoad.medium
             }
+
             BaseLoad.HIGH -> {
-                vus = constantLoad.high
-            }
-            else -> {
-                throw UnknownTermException("Unknown base load: $baseLoad")
+                constantLoad.high
             }
         }
 

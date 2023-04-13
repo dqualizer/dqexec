@@ -35,14 +35,7 @@ jobs:
         with:
           arguments: |
             --init-script gradle/init.gradle
-            assemble
-
-      - name: Test with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: |
-            --init-script gradle/init.gradle
-            test        
+            build      
 
       - name: Prepare Release
         if : github.event_name == 'push' && github.ref == 'refs/heads/main'

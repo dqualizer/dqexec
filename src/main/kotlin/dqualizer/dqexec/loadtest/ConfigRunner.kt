@@ -66,7 +66,7 @@ class ConfigRunner {
         //iterate through all loadtests inside the configuration
         for (loadTest in loadTests) {
             val script = mapper!!.getScript(baseURL, loadTest)
-            val scriptPath = paths!!.getScript(testCounter)
+            val scriptPath = paths!!.getScriptFilePath(testCounter)
             writer!!.write(script, scriptPath)
             logger.info("### SCRIPT $testCounter WAS CREATED ###")
             val repetition = loadTest.repetition
@@ -98,7 +98,7 @@ class ConfigRunner {
         val influxHost = hostRetriever!!.influxHost
         val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
         val process = Runtime.getRuntime().exec(command)
-        val loggingPath = paths!!.getLogging(testCounter, runCounter)
+        val loggingPath = paths!!.getLogFilePath(testCounter, runCounter)
         processLogger!!.log(process, loggingPath.toFile())
         return process.exitValue()
     }

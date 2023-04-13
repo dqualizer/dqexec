@@ -3,6 +3,7 @@ package dqualizer.dqexec.adapter
 import dqualizer.dqexec.exception.UnknownTermException
 import org.springframework.beans.factory.annotation.Autowired
 import dqualizer.dqexec.input.ConstantsLoader
+import dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Checks
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.Endpoint
@@ -16,7 +17,7 @@ import java.util.regex.Pattern
  * Adapts one endpoint to a Request object
  */
 @Component
-class EndpointAdapter(private val constantsLoader: ConstantsLoader) {
+class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
 
     /**
      * @param endpoint        Endpoint for one loadtest
@@ -66,8 +67,7 @@ class EndpointAdapter(private val constantsLoader: ConstantsLoader) {
      * @return The expected answer duration for this request
      */
     private fun getDuration(responseMeasure: ResponseMeasure): Int {
-        val constants = constantsLoader!!.load()
-        val responseTime = constants.responseTime
+        val responseTime = loadtestConstants.responseTime
         val responseTimeValue = responseMeasure.responseTime
         return when (responseTimeValue) {
             "SATISFIED" -> responseTime.satisfied
