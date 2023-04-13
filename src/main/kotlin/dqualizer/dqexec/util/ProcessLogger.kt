@@ -19,6 +19,10 @@ class ProcessLogger {
 
     @Throws(IOException::class, InterruptedException::class)
     fun log(process: Process, logFile: File) {
+        //create log file and parent directories if necessary
+        logFile.parentFile.mkdirs()
+        logFile.createNewFile()
+
         val inputStream = process.inputStream
         val outputStream: OutputStream = FileOutputStream(logFile)
         IOUtils.copy(inputStream, outputStream)
