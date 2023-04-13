@@ -28,7 +28,13 @@ class K6MQConfig {
 
     @Bean
     @Qualifier("k6")
-    fun k6Binding(k6Queue: Queue?, k6Exchange: TopicExchange?): Binding {
+    fun k6POSTBinding(k6Queue: Queue?, k6Exchange: TopicExchange?): Binding {
         return BindingBuilder.bind(k6Queue).to(k6Exchange).with("POST")
+    }
+
+    @Bean
+    @Qualifier("k6")
+    fun k6GETBinding(k6Queue: Queue?, k6Exchange: TopicExchange?): Binding {
+        return BindingBuilder.bind(k6Queue).to(k6Exchange).with("GET")
     }
 }

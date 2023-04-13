@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val spring_boot_starter_version = "3.0.4"
-val dqlang_version = "0.2.0"
+val dqlang_version = "0.2.1"
 
 plugins {
     id("org.springframework.boot") version "3.1.0-M2"
@@ -11,6 +11,22 @@ plugins {
 
     id("net.researchgate.release") version "3.0.2"
     id("maven-publish")
+    id("idea")
+    id("eclipse")
+}
+
+idea { //allows downloading sources and javadoc for IntelliJ with gradle cleanIdea idea
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
+}
+
+eclipse {
+    classpath {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
 }
 
 group = "dqualizer"
