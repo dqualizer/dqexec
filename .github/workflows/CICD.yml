@@ -3,6 +3,9 @@ name: CI/CD Pipeline of dqexec
 on:
   push:
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
 jobs:
   build_and_test:
     name: Build, Test and Publish
@@ -52,8 +55,6 @@ jobs:
 
       - name: Distribute to GitHub Package Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: gradle/gradle-build-action@v2
         with:
           arguments: |

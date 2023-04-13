@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest
 class DqexecApplicationTests {
 
 	@Test
-	fun contextLoads() {
+	fun contextLoadsTest() {
+		
 	}
 
 }
