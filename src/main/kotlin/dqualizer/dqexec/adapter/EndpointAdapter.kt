@@ -16,9 +16,7 @@ import java.util.regex.Pattern
  * Adapts one endpoint to a Request object
  */
 @Component
-class EndpointAdapter {
-    @Autowired
-    private val constantsLoader: ConstantsLoader? = null
+class EndpointAdapter(private val constantsLoader: ConstantsLoader) {
 
     /**
      * @param endpoint        Endpoint for one loadtest
