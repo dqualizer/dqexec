@@ -10,11 +10,13 @@ dqualizer:
     exchanges:
       loadtest: translator-loadtest
       k6: loadtest-k6
-  influx:
-#    enabled: true
-    host: localhost
+
+
 
   dqexec:
+    influx:
+      host: localhost
+    #    enabled: true
     export:
       k6:
         influx:

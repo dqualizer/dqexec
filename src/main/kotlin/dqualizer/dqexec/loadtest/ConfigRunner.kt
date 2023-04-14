@@ -30,7 +30,7 @@ class ConfigRunner(
     private val paths: ResourcePaths,
     private val k6ExecutionConfiguration: K6ExecutorConfiguration,
     @Value("\${api.host:127.0.0.1}") private val APIHost: String,
-    @Value("\${dqualizer.influx.host:localhost}") private val influxHost: String,
+    @Value("\${dqualizer.dqexec.influx.host:localhost}") private val influxHost: String,
 ) {
     private val logger = Logger.getLogger(this.javaClass.name)
 
@@ -113,7 +113,7 @@ class ConfigRunner(
      */
     @Throws(IOException::class, InterruptedException::class)
     private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
-        val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
+        val command = "k6 -v run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
 
         val currentEnv = System.getenv().toMutableMap()
         currentEnv["K6_INFLUXDB_ORGANIZATION"] = k6ExecutionConfiguration.influxdbOrganization
