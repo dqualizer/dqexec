@@ -21,6 +21,6 @@ class QueryParamsMapper(private val paths: ResourcePaths) : K6Mapper {
                 const queryParams = %s
                 const searchParams = queryParams['params'];
 
-                """.format(queryParamsObject);
+                """.format(queryParamsObject)
     }
 }

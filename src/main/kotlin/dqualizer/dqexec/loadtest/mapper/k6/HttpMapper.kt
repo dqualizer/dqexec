@@ -19,7 +19,7 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
         httpBuilder.append(exportFunctionScript())
         val path = request.path
         val type = request.type.uppercase(Locale.getDefault())
-        val method = when(type) {
+        val method = when (type) {
             "GET" -> "get"
             "POST" -> "post"
             "PUT" -> "put"
@@ -95,6 +95,6 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
         return """
                 let currentSearchParams = searchParams[Math.floor(Math.random() * searchParams.length)];
                 let urlSearchParams = new URLSearchParams(currentSearchParams);
-                """;
+                """
     }
 }

@@ -21,6 +21,6 @@ class PayloadMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
                 const payloadData = %s
                 const payloads = payloadData['payloads'];
 
-                """.format(payloadObject);
+                """.format(payloadObject)
     }
 }
