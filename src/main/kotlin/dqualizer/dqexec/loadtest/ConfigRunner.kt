@@ -1,6 +1,7 @@
 package dqualizer.dqexec.loadtest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import dqualizer.dqexec.config.K6ExecutorConfiguration
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.loadtest.mapper.k6.ScriptMapper
@@ -27,8 +28,9 @@ class ConfigRunner(
     private val writer: MultiLineFileWriter,
     private val mapper: ScriptMapper,
     private val paths: ResourcePaths,
+    private val k6ExecutionConfiguration: K6ExecutorConfiguration,
     @Value("\${api.host:127.0.0.1}") private val APIHost: String,
-    @Value("\${dqualizer.influx.host:localhost}") private val influxHost: String
+    @Value("\${dqualizer.influx.host:localhost}") private val influxHost: String,
 ) {
     private val logger = Logger.getLogger(this.javaClass.name)
 
@@ -112,7 +114,15 @@ class ConfigRunner(
     @Throws(IOException::class, InterruptedException::class)
     private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
         val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
-        val process = Runtime.getRuntime().exec(command)
+
+        val currentEnv = System.getenv().toMutableMap()
+        currentEnv["K6_INFLUXDB_ORGANIZATION"] = k6ExecutionConfiguration.influxdbOrganization
+        currentEnv["K6_INFLUXDB_BUCKET"] = k6ExecutionConfiguration.influxdbBucket
+        currentEnv["K6_INFLUXDB_TOKEN"] = k6ExecutionConfiguration.influxdbToken
+
+        val envp = currentEnv.entries.map { it.key + "=" + it.value }.toTypedArray()
+
+        val process = Runtime.getRuntime().exec(command, envp)
         val loggingPath = paths.getLogFilePath(testCounter, runCounter)
         processLogger.log(process, loggingPath.toFile())
         return process.exitValue()
