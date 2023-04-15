@@ -89,7 +89,7 @@ class ScriptMapper(
 
                 export let options = %s;
 
-                """.format(trackDataPerURL, baseURL, optionsString)
+                """.trimIndent().format(trackDataPerURL, baseURL, optionsString)
     }
 
     /**
@@ -112,7 +112,7 @@ class ScriptMapper(
                     epDataSent.add(sizeOfHeaders(res.request.headers) + res.request.body.length, { url: res.url });
                     epDataRecv.add(sizeOfHeaders(res.headers) + res.body.length, { url: res.url });
                 }
-                """
+                """.trimIndent()
     }
 
     private fun trackDataPerURLScript(): String {

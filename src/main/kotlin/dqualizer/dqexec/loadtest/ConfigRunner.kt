@@ -113,7 +113,7 @@ class ConfigRunner(
      */
     @Throws(IOException::class, InterruptedException::class)
     private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
-        val command = "k6 -v run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
+        val command = "k6 run -v $scriptPath --out xk6-influxdb=http://$influxHost:8086"
 
         val currentEnv = System.getenv().toMutableMap()
         currentEnv["K6_INFLUXDB_ORGANIZATION"] = k6ExecutionConfiguration.influxdbOrganization
@@ -123,10 +123,11 @@ class ConfigRunner(
         val envp = currentEnv.entries.map { it.key + "=" + it.value }.toTypedArray()
 
         logger.info(
-            """### RUN COMMAND: $command ###
-            |With Environment:
-            |${envp.joinToString(separator = "\n")}                
-        """.trimMargin()
+            """
+            ### RUN COMMAND: $command ###
+            With Environment:
+            ${envp.joinToString(separator = "\n")}                
+            """.trimIndent()
         )
 
         val process = Runtime.getRuntime().exec(command, envp)

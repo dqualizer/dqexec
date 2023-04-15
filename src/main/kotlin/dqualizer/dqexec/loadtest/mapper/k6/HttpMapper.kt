@@ -95,6 +95,6 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
         return """
                 let currentSearchParams = searchParams[Math.floor(Math.random() * searchParams.length)];
                 let urlSearchParams = new URLSearchParams(currentSearchParams);
-                """
+                """.trimIndent()
     }
 }
