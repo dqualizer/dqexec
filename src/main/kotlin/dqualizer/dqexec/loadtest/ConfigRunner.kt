@@ -29,7 +29,7 @@ class ConfigRunner(
     private val mapper: ScriptMapper,
     private val paths: ResourcePaths,
     private val k6ExecutionConfiguration: K6ExecutorConfiguration,
-    @Value("\${dqualizer.api.host:127.0.0.1}") private val APIHost: String,
+    @Value("\${dqualizer.dqexec.docker.localhost_replacement:}") private val alternativeTargetHost: String,
     @Value("\${dqualizer.dqexec.influx.host:localhost}") private val influxHost: String,
 ) {
     private val logger = Logger.getLogger(this.javaClass.name)
@@ -42,8 +42,6 @@ class ConfigRunner(
     @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.k6}"])
     fun receive(@Payload config: Config) {
         logger.info("Received k6 configuration\n" + config)
-
-//        val parsedAdaptedLoadTestConfig = objectMapper.readValue(config, Config::class.java)
         start(config)
     }
 
@@ -73,11 +71,16 @@ class ConfigRunner(
      */
     @Throws(IOException::class, InterruptedException::class)
     private fun run(config: Config) {
-        val om = ObjectMapper()
-        logger.info(om.writeValueAsString(config))
-        val localBaseURL = config.baseURL
-        //If config-runner runs inside docker, localhost can´t be used
-        val baseURL = localBaseURL.replace("127.0.0.1", APIHost)
+        logger.info("Trying to run configuration: " + ObjectMapper().writeValueAsString(config))
+
+        var baseURL = config.baseURL
+        val localhostMatcher = "localhost|127\\.0\\.0\\.1".toRegex()
+        //If config-runner runs inside docker, localhost can´t be used so its replaced by the alternative host
+        if (alternativeTargetHost.isNotBlank() && localhostMatcher.containsMatchIn(config.baseURL)) {
+            baseURL = config.baseURL.replace(localhostMatcher, alternativeTargetHost)
+            logger.info("Alternative host was provided: Replacing 'localhost' or '127.0.0.1' in ${config.baseURL} with $alternativeTargetHost. Result: $baseURL")
+        }
+
         val loadTests = config.loadTests
         var testCounter = 1
 

@@ -22,6 +22,9 @@ class ProcessLogger {
         linkOutputStreamToFile(logFileBasePath, "log", process.inputStream)
         linkOutputStreamToFile(logFileBasePath, "err", process.errorStream)
 
+        logger.info("Writing log to ${logFileBasePath.normalize()}.log")
+        logger.info("Writing error log to ${logFileBasePath.normalize()}.err")
+
         waitForProcess(process)
         val exitValue = process.exitValue()
         if (exitValue != 0) logError(process)
@@ -53,11 +56,13 @@ class ProcessLogger {
 
     @Throws(InterruptedException::class)
     private fun waitForProcess(process: Process) {
+        logger.info("Waiting for loadtest to finish...")
         println()
         while (process.isAlive) {
             Thread.sleep(1000)
             print(".")
         }
         println(".")
+        logger.info("Loadtest finished")
     }
 }
