@@ -2,11 +2,9 @@ package dqualizer.dqexec.util
 
 import org.apache.tomcat.util.http.fileupload.IOUtils
 import org.springframework.stereotype.Component
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
+import java.io.*
 import java.nio.charset.StandardCharsets
+import java.nio.file.Path
 import java.util.logging.Logger
 
 /**
@@ -18,23 +16,34 @@ class ProcessLogger {
     private val logger = Logger.getGlobal()
 
     @Throws(IOException::class, InterruptedException::class)
-    fun log(process: Process, logFile: File) {
-        //create log file and parent directories if necessary
-        logFile.parentFile.mkdirs()
-        logFile.delete()
-        logFile.createNewFile()
+    fun log(process: Process, logFileBasePath: Path) {
 
-        val stdout = process.inputStream
-        val stdOutFileStream: OutputStream = FileOutputStream(logFile, true)
-        IOUtils.copy(stdout, stdOutFileStream)
-
-        val stderr = process.errorStream
-        val stderrFileStream: OutputStream = FileOutputStream(logFile, true)
-        IOUtils.copy(stderr, stderrFileStream)
+        //create and connect log files to process
+        val stdout = createFileOutputStream(logFileBasePath, "log", process.inputStream)
+        val stderr = createFileOutputStream(logFileBasePath, "err", process.errorStream)
 
         waitForProcess(process)
+        stdout.close()
+        stderr.close()
         val exitValue = process.exitValue()
         if (exitValue != 0) logError(process)
+    }
+
+    private fun createFileOutputStream(
+        logFileBasePath: Path,
+        fileExtension: String,
+        inputStream: InputStream
+    ): FileOutputStream {
+        val targetFile = File("$logFileBasePath.$fileExtension")
+        targetFile.parentFile.mkdirs()
+        targetFile.delete()
+        targetFile.createNewFile()
+
+        val outputStream = FileOutputStream("$logFileBasePath.$fileExtension")
+
+        IOUtils.copy(inputStream, outputStream)
+
+        return outputStream
     }
 
     @Throws(IOException::class)

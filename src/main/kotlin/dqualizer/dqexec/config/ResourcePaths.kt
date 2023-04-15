@@ -21,6 +21,6 @@ class ResourcePaths {
     }
 
     fun getLogFilePath(counter1: Int, counter2: Int): Path {
-        return logging.resolve("$counter1-$counter2.txt")
+        return logging.resolve("$counter1-$counter2")
     }
 }

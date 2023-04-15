@@ -132,7 +132,7 @@ class ConfigRunner(
 
         val process = Runtime.getRuntime().exec(command, envp)
         val loggingPath = paths.getLogFilePath(testCounter, runCounter)
-        processLogger.log(process, loggingPath.toFile())
+        processLogger.log(process, loggingPath)
         return process.exitValue()
     }
 }
