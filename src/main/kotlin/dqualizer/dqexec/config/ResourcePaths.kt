@@ -9,18 +9,18 @@ import java.nio.file.Path
  */
 @Configuration
 class ResourcePaths {
-    val scripts: Path = Path.of("poc", "scripts", "createdScript")
-    val logging: Path = Path.of("poc", "logging", "logging")
+    val scripts: Path = Path.of("scripts")
+    val logging: Path = Path.of("logging")
 
     fun readResourceFile(resourcePath: String): String {
         return ClassPathResource(resourcePath).inputStream.bufferedReader().readText()
     }
 
-    fun getScriptFilePath(counter: Int): Path {
-        return scripts.resolve("$counter.js")
+    fun getScriptFilePath(scriptID: Int): Path {
+        return scripts.resolve("createdScript$scriptID.js")
     }
 
-    fun getLogFilePath(counter1: Int, counter2: Int): Path {
-        return logging.resolve("$counter1-$counter2")
+    fun getLogFilePath(testID: Int, runID: Int): Path {
+        return logging.resolve("test$testID-run$runID")
     }
 }

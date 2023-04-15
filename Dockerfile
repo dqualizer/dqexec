@@ -73,7 +73,8 @@ WORKDIR /app
 COPY --from=build-executor /app/build/libs/*.jar /app/app.jar
 COPY --from=k6-builder /tmp/k6 /usr/bin/k6
 
-EXPOSE 8090
+VOLUME /app/scripts
+VOLUME /app/logging
 
 # Run the jar file
 CMD ["java", "-jar", "app.jar"]
