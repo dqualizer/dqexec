@@ -29,7 +29,7 @@ class ConfigRunner(
     private val mapper: ScriptMapper,
     private val paths: ResourcePaths,
     private val k6ExecutionConfiguration: K6ExecutorConfiguration,
-    @Value("\${api.host:127.0.0.1}") private val APIHost: String,
+    @Value("\${dqualizer.api.host:127.0.0.1}") private val APIHost: String,
     @Value("\${dqualizer.dqexec.influx.host:localhost}") private val influxHost: String,
 ) {
     private val logger = Logger.getLogger(this.javaClass.name)
@@ -121,6 +121,13 @@ class ConfigRunner(
         currentEnv["K6_INFLUXDB_TOKEN"] = k6ExecutionConfiguration.influxdbToken
 
         val envp = currentEnv.entries.map { it.key + "=" + it.value }.toTypedArray()
+
+        logger.info(
+            """### RUN COMMAND: $command ###
+            |With Environment:
+            |${envp.joinToString(separator = "\n")}                
+        """.trimMargin()
+        )
 
         val process = Runtime.getRuntime().exec(command, envp)
         val loggingPath = paths.getLogFilePath(testCounter, runCounter)

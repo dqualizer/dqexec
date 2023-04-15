@@ -53,9 +53,9 @@ FROM ${EXECUTION_ENV}-builder as build-executor
 RUN gradle --init-script gradle/init.gradle assemble
 
 
-### ----------- K6 Installer ----------- ###
+### ----------- K6 Builder ----------- ###
 # Copied xk6-Dockerfile from: https://github.com/grafana/xk6-output-influxdb/blob/main/Dockerfile
-FROM golang:1.20-alpine as k6
+FROM golang:1.20-alpine as k6-builder
 WORKDIR $GOPATH/src/go.k6.io/k6
 
 RUN apk --no-cache add git && go install go.k6.io/xk6/cmd/xk6@v0.9.0
@@ -69,9 +69,9 @@ FROM eclipse-temurin:19-jre-alpine
 # Set the working directory to /app
 WORKDIR /app
 
-# Copy the jar file from the build stage
+# Copy the executables from the build stages
 COPY --from=build-executor /app/build/libs/*.jar /app/app.jar
-COPY --from=k6 /tmp/k6 /usr/bin/k6
+COPY --from=k6-builder /tmp/k6 /usr/bin/k6
 
 EXPOSE 8090
 

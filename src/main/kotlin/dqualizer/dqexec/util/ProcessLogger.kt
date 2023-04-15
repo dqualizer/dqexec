@@ -21,11 +21,17 @@ class ProcessLogger {
     fun log(process: Process, logFile: File) {
         //create log file and parent directories if necessary
         logFile.parentFile.mkdirs()
+        logFile.delete()
         logFile.createNewFile()
 
-        val inputStream = process.inputStream
-        val outputStream: OutputStream = FileOutputStream(logFile)
-        IOUtils.copy(inputStream, outputStream)
+        val stdout = process.inputStream
+        val stdOutFileStream: OutputStream = FileOutputStream(logFile, true)
+        IOUtils.copy(stdout, stdOutFileStream)
+
+        val stderr = process.errorStream
+        val stderrFileStream: OutputStream = FileOutputStream(logFile, true)
+        IOUtils.copy(stderr, stderrFileStream)
+
         waitForProcess(process)
         val exitValue = process.exitValue()
         if (exitValue != 0) logError(process)
