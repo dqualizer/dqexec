@@ -78,7 +78,7 @@ class ConfigRunner(
         //If config-runner runs inside docker, localhost can´t be used so its replaced by the alternative host
         if (alternativeTargetHost.isNotBlank() && localhostMatcher.containsMatchIn(config.baseURL)) {
             baseURL = config.baseURL.replace(localhostMatcher, alternativeTargetHost)
-            logger.info("Alternative host was provided: Replacing 'localhost' or '127.0.0.1' in ${config.baseURL} with $alternativeTargetHost. Result: $baseURL")
+            logger.info("Alternative host was provided (\$dqualizer.dqexec.docker.localhost_replacement): Replacing 'localhost' or '127.0.0.1' in ${config.baseURL} with $alternativeTargetHost. Result: $baseURL")
         }
 
         val loadTests = config.loadTests
@@ -118,18 +118,17 @@ class ConfigRunner(
     private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
         val command = "k6 run -v $scriptPath --out xk6-influxdb=http://$influxHost:8086"
 
-        val currentEnv = System.getenv().toMutableMap()
-        currentEnv["K6_INFLUXDB_ORGANIZATION"] = k6ExecutionConfiguration.influxdbOrganization
-        currentEnv["K6_INFLUXDB_BUCKET"] = k6ExecutionConfiguration.influxdbBucket
-        currentEnv["K6_INFLUXDB_TOKEN"] = k6ExecutionConfiguration.influxdbToken
-
-        val envp = currentEnv.entries.map { it.key + "=" + it.value }.toTypedArray()
+        val envp = arrayOf(
+            "K6_INFLUXDB_ORGANIZATION=${k6ExecutionConfiguration.influxdbOrganization}",
+            "K6_INFLUXDB_BUCKET=${k6ExecutionConfiguration.influxdbBucket}",
+            "K6_INFLUXDB_TOKEN=${k6ExecutionConfiguration.influxdbToken}"
+        )
 
         logger.info(
             """
             ### RUN COMMAND: $command ###
             With Environment:
-            ${envp.joinToString(separator = "\n")}                
+            ${envp.joinToString("\n")}                
             """.trimIndent()
         )
 

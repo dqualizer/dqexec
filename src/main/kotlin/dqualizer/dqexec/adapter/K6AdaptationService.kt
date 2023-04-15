@@ -16,8 +16,7 @@ import java.util.logging.Logger
 @Service
 class K6AdaptationService(
     private val adapter: K6Adapter,
-    private val producer: K6ConfigProducer,
-    private val objectMapper: ObjectMapper
+    private val producer: K6ConfigProducer
 ) {
     private val log = Logger.getLogger(this.javaClass.name)
 
@@ -30,8 +29,6 @@ class K6AdaptationService(
     @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.loadtest}"])
     private fun receive(@Payload loadTestConfig: LoadTestConfig) {
         log.info("Received loadtest configuration\n$loadTestConfig")
-
-//        val parsedConfig = objectMapper.readValue(loadTestConfig, LoadTestConfig::class.java)
         start(loadTestConfig)
     }
 
