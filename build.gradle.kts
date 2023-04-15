@@ -81,6 +81,7 @@ dependencies {
     implementation("io.micrometer:micrometer-tracing-bridge-brave:1.0.3")
     implementation("io.zipkin.reporter2:zipkin-reporter-brave:2.16.3")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
 
     implementation("dqualizer:dqlang:$dqlang_version")

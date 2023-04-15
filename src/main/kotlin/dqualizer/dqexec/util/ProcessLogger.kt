@@ -1,5 +1,6 @@
 package dqualizer.dqexec.util
 
+import kotlinx.coroutines.*
 import org.apache.tomcat.util.http.fileupload.IOUtils
 import org.springframework.stereotype.Component
 import java.io.*
@@ -17,33 +18,30 @@ class ProcessLogger {
 
     @Throws(IOException::class, InterruptedException::class)
     fun log(process: Process, logFileBasePath: Path) {
-
         //create and connect log files to process
-        val stdout = createFileOutputStream(logFileBasePath, "log", process.inputStream)
-        val stderr = createFileOutputStream(logFileBasePath, "err", process.errorStream)
+        linkOutputStreamToFile(logFileBasePath, "log", process.inputStream)
+        linkOutputStreamToFile(logFileBasePath, "err", process.errorStream)
 
         waitForProcess(process)
-        stdout.close()
-        stderr.close()
         val exitValue = process.exitValue()
         if (exitValue != 0) logError(process)
     }
 
-    private fun createFileOutputStream(
+    private fun linkOutputStreamToFile(
         logFileBasePath: Path,
         fileExtension: String,
         inputStream: InputStream
-    ): FileOutputStream {
-        val targetFile = File("$logFileBasePath.$fileExtension")
-        targetFile.parentFile.mkdirs()
-        targetFile.delete()
-        targetFile.createNewFile()
+    ) {
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+            val targetFile = File("$logFileBasePath.$fileExtension")
+            targetFile.parentFile.mkdirs()
+            targetFile.delete()
+            targetFile.createNewFile()
 
-        val outputStream = FileOutputStream("$logFileBasePath.$fileExtension")
-
-        IOUtils.copy(inputStream, outputStream)
-
-        return outputStream
+            val outputStream = FileOutputStream("$logFileBasePath.$fileExtension")
+            IOUtils.copy(inputStream, outputStream)
+            outputStream.close()
+        }
     }
 
     @Throws(IOException::class)
