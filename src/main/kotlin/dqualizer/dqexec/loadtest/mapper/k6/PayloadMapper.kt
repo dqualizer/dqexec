@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
  * Maps the payload to Javascript-Code
  */
 @Component
-class PayloadMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
+class PayloadMapper(private val resourcePaths: ResourcePaths) : RuntimeQualityAnalysisConfigurationTranslator {
 
     override fun map(request: Request): String {
         val payload = request.payload

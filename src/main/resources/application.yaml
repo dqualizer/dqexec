@@ -21,3 +21,6 @@ dqualizer:
           organization: ${K6_INFLUXDB_ORGANIZATION:my-org}
           bucket: ${K6_INFLUXDB_BUCKET:my-bucket}
           token: ${K6_INFLUXDB_TOKEN:specialToken000}
+    output:
+      logs: "logging"
+      loadtest_configurations: "loadtest_configurations"

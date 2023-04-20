@@ -1,6 +1,7 @@
 package dqualizer.dqexec.loadtest.mapper.k6
 
 import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.Options
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 import dqualizer.dqlang.archive.k6configurationrunner.dqlang.LoadTest
@@ -18,7 +19,7 @@ class ScriptMapper(
     private val httpMapper: HttpMapper,
     private val checksMapper: ChecksMapper,
     private val pathVariablesMapper: PathVariablesMapper
-) : K6Mapper {
+) : RuntimeQualityAnalysisConfigurationTranslator {
 
     /**
      * Map one loadtest to a k6-script
@@ -77,7 +78,7 @@ class ScriptMapper(
      */
     @Throws(JsonProcessingException::class)
     private fun startScript(baseURL: String, options: Options): String {
-        val optionsString = K6Mapper.objectMapper.writeValueAsString(options)
+        val optionsString = ObjectMapper().writeValueAsString(options)
         val trackDataPerURL = trackDataPerURLInitScript()
         return """
                 import http from 'k6/http';

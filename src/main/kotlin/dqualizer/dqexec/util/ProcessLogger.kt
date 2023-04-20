@@ -17,7 +17,7 @@ class ProcessLogger {
     private val logger = Logger.getGlobal()
 
     @Throws(IOException::class, InterruptedException::class)
-    fun log(process: Process, logFileBasePath: Path) {
+    fun log(process: Process, logFileBasePath: Path, wait: Boolean = true) {
         //create and connect log files to process
         linkOutputStreamToFile(logFileBasePath, "log", process.inputStream)
         linkOutputStreamToFile(logFileBasePath, "err", process.errorStream)
@@ -25,9 +25,11 @@ class ProcessLogger {
         logger.info("Writing log to ${logFileBasePath.normalize()}.log")
         logger.info("Writing error log to ${logFileBasePath.normalize()}.err")
 
-        waitForProcess(process)
-        val exitValue = process.exitValue()
-        if (exitValue != 0) logError(process)
+        if(wait) {
+            waitForProcess(process)
+            val exitValue = process.exitValue()
+            if (exitValue != 0) logError(process)
+        }
     }
 
     private fun linkOutputStreamToFile(

@@ -12,7 +12,7 @@ import java.util.*
  * Maps the specified request to a k6 'default function()'
  */
 @Component
-class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
+class HttpMapper(private val resourcePaths: ResourcePaths) : RuntimeQualityAnalysisConfigurationTranslator {
 
     override fun map(request: Request): String {
         val httpBuilder = StringBuilder()
