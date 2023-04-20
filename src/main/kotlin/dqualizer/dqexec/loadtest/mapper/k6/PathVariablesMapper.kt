@@ -21,7 +21,7 @@ class PathVariablesMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
         val pathVariablesString = resourcePaths.readResourceFile(maybeReference.get())
         val pathVariablesScript = String.format(
             "%sconst path_variables = %s",
-            K6Mapper.newLine, pathVariablesString
+           System.lineSeparator(), pathVariablesString
         )
         pathVariablesBuilder.append(pathVariablesScript)
         try {
@@ -31,7 +31,7 @@ class PathVariablesMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
                 val variable = variables.next()
                 val particularPathVariablesScript = String.format(
                     "%sconst %s_array = path_variables['%s'];",
-                    K6Mapper.newLine, variable, variable
+                   System.lineSeparator(), variable, variable
                 )
                 pathVariablesBuilder.append(particularPathVariablesScript)
             }

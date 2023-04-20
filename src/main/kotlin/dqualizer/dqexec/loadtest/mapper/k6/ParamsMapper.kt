@@ -12,11 +12,8 @@ class ParamsMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
     override fun map(request: Request): String {
         val params = request.params
         val maybeReference = params.values.stream().findFirst()
-        if (maybeReference.isEmpty) return String.format("%sconst params = {}%s", K6Mapper.newLine, K6Mapper.newLine)
+        if (maybeReference.isEmpty) return String.format("%nconst params = {}%n")
         val paramsObject = resourcePaths.readResourceFile(maybeReference.get())
-        return String.format(
-            "%sconst params = %s%s",
-            K6Mapper.newLine, paramsObject, K6Mapper.newLine
-        )
+        return String.format("%nconst params = %s%n", paramsObject)
     }
 }

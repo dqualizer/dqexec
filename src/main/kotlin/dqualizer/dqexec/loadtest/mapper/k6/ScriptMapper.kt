@@ -116,7 +116,7 @@ class ScriptMapper(
     }
 
     private fun trackDataPerURLScript(): String {
-        return String.format("trackDataMetricsPerURL(response);%s", K6Mapper.newLine)
+        return String.format("trackDataMetricsPerURL(response);%s",System.lineSeparator())
     }
 
     private fun sleepScript(): String {
@@ -124,7 +124,7 @@ class ScriptMapper(
         val duration = random.nextInt(5) + 1
         return String.format(
             "sleep(%d);%s",
-            duration, K6Mapper.newLine
+            duration,System.lineSeparator()
         )
     }
 }

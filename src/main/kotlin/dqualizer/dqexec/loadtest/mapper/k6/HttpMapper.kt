@@ -64,7 +64,7 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
         }
         val httpRequest = java.lang.String.format(
             "%slet response = http.%s(baseURL + `%s`%s, params);%s",
-            K6Mapper.newLine, method, path, extraParams, K6Mapper.newLine
+           System.lineSeparator(), method, path, extraParams,System.lineSeparator()
         )
         httpBuilder.append(httpRequest)
         return httpBuilder.toString()
@@ -73,21 +73,21 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
     private fun exportFunctionScript(): String {
         return String.format(
             "%sexport default function() {%s",
-            K6Mapper.newLine, K6Mapper.newLine
+           System.lineSeparator(),System.lineSeparator()
         )
     }
 
     private fun randomPathVaribleScript(variable: String): String {
         return String.format(
             "%slet %s = %s_array[Math.floor(Math.random() * %s_array.length)];%s",
-            K6Mapper.newLine, variable, variable, variable, K6Mapper.newLine
+           System.lineSeparator(), variable, variable, variable,System.lineSeparator()
         )
     }
 
     private fun randomPayloadScript(): String {
         return String.format(
             "%slet payload = payloads[Math.floor(Math.random() * payloads.length)];%s",
-            K6Mapper.newLine, K6Mapper.newLine
+           System.lineSeparator(),System.lineSeparator()
         )
     }
 
