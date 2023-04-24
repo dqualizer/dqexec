@@ -1,0 +1,10 @@
+{
+  "payloads": [
+    {
+      "status": "GESCHLOSSEN"
+    },
+    {
+      "status": "STORNIERT"
+    }
+  ]
+}

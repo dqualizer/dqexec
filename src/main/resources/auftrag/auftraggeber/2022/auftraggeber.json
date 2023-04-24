@@ -1,0 +1,14 @@
+{
+  "payloads": [
+    {
+      "typ": "KUNDE_PRIVAT",
+      "id": 10,
+      "name": "Donnie"
+    },
+    {
+      "typ": "KUNDE_PRIVAT",
+      "id": 11,
+      "name": "Heiko"
+    }
+  ]
+}
