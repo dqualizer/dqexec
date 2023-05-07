@@ -21,9 +21,9 @@ class LoadCurveHelper(exponent: Double, ymin: Double, ymax: Double, targetDurati
         require(ymax >= ymin) { "Maximum y must be bigger than Minimum y ($ymin), but was: $ymax" }
         require(targetDuration > 0) { "Target Duration needs to be bigger than 0, but was: $exponent" }
         this.exponent = exponent
-        startOnBaseFunction = ymin.pow(1.0 / exponent)
+        this.startOnBaseFunction = ymin.pow(1.0 / exponent)
         val endOnBaseFunction = ymax.pow(1.0 / exponent)
-        baseFunctionDuration = endOnBaseFunction - startOnBaseFunction
+        this.baseFunctionDuration = endOnBaseFunction - startOnBaseFunction
         this.targetDuration = targetDuration
     }
 
@@ -46,7 +46,7 @@ class LoadCurveHelper(exponent: Double, ymin: Double, ymax: Double, targetDurati
      * @return a value between ymin and ymax as defined at initialization.
      */
     fun evaluate(time: Double): Double {
-        val mappedTime = startOnBaseFunction + baseFunctionDuration / targetDuration * time
+        val mappedTime = startOnBaseFunction + (baseFunctionDuration / targetDuration) * time
         return evaluateBaseFunction(mappedTime)
     }
 }
