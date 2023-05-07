@@ -184,7 +184,7 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
 
     private fun computeStageDurationString(testDurationString: String, numberOfStages: Int): String {
         val testDuration = convertToTimeString(testDurationString)
-        val testDurationSeconds = testDuration!!.seconds
+        val testDurationSeconds = testDuration.seconds
         val testDurationNanos = testDuration.nano
         val stageDurationSeconds = testDurationSeconds / numberOfStages
         val stageDurationNanos = (testDurationNanos / numberOfStages).toLong()
@@ -232,8 +232,8 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
         HIGH
     }
 
-    private fun convertToTimeString(timeString: String): Duration? {
-        return Objects.requireNonNull(DurationParser.parseDuration(timeString))
+    private fun convertToTimeString(timeString: String): Duration {
+        return requireNotNull(DurationParser.parseDuration(timeString))
     }
 
     private fun convertToTimeString(duration: Duration): String {
