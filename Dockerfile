@@ -80,5 +80,5 @@ VOLUME /app/scripts
 VOLUME /app/logging
 
 # Run the jar file
-CMD ["java", "-javaagent:./opentelemetry-agent.jar", "-jar", "app.jar"]
+CMD ["java", "-javaagent:./opentelemetry-javaagent.jar", "-jar", "app.jar"]
 
