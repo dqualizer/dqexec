@@ -1,4 +1,3 @@
-
 # Execution environment (local, ci)
 ARG EXECUTION_ENV=local
 
@@ -81,4 +80,3 @@ VOLUME /app/logging
 
 # Run the jar file
 CMD ["java", "-javaagent:./opentelemetry-javaagent.jar", "-jar", "app.jar"]
-
