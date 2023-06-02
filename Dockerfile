@@ -73,7 +73,7 @@ WORKDIR /app
 COPY --from=build-executor /app/build/libs/*.jar /app/dqExec.jar
 COPY --from=k6-builder /tmp/k6 /usr/bin/k6
 
-RUN wget -O ./opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
+RUN wget -O ./opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.26.0/opentelemetry-javaagent.jar
 
 
 VOLUME /app/scripts
