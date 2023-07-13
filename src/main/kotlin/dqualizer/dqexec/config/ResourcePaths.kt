@@ -10,9 +10,9 @@ import java.nio.file.Path
  */
 @Configuration
 class ResourcePaths(
-    @Value("dqualizer.dqexec.output.logs:logs")
+    @Value("\${dqualizer.dqexec.output.logs:logs}")
     loggingPathStr: String,
-    @Value("dqualizer.dqexec.output.loadtest_configurations:loadtest_configurations")
+    @Value("\${dqualizer.dqexec.output.loadtest_configurations:loadtest_configurations}")
     loadtestConfigurationsPathStr: String
 ) {
 

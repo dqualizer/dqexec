@@ -2,10 +2,15 @@ package dqualizer.dqexec.loadtest.mapper.k6
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
+import dqualizer.dqexec.adapter.ThymeleafTemplateEngineFactory
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.Options
 import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 import dqualizer.dqlang.archive.k6configurationrunner.dqlang.LoadTest
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
+import org.thymeleaf.context.Context
+import org.thymeleaf.context.IContext
+import org.thymeleaf.spring6.SpringTemplateEngine
 import java.util.*
 
 /**
@@ -42,6 +47,7 @@ class ScriptMapper(
     }
 
     override fun map(request: Request): String {
+
         val requestBuilder = StringBuilder()
         val paramsScript = paramsMapper.map(request)
         requestBuilder.append(paramsScript)

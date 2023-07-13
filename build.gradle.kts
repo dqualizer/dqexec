@@ -66,6 +66,7 @@ configurations {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
 }
@@ -83,6 +84,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("org.freemarker:freemarker:2.3.31")
 
     implementation("dqualizer:dqlang:$dqlang_version")
 

@@ -24,3 +24,5 @@ dqualizer:
     output:
       logs: "logging"
       loadtest_configurations: "loadtest_configurations"
+
+#logging.level.root: debug
