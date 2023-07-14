@@ -18,7 +18,8 @@
     "load_increase": {
       "start_target": 10,
       "end_target": 60,
-      "stage_duration": "5s",
+      "test_duration": "5s",
+      "stages": 10,
       "linear": 1,
       "quadratic": 2,
       "cubic": 3

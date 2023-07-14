@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dqlang_version = "0.2.1"
+val spring_boot_starter_version = "3.0.4"
+val dqlang_version = "0.3.0"
 
 plugins {
     id("org.springframework.boot") version "3.1.0-M2"
@@ -85,6 +86,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.freemarker:freemarker:2.3.31")
+    implementation("org.springframework.vault:spring-vault-core:3.0.2")
 
     implementation("dqualizer:dqlang:$dqlang_version")
 
