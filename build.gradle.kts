@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val spring_boot_starter_version = "3.0.4"
-val dqlang_version = "0.3.0"
+val dqlang_version = "0.3.2-SNAPSHOT"//"0.3.2-Insturmentation_Definition-SNAPSHOT"
 
 plugins {
     id("org.springframework.boot") version "3.1.0-M2"
@@ -68,30 +67,33 @@ configurations {
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven { url = uri("https://repo.spring.io/milestone") }
 }
 
 extra["testcontainersVersion"] = "1.17.6"
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-actuator:$spring_boot_starter_version")
-    implementation("org.springframework.boot:spring-boot-starter-amqp:$spring_boot_starter_version")
-    implementation("org.springframework.boot:spring-boot-starter-web:$spring_boot_starter_version")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
-    implementation("io.micrometer:micrometer-tracing-bridge-brave:1.0.3")
-    implementation("io.zipkin.reporter2:zipkin-reporter-brave:2.16.3")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
-    implementation("org.springframework.vault:spring-vault-core:3.0.2")
+    implementation("org.springframework.vault:spring-vault-core:3.0.3")
+    implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
+
+    implementation("com.github.docker-java:docker-java:3.3.2")
+    implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.2") //dependency of docker-java
+
 
     implementation("dqualizer:dqlang:$dqlang_version")
 
-    compileOnly("org.projectlombok:lombok:1.18.26")
     runtimeOnly("com.h2database:h2:2.1.214")
-    annotationProcessor("org.projectlombok:lombok:1.18.26")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$spring_boot_starter_version")
-    testImplementation("org.springframework.amqp:spring-rabbit-test:3.0.2")
+    annotationProcessor("org.projectlombok:lombok")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.amqp:spring-rabbit-test")
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
     testImplementation("org.testcontainers:rabbitmq:1.18.0")
 }
