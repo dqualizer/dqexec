@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.UnknownRequestTypeException
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 import org.springframework.stereotype.Component
 import java.util.*
 

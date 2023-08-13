@@ -14,8 +14,7 @@ class RuntimePlatformAccessors() {
         registry = PluginRegistry.of(accessors)
     }
 
-    fun getPlatformName(platformName: String): RuntimePlatformAccessor {
+    fun getPlatformAccessor(platformName: String): RuntimePlatformAccessor {
         return registry.getPluginFor(platformName).orElseThrow()
     }
-
 }

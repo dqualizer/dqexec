@@ -1,11 +1,11 @@
 package dqualizer.dqexec.adapter
 
 import dqualizer.dqexec.input.LoadTestingConstantsLoader
-import dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.K6Config
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.K6LoadTest
-import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.LoadTestConfig
-import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.Stimulus
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.k6.K6Config
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.k6.K6LoadTest
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.LoadTestConfig
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.Stimulus
 import org.springframework.stereotype.Component
 
 /**

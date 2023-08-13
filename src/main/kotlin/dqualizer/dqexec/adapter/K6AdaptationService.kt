@@ -2,7 +2,7 @@ package dqualizer.dqexec.adapter
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.output.K6ConfigProducer
-import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.LoadTestConfig
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.LoadTestConfig
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service

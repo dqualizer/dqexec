@@ -2,7 +2,7 @@ package dqualizer.dqexec.input
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.exception.InvalidConstantsSchemaException
-import dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

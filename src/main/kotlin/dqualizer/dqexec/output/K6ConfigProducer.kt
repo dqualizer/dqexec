@@ -1,6 +1,6 @@
 package dqualizer.dqexec.output
 
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.K6Config
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.k6.K6Config
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component

@@ -1,12 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dqlang_version = "0.3.2-SNAPSHOT"//"0.3.2-Insturmentation_Definition-SNAPSHOT"
+val dqlang_version = "1.0.5-SNAPSHOT"//"0.3.2-Insturmentation_Definition-SNAPSHOT"
 
 plugins {
+    kotlin("jvm") version "1.9.0"
+    kotlin("plugin.spring") version "1.9.0"
+
     id("org.springframework.boot") version "3.1.0-M2"
     id("io.spring.dependency-management") version "1.1.0"
-    kotlin("jvm") version "1.8.20"
-    kotlin("plugin.spring") version "1.8.20"
 
     id("net.researchgate.release") version "3.0.2"
     id("maven-publish")
@@ -37,7 +38,7 @@ release {
     //no config needed, see https://github.com/researchgate/gradle-release for options
 }
 
-publishing{
+publishing {
     repositories {
         maven {
             name = "GitHubPackages"
@@ -69,6 +70,7 @@ repositories {
     mavenCentral()
     mavenLocal()
     maven { url = uri("https://repo.spring.io/milestone") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 extra["testcontainersVersion"] = "1.17.6"
@@ -84,14 +86,23 @@ dependencies {
     implementation("org.springframework.vault:spring-vault-core:3.0.3")
     implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
 
-    implementation("com.github.docker-java:docker-java:3.3.2")
+    implementation("com.github.docker-java:docker-java:3.3.2") {
+        exclude(group="org.slf4j")
+    }
+
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.2") //dependency of docker-java
 
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
 
-    implementation("dqualizer:dqlang:$dqlang_version")
+    implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
+
+
+    implementation("io.github.dqualizer:dqlang:$dqlang_version")
 
     runtimeOnly("com.h2database:h2:2.1.214")
     annotationProcessor("org.projectlombok:lombok")
+
+    testImplementation("org.mockito:mockito-core:5.4.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.amqp:spring-rabbit-test")
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")

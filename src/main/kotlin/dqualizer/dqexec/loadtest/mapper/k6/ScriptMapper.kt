@@ -1,9 +1,9 @@
 package dqualizer.dqexec.loadtest.mapper.k6
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.Options
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
-import dqualizer.dqlang.archive.k6configurationrunner.dqlang.LoadTest
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.Options
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
+import io.github.dqualizer.dqlang.archive.k6configurationrunner.dqlang.LoadTest
 import org.springframework.stereotype.Component
 import java.util.*
 

@@ -1,6 +1,6 @@
 package dqualizer.dqexec.loadtest.mapper.k6
 
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
 import org.springframework.stereotype.Component
 
 /**

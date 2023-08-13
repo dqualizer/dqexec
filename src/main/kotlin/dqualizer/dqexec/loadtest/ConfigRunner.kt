@@ -6,7 +6,7 @@ import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.loadtest.mapper.k6.ScriptMapper
 import dqualizer.dqexec.util.ProcessLogger
-import dqualizer.dqlang.archive.k6configurationrunner.dqlang.Config
+import io.github.dqualizer.dqlang.archive.k6configurationrunner.dqlang.Config
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.handler.annotation.Payload

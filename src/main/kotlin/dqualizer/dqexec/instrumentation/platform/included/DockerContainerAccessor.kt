@@ -7,45 +7,44 @@ import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientImpl
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient
 import dqualizer.dqexec.instrumentation.platform.RuntimePlatformAccessor
-import dqualizer.dqlang.types.architecture.RuntimePlatform
-import dqualizer.dqlang.types.architecture.ServiceDescription
+import io.github.dqualizer.dqlang.types.architecture.RuntimePlatform
+import io.github.dqualizer.dqlang.types.architecture.ServiceDescription
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 import java.time.Duration
 import java.util.*
-import javax.validation.constraints.NotNull
 
 
 /**
  * Uses <a href="https://github.com/docker-java/docker-java/blob/main/docs/getting_started.md">docker-java</a> to connect to a docker container.
  */
 @Service
-class DockerAccessorRuntime : RuntimePlatformAccessor {
+class DockerContainerAccessor : RuntimePlatformAccessor {
 
-    private lateinit var targetContainerName: @NotNull String
+    private lateinit var targetContainerName: String
     private lateinit var dockerClient: DockerClient
 
-    override fun initalize(targetService: ServiceDescription, platformDescription: RuntimePlatform) {
-        if (targetService.deploymentName != null)
-            this.targetContainerName = targetService.deploymentName!!
-        else
-            this.targetContainerName = targetService.name
+    override fun setup(targetService: ServiceDescription, platformDescription: RuntimePlatform) {
 
-        Objects.requireNonNull(this.targetContainerName, "A service is missing a name.")
+        this.targetContainerName = targetService.getDeploymentName()
 
         if (!supports(platformDescription.platformName))
             throw Exception("Platform ${platformDescription.platformName} not supported for this accessor.")
 
+        prepareDockerClient(platformDescription)
+    }
+
+    private fun prepareDockerClient(platformDescription: RuntimePlatform) {
         val dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
-            .withProperties(Properties().apply { putAll(platformDescription.additionalProperties) })
+            .withProperties(Properties().apply { putAll(platformDescription.platformSettings) })
             .apply {
                 if (platformDescription.platformUri != null)
                     withDockerHost(platformDescription.platformUri)
             }
             .build()
         val httpDockerClientConfig = ApacheDockerHttpClient.Builder()
-            .dockerHost(dockerClientConfig.getDockerHost())
-            .sslConfig(dockerClientConfig.getSSLConfig())
+            .dockerHost(dockerClientConfig.dockerHost)
+            .sslConfig(dockerClientConfig.sslConfig)
             .maxConnections(100)
             .connectionTimeout(Duration.ofSeconds(30))
             .responseTimeout(Duration.ofSeconds(45))
@@ -64,13 +63,13 @@ class DockerAccessorRuntime : RuntimePlatformAccessor {
     }
 
     override fun getTargetProcessID(processCmd: String): Int {
-        val result = executeInContainer(
+        val result = executeInServiceContainer(
             "ps -ef | grep \"$processCmd\" | grep -v -E \"grep|ps -ef\" | awk '{print \$1}'"
         ).trim()
         return result.split("\n")[0].trim().toInt()
     }
 
-    override fun executeInContainer(cmd: String): String {
+    override fun executeInServiceContainer(cmd: String): String {
         val outputStream = ByteArrayOutputStream()
 
         dockerClient

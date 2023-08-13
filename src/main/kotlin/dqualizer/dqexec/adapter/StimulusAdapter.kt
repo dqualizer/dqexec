@@ -1,10 +1,10 @@
 package dqualizer.dqexec.adapter
 
 import dqualizer.dqexec.util.LoadCurveHelper
-import dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.Stage
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.*
-import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.Stimulus
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.k6.Stage
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.*
+import io.github.dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.Stimulus
 import org.springframework.stereotype.Component
 import org.springframework.vault.support.DurationParser
 import java.time.Duration
