@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.UnknownRequestTypeException
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
+import io.github.dqualizer.dqlang.types.adapter.request.Request
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -29,9 +29,9 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
 
         //Code for choosing one random variable for every existing path variable
         val pathVariables = request.pathVariables
-        val maybeReference = pathVariables.values.stream().findFirst()
+        val maybeReference = pathVariables.stream().findFirst()
         if (maybeReference.isPresent) {
-            val pathVariablesString = resourcePaths.readResourceFile(maybeReference.get())
+            val pathVariablesString = resourcePaths.readResourceFile(maybeReference.toString())
             try {
                 val node = ObjectMapper().readTree(pathVariablesString)
                 val variables = node.fieldNames()

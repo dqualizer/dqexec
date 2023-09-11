@@ -1,6 +1,6 @@
 package dqualizer.dqexec.output
 
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.K6Config
+import io.github.dqualizer.dqlang.types.adapter.k6.K6Configuration
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -25,9 +25,8 @@ class K6ConfigProducer(
      * @param k6Config A loadtest configuration better suited for k6
      * @return String (only for RabbitMQ)
      */
-    fun produce(k6Config: K6Config?): String {
+    fun produce(k6Config: K6Configuration?): String {
         logger.info("Producing k6 configuration\n" + k6Config.toString())
-
         template.convertAndSend(
             exchangeName,
             "POST",

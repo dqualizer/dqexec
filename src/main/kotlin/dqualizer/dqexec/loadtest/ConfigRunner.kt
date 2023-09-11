@@ -6,7 +6,7 @@ import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.loadtest.mapper.k6.ScriptMapper
 import dqualizer.dqexec.util.ProcessLogger
-import dqualizer.dqlang.archive.k6configurationrunner.dqlang.Config
+import io.github.dqualizer.dqlang.types.adapter.k6.K6Configuration
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.handler.annotation.Payload
@@ -40,7 +40,7 @@ class ConfigRunner(
      * @param config An inofficial k6 configuration
      */
     @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.k6}"])
-    fun receive(@Payload config: Config) {
+    fun receive(@Payload config: K6Configuration) {
         logger.info("Received k6 configuration\n" + config)
         start(config)
     }
@@ -51,7 +51,7 @@ class ConfigRunner(
      *
      * @param config Received inofficial k6-configuration
      */
-    private fun start(config: Config) {
+    private fun start(config: K6Configuration) {
         logger.info("### LOAD TEST CONFIGURATION RECEIVED ###")
         try {
             this.run(config)
@@ -70,7 +70,7 @@ class ConfigRunner(
      * @throws InterruptedException
      */
     @Throws(IOException::class, InterruptedException::class)
-    private fun run(config: Config) {
+    private fun run(config: K6Configuration) {
         logger.info("Trying to run configuration: " + ObjectMapper().writeValueAsString(config))
 
         var baseURL = config.baseURL
@@ -81,7 +81,7 @@ class ConfigRunner(
             logger.info("Alternative host was provided (\$dqualizer.dqexec.docker.localhost_replacement): Replacing 'localhost' or '127.0.0.1' in ${config.baseURL} with $alternativeTargetHost. Result: $baseURL")
         }
 
-        val loadTests = config.loadTests
+        val loadTests = config.k6LoadTests
         var testCounter = 1
 
         //iterate through all loadtests inside the configuration

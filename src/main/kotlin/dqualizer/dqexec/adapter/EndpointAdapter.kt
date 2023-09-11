@@ -1,11 +1,14 @@
 package dqualizer.dqexec.adapter
 
 import dqualizer.dqexec.exception.UnknownTermException
-import dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Checks
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
-import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.Endpoint
-import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.ResponseMeasure
+
+import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.types.adapter.request.Checks
+import io.github.dqualizer.dqlang.types.adapter.request.Request
+import io.github.dqualizer.dqlang.types.dam.Endpoint
+import io.github.dqualizer.dqlang.types.rqa.definition.enums.ResponseTime
+
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.ResponseMeasures
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.regex.Pattern
@@ -21,18 +24,18 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
      * @param responseMeasure Information for response measures
      * @return An inoffical k6 Request object
      */
-    fun adaptEndpoint(endpoint: Endpoint, responseMeasure: ResponseMeasure): Request {
+    fun adaptEndpoint(endpoint: Endpoint, responseMeasure: ResponseMeasures): Request {
         val field = endpoint.field
         val path = markPathVariables(field)
         val type = endpoint.operation
-        val pathVariables = endpoint.pathVariables
-        val queryParams = endpoint.urlParameter
-        val params = endpoint.requestParameter
-        val payload = endpoint.payload
+        val pathVariables = endpoint.path_variables
+        val queryParams = endpoint.url_parameter
+        val params = endpoint.request_parameter
+        val payload = endpoint.payloads
         val duration: Int = this.getDuration(responseMeasure)
         val statusCodes = getStatusCodes(endpoint)
         val checks = Checks(statusCodes, duration)
-        return Request(type, path, pathVariables, queryParams, params, payload, checks)
+        return Request(type, path, pathVariables, queryParams as List<Any>?, params, payload, checks)
     }
 
     /**
@@ -63,14 +66,13 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
      * @param responseMeasure Information for response measures
      * @return The expected answer duration for this request
      */
-    private fun getDuration(responseMeasure: ResponseMeasure): Int {
+    private fun getDuration(responseMeasure: ResponseMeasures): Int {
         val responseTime = loadtestConstants.responseTime
-        val responseTimeValue = responseMeasure.responseTime
-        return when (responseTimeValue) {
-            "SATISFIED" -> responseTime.satisfied
-            "TOLERATED" -> responseTime.tolerated
-            "FRUSTRATED" -> responseTime.frustrated
-            else -> throw UnknownTermException(responseTimeValue)
+        return when (val responseTimeValue = responseMeasure.responseTime) {
+            ResponseTime.SATISFIED -> responseTime.satisfied
+            ResponseTime.TOLERATED -> responseTime.tolerated
+            ResponseTime.FRUSTRATED-> responseTime.frustrated
+            else -> throw UnknownTermException(responseTimeValue.toString())
         }
     }
 
@@ -84,7 +86,7 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
         val responses = endpoint.responses
         val statusCodes = LinkedHashSet<Int>()
         for (response in responses) {
-            val statusCode = response.expectedCode
+            val statusCode = response.expected_code
             statusCodes.add(statusCode)
         }
         return statusCodes
