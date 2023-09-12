@@ -31,7 +31,7 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
         val pathVariables = request.pathVariables
         val maybeReference = pathVariables.stream().findFirst()
         if (maybeReference.isPresent) {
-            val pathVariablesString = resourcePaths.readResourceFile(maybeReference.toString())
+            val pathVariablesString = resourcePaths.readResourceFile(maybeReference.get().scenarios[0].path)
             try {
                 val node = ObjectMapper().readTree(pathVariablesString)
                 val variables = node.fieldNames()

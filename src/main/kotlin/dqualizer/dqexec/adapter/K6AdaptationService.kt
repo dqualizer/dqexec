@@ -27,7 +27,7 @@ class K6AdaptationService(
      * @param loadTestConfig Imported loadtest configuration
      */
     //TODO: extract and make generic for different load types
-    @RabbitListener(queues = ["\${dqualizer.rabbitmq.queues.loadtest}"])
+    @RabbitListener(queues = ["\${dqualizer.messaging.queues.rqaConfigurationProducerQueue.name}"])
     private fun receive(@Payload loadTestConfig: LoadTestConfiguration) {
         log.info("Received loadtest configuration\n$loadTestConfig")
         start(loadTestConfig)
