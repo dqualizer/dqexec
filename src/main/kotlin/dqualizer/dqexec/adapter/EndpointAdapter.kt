@@ -6,7 +6,7 @@ import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.request.Checks
 import io.github.dqualizer.dqlang.types.adapter.request.Request
 import io.github.dqualizer.dqlang.types.dam.Endpoint
-import io.github.dqualizer.dqlang.types.rqa.definition.enums.ResponseTime
+import io.github.dqualizer.dqlang.types.rqa.definition.enums.Satisfaction
 
 import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.ResponseMeasures
 import org.springframework.stereotype.Component
@@ -69,9 +69,9 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
     private fun getDuration(responseMeasure: ResponseMeasures): Int {
         val responseTime = loadtestConstants.responseTime
         return when (val responseTimeValue = responseMeasure.responseTime) {
-            ResponseTime.SATISFIED -> responseTime.satisfied
-            ResponseTime.TOLERATED -> responseTime.tolerated
-            ResponseTime.FRUSTRATED-> responseTime.frustrated
+            Satisfaction.SATISFIED -> responseTime.satisfied
+            Satisfaction.TOLERATED -> responseTime.tolerated
+            Satisfaction.FRUSTRATED-> responseTime.frustrated
             else -> throw UnknownTermException(responseTimeValue.toString())
         }
     }

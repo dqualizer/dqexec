@@ -9,8 +9,8 @@ import io.github.dqualizer.dqlang.types.adapter.k6.K6LoadTest
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
 import io.github.dqualizer.dqlang.types.rqa.definition.enums.LoadProfile
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.LoadIncreaseStimulus
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.Stimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.LoadStimulus
+
 import org.springframework.stereotype.Component
 
 /**
@@ -55,7 +55,7 @@ class K6Adapter(
      * @param stimulus Stimulus for one loadtest
      * @return The amount of repetitions
      */
-    private fun calculateRepetition(stimulus: Stimulus): Int {
+    private fun calculateRepetition(stimulus: LoadStimulus): Int {
         val loadProfile = stimulus.loadProfile
         if (loadProfile == LoadProfile.CONSTANT_LOAD) return 1
         val repetitionConstants = loadtestConstants.accuracy.repetition

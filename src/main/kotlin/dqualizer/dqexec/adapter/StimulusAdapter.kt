@@ -5,10 +5,10 @@ import dqualizer.dqexec.util.LoadCurveHelper
 import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.k6.Stage
 import io.github.dqualizer.dqlang.types.adapter.options.*
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.ConstantLoadStimulus
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.LoadIncreaseStimulus
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.LoadPeakStimulus
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.Stimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.ConstantLoadStimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.LoadIncreaseStimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.LoadPeakStimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.LoadStimulus
 
 import org.springframework.stereotype.Component
 import org.springframework.vault.support.DurationParser
@@ -30,7 +30,7 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
      * @param stimulus Stimulus for the loadtest
      * @return A k6 'options' object
      */
-    fun adaptStimulus(stimulus: Stimulus): Options {
+    fun adaptStimulus(stimulus: LoadStimulus): Options {
         val loadProfile = stimulus.loadProfile
         var scenario: Scenario
         var scenarios: Scenarios
