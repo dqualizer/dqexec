@@ -17,17 +17,17 @@ class CtkAdaptationService(
 ) {
     private val log = Logger.getLogger(this.javaClass.name)
 
-    @RabbitListener(queues = ["\${dqualizer.messaging.queues.rqaConfigurationProducerQueue.name}"])
+  /*  @RabbitListener(queues = ["\${dqualizer.messaging.queues.rqaConfigurationProducerQueue.name}"])
     private fun receive(@Payload ctkConfiguration: CtkConfiguration) {
         log.info("Received loadtest configuration\n$ctkConfiguration")
         start(ctkConfiguration)
-    }
+    }*/
 
-    private fun start(ctkConfiguration: CtkConfiguration ) {
+  /*  private fun start(ctkConfiguration: CtkConfiguration ) {
         val k6Config = adapter.adapt(ctkConfiguration)
         log.info("### CONFIGURATION ADAPTED ###")
         log.info("CTK config" + k6Config)
         producer.produce(k6Config)
         log.info("### CTK CONFIGURATION PRODUCED ###")
-    }
+    }*/
 }

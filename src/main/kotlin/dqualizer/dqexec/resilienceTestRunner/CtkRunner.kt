@@ -2,15 +2,16 @@ package dqualizer.dqexec.resilienceTestRunner
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import dqualizer.dqexec.config.CtkExecutorConfiguration
+import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.util.ProcessLogger
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
 import org.springframework.amqp.rabbit.annotation.RabbitListener
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
+import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStreamReader
 import java.nio.file.Path
 import java.util.logging.Logger
 import kotlin.io.path.Path
@@ -19,11 +20,9 @@ import kotlin.io.path.Path
  *
  */
 @Service
-class ctkRunner(
+class CtkRunner(
         private val processLogger: ProcessLogger,
-        private val ctkExecutorConfiguration: CtkExecutorConfiguration,
-        @Value("\${dqualizer.dqexec.docker.localhost_replacement:}") private val alternativeTargetHost: String,
-        @Value("\${dqualizer.dqexec.influx.host:localhost}") private val influxHost: String,
+        private val paths: ResourcePaths
 ) {
     private val logger = Logger.getLogger(this.javaClass.name)
 
@@ -80,14 +79,15 @@ class ctkRunner(
 
         for (chaosExperiment in config.ctkChaosExperiments) {
             val jsonPayload = objectMapper.writeValueAsString(chaosExperiment)
-            val experimentFilePath = Path("resources/ctk/experiments/${chaosExperiment.title}_experiment.json")
+            val experimentFilePath = Path("resources/ctk/generatedExperiments/${chaosExperiment.title}_experiment.json")
             saveJsonToFile(jsonPayload, experimentFilePath)
             logger.info("### EXPERIMENT $testCounter WAS CREATED IN $experimentFilePath ###")
             var runCounter = 1
 
             //repeat one loadtest if as many times as specified in the configuration
-            while (runCounter <= chaosExperiment.repitions) {
-                val exitValue = runTest(experimentFilePath, testCounter, runCounter)
+            // TODO
+            while (runCounter <= 1){ //chaosExperiment.repitions) {
+                val exitValue = runTestOnLocalWindowsChaosToolkit(experimentFilePath, testCounter, runCounter)
                 logger.info("### Chaos Experiment $testCounter-$runCounter FINISHED WITH VALUE $exitValue ###")
                 runCounter++
             }
@@ -107,28 +107,43 @@ class ctkRunner(
     }
 
 
+    // TODO make private again later
     @Throws(IOException::class, InterruptedException::class)
-    private fun runTest(experimentPath: Path, testCounter: Int, runCounter: Int): Int {
+    public fun runTestOnLocalWindowsChaosToolkit(experimentPath: Path, testCounter: Int, runCounter: Int): Int {
         // TODO use trigger in docker container (makes mounting of filepath necessary...) OR trigger in local venv?!
-        val command = "k6 run $experimentpath --out xk6-influxdb=http://$influxHost:8086"
 
-        val envp = arrayOf(
-            "K6_INFLUXDB_ORGANIZATION=${k6ExecutionConfiguration.influxdbOrganization}",
-            "K6_INFLUXDB_BUCKET=${k6ExecutionConfiguration.influxdbBucket}",
-            "K6_INFLUXDB_TOKEN=${k6ExecutionConfiguration.influxdbToken}"
-        )
+        val activateVenvCommand = """C:\x\activate.ps1"""
+        val projectBasePath = """chaos run C:\x\main"""
+
+        val executeExperimentCommand = """$projectBasePath\$experimentPath"""
+        val activateAndExecuteCommand = "$activateVenvCommand ; $executeExperimentCommand"
+
+      /*  println(activateVenvCommand)
+        println(executeExperimentCommand)
+        println(activateAndExecuteCommand)*/
 
         logger.info(
-            """
-            ### RUN COMMAND: $command ###
-            With Environment:
-            ${envp.joinToString("\n")}                
+                """
+            ### RUN COMMAND: $activateAndExecuteCommand ###
             """.trimIndent()
         )
 
-        val process = Runtime.getRuntime().exec(command, envp)
+        val process = ProcessBuilder("""C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe""",
+                "-Command",
+                activateAndExecuteCommand).inheritIO().start()
+
         val loggingPath = paths.getLogFilePath(testCounter, runCounter)
         processLogger.log(process, loggingPath)
-        return process.exitValue()
+
+        // Capture and print the output and error streams
+       /* val reader = BufferedReader(InputStreamReader(process.inputStream))
+        var line: String?
+        while (reader.readLine().also { line = it } != null) {
+            println(line)
+        }*/
+
+        val exitCode = process.waitFor()
+        println("Exit Code: $exitCode")
+        return exitCode
     }
 }
