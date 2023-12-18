@@ -28,22 +28,11 @@ class CtkRunner(
 
 
     /**
-     * Import the k6 configuration and start the configuration runner
-     * @param config An inofficial k6 configuration
-     */
-    @RabbitListener(queues = ["\${dqualizer.messaging.queues.ctk.name}"])
-    fun receive(@Payload config: CtkConfiguration) {
-        logger.info("Received CTK configuration\n" + config)
-        start(config)
-    }
-
-
-    /**
      * Start the configuration-runner
      *
      * @param config Received inofficial k6-configuration
      */
-    private fun start(config: CtkConfiguration) {
+    public fun start(config: CtkConfiguration) {
         logger.info("### CTK CONFIGURATION RECEIVED ###")
         try {
             this.run(config)
@@ -112,8 +101,8 @@ class CtkRunner(
     public fun runTestOnLocalWindowsChaosToolkit(experimentPath: Path, testCounter: Int, runCounter: Int): Int {
         // TODO use trigger in docker container (makes mounting of filepath necessary...) OR trigger in local venv?!
 
-        val activateVenvCommand = """C:\x\activate.ps1"""
-        val projectBasePath = """chaos run C:\x\main"""
+        val activateVenvCommand = """C:\Users\HenningMöllers\IdeaProjects\Dqualizer_Resilienz_Manuelle_Uebersetzung\venv\Scripts\activate.ps1"""
+        val projectBasePath = """chaos run C:\Users\HenningMöllers\IdeaProjects\dqexec\src\main"""
 
         val executeExperimentCommand = """$projectBasePath\$experimentPath"""
         val activateAndExecuteCommand = "$activateVenvCommand ; $executeExperimentCommand"
