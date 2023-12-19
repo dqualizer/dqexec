@@ -49,7 +49,7 @@ class CtkAdapterTest {
         val actionForRollbacks = Action("start process testProcessId.exe", providerForRollbackAction)
         val rollbacks = listOf(actionForRollbacks)
 
-        val ctkChaosExperiment = CtkChaosExperiment(title, description, steadyStateHypothesis, method, rollbacks)
+        val ctkChaosExperiment = CtkChaosExperiment(title, description, steadyStateHypothesis, method, rollbacks, 1)
 
         //act
         val result = ctkAdapter.adapt(resilienceTestConfiguration)

@@ -6,12 +6,8 @@ import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.util.ProcessLogger
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
-import org.springframework.amqp.rabbit.annotation.RabbitListener
-import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
-import java.io.BufferedReader
 import java.io.IOException
-import java.io.InputStreamReader
 import java.nio.file.Path
 import java.util.logging.Logger
 import kotlin.io.path.Path
@@ -74,8 +70,7 @@ class CtkRunner(
             var runCounter = 1
 
             //repeat one loadtest if as many times as specified in the configuration
-            // TODO
-            while (runCounter <= 1){ //chaosExperiment.repitions) {
+            while (runCounter <= chaosExperiment.repetitions){
                 val exitValue = runTestOnLocalWindowsChaosToolkit(experimentFilePath, testCounter, runCounter)
                 logger.info("### Chaos Experiment $testCounter-$runCounter FINISHED WITH VALUE $exitValue ###")
                 runCounter++

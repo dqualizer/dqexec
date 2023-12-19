@@ -33,8 +33,9 @@ class CtkAdapter()
             val steadyStateHypothesis = createSteadyStateHypothesisForUnaivalabilityStimulus(resilienceTestDefinition.artifact)
             val method = listOf(createActionToKillProcess(resilienceTestDefinition.artifact), createProbeToMonitorRecoveryTimeOfProcess(resilienceTestDefinition.artifact))
             val rollbacks = listOf(createActionToStartProcess(resilienceTestDefinition.artifact))
+            val repitions = 1 // TODO get value from accuracy defined in resilienceTestConfig
 
-            val ctkChaosExperiment = CtkChaosExperiment(resilienceTestDefinition.description, resilienceTestDefinition.description, steadyStateHypothesis, method, rollbacks);
+            val ctkChaosExperiment = CtkChaosExperiment(resilienceTestDefinition.description, resilienceTestDefinition.description, steadyStateHypothesis, method, rollbacks, repitions);
             ctkChaosExperiments.add(ctkChaosExperiment)
         }
         return CtkConfiguration(resilienceTestConfig.context, ctkChaosExperiments)
