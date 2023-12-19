@@ -12,8 +12,16 @@ dqualizer:
       k6:
         name: k6
     exchanges:
-      loadtest: translator-loadtest
-      k6: loadtest-k6
+      loadtest:
+        name: translator-loadtest
+        exchangeType: direct
+        durable: true
+        autoDelete: false
+      k6:
+        name: loadtest-k6
+        exchangeType: direct
+        durable: true
+        autoDelete: false
 
   dqexec:
     influx:
