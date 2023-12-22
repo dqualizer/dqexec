@@ -37,23 +37,11 @@ class ConfigRunner(
 
 
     /**
-     * Import the k6 configuration and start the configuration runner
-     * @param config An inofficial k6 configuration
-     */
-    @RabbitListener(queues = ["\${dqualizer.messaging.queues.k6.name}"])
-    fun receive(@Payload config: K6Configuration) {
-        logger.info("Received k6 configuration\n" + config)
-        start(config)
-    }
-
-
-    /**
      * Start the configuration-runner
      *
      * @param config Received inofficial k6-configuration
      */
-    private fun start(config: K6Configuration) {
-        logger.info("### LOAD TEST CONFIGURATION RECEIVED ###")
+    fun start(config: K6Configuration) {
         try {
             this.run(config)
         } catch (e: Exception) {

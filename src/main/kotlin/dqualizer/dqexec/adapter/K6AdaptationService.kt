@@ -1,6 +1,7 @@
 package dqualizer.dqexec.adapter
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import dqualizer.dqexec.loadtest.ConfigRunner
 import dqualizer.dqexec.output.K6ConfigProducer
 // import dqualizer.dqexec.output.K6ConfigProducer
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
@@ -17,7 +18,7 @@ import java.util.logging.Logger
 @Service
 class K6AdaptationService(
    private val adapter: K6Adapter,
-   private val producer: K6ConfigProducer
+   private val k6ConfigRunner: ConfigRunner
 ) {
     private val log = Logger.getLogger(this.javaClass.name)
 
@@ -37,7 +38,6 @@ class K6AdaptationService(
         val k6Config = adapter.adapt(loadTestConfig)
         log.info("### CONFIGURATION ADAPTED ###")
         log.info("k6 config" + k6Config)
-        producer.produce(k6Config)
-         log.info("### k6 CONFIGURATION PRODUCED ###")
+        k6ConfigRunner.start(k6Config)
     }
 }
