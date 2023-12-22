@@ -5,12 +5,11 @@ server:
 dqualizer:
   messaging:
     queues:
-      loadtest:
-        name: loadtest
-      rqaConfigurationProducerQueue:
-        name: rqaConfigurationProducer
-      k6:
-        name: k6
+      loadTestConfigurationQueue:
+        name: 'loadTestConfigurationQueue'
+      resilienceTestConfigurationQueue:
+        name: 'resilienceTestConfigurationQueue'
+
     exchanges:
       loadtest:
         name: translator-loadtest

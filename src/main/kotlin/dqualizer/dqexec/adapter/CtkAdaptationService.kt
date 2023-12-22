@@ -16,9 +16,9 @@ class CtkAdaptationService(
 ) {
     private val log = Logger.getLogger(this.javaClass.name)
 
-    @RabbitListener(queues = ["\${dqualizer.messaging.queues.rqaConfigurationProducerQueue.name}"])
+    @RabbitListener(queues = ["\${dqualizer.messaging.queues.resilienceTestConfigurationQueue.name}"])
     private fun receive(@Payload resilienceTestConfiguration: ResilienceTestConfiguration) {
-        log.info("Received loadtest configuration\n$resilienceTestConfiguration")
+        log.info("Received resilience test configuration\n$resilienceTestConfiguration")
         start(resilienceTestConfiguration)
     }
 

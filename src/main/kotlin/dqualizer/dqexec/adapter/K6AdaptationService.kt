@@ -1,8 +1,6 @@
 package dqualizer.dqexec.adapter
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.loadtest.ConfigRunner
-import dqualizer.dqexec.output.K6ConfigProducer
 // import dqualizer.dqexec.output.K6ConfigProducer
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -28,7 +26,7 @@ class K6AdaptationService(
      * @param loadTestConfig Imported loadtest configuration
      */
     //TODO: extract and make generic for different load types
-    @RabbitListener(queues = ["\${dqualizer.messaging.queues.rqaConfigurationProducerQueue.name}"])
+    @RabbitListener(queues = ["\${dqualizer.messaging.queues.loadTestConfigurationQueue.name}"])
     private fun receive(@Payload loadTestConfig: LoadTestConfiguration) {
         log.info("Received loadtest configuration\n$loadTestConfig")
         start(loadTestConfig)
