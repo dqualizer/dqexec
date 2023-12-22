@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service
 import java.io.IOException
 import java.nio.file.Path
 import java.util.logging.Logger
+import kotlin.io.path.Path
 
 /**
  * The execution of an inoffical k6 configuration consists of 4 steps:
@@ -116,7 +117,8 @@ class ConfigRunner(
      */
     @Throws(IOException::class, InterruptedException::class)
     private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
-        val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
+        val k6Path = "C:\\Users\\HenningMöllers\\Masterarbeit\\k6\\k6.exe"
+        val command = "$k6Path run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
 
         val envp = arrayOf(
             "K6_INFLUXDB_ORGANIZATION=${k6ExecutionConfiguration.influxdbOrganization}",
@@ -135,6 +137,8 @@ class ConfigRunner(
         val process = Runtime.getRuntime().exec(command, envp)
         val loggingPath = paths.getLogFilePath(testCounter, runCounter)
         processLogger.log(process, loggingPath)
-        return process.exitValue()
+        val exitCode = process.waitFor()
+        println("Exit Code: $exitCode")
+        return exitCode
     }
 }
