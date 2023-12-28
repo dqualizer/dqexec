@@ -56,13 +56,13 @@ class ProcessLogger {
 
     @Throws(InterruptedException::class)
     private fun waitForProcess(process: Process) {
-        logger.info("Waiting for loadtest to finish...")
+        logger.info("Waiting for test to finish...")
         println()
         while (process.isAlive) {
             Thread.sleep(1000)
             print(".")
         }
         println(".")
-        logger.info("Loadtest finished")
+        logger.info("Test finished")
     }
 }

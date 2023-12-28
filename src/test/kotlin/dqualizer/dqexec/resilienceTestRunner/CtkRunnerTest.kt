@@ -15,7 +15,7 @@ class CtkRunnerTest {
         //arrange
         val processLogger = ProcessLogger()
         val ctkRunner = CtkRunner(processLogger, ResourcePaths())
-        val experimentPath = Path("resources\\ctk\\generatedExperiments\\test_experiment.json")
+        val experimentPath = Path("resources\\ctk\\generatedExperiments\\TestDescription_experiment.json")
 
         //act
         val result = ctkRunner.runTestOnLocalWindowsChaosToolkit(experimentPath, 1, 1 )

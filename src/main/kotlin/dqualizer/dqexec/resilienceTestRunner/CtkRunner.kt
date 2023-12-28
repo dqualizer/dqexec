@@ -64,7 +64,7 @@ class CtkRunner(
 
         for (chaosExperiment in config.ctkChaosExperiments) {
             val jsonPayload = objectMapper.writeValueAsString(chaosExperiment)
-            val experimentFilePath = Path("resources/ctk/generatedExperiments/${chaosExperiment.title}_experiment.json")
+            val experimentFilePath = Path("C:/Users/HenningMöllers/IdeaProjects/dqexec/src/main/resources/ctk/generatedExperiments/${chaosExperiment.title}_experiment.json")
             saveJsonToFile(jsonPayload, experimentFilePath)
             logger.info("### EXPERIMENT $testCounter WAS CREATED IN $experimentFilePath ###")
             var runCounter = 1
@@ -97,9 +97,8 @@ class CtkRunner(
         // TODO use trigger in docker container (makes mounting of filepath necessary...) OR trigger in local venv?!
 
         val activateVenvCommand = """C:\Users\HenningMöllers\IdeaProjects\Dqualizer_Resilienz_Manuelle_Uebersetzung\venv\Scripts\activate.ps1"""
-        val projectBasePath = """chaos run C:\Users\HenningMöllers\IdeaProjects\dqexec\src\main"""
 
-        val executeExperimentCommand = """$projectBasePath\$experimentPath"""
+        val executeExperimentCommand = """chaos run $experimentPath"""
         val activateAndExecuteCommand = "$activateVenvCommand ; $executeExperimentCommand"
 
       /*  println(activateVenvCommand)
