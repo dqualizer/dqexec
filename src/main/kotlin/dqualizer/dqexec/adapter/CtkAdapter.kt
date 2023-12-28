@@ -59,7 +59,7 @@ class CtkAdapter()
     fun createProbeToLookIfProcessIsRunning(isSteadyStateHypothesis: Boolean, artifact: EnrichedArtifact): Probe {
         val probeName = artifact.processId + " must be running"
         // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val probeProvider = Provider("python", "processMonitoring", "check_process_exists", mapOf("process_name" to artifact.processId))
+        val probeProvider = Provider("python", "processMonitoring", "check_process_exists", mapOf("process_name" to artifact.processId, "log_result_in_influx_db" to true))
 
         if (isSteadyStateHypothesis){
             val probeTolerance = ObjectMapper().convertValue<JsonNode>(true, JsonNode::class.java)
