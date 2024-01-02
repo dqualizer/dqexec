@@ -64,7 +64,7 @@ class CtkRunner(
 
         for (chaosExperiment in config.ctkChaosExperiments) {
             val jsonPayload = objectMapper.writeValueAsString(chaosExperiment)
-            val experimentFilePath = Path("C:/Users/HenningMöllers/IdeaProjects/dqexec/src/main/resources/ctk/generatedExperiments/${chaosExperiment.title}_experiment.json")
+            val experimentFilePath = Path("C:/Users/HenningMöllers/IdeaProjects/dqexec/src/main/resources/ctk/generatedExperiments/${chaosExperiment.title.replace(" ", "")}_experiment.json")
             saveJsonToFile(jsonPayload, experimentFilePath)
             logger.info("### EXPERIMENT $testCounter WAS CREATED IN $experimentFilePath ###")
             var runCounter = 1
