@@ -1,14 +1,20 @@
 package dqualizer.dqexec.adapter
 
+import dqualizer.dqexec.exception.UnknownStimulusException
 import dqualizer.dqexec.util.LoadCurveHelper
-import dqualizer.dqlang.archive.k6adapter.dqlang.constants.LoadTestConstants
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.Stage
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.*
-import dqualizer.dqlang.archive.k6adapter.dqlang.loadtest.Stimulus
+import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.types.adapter.k6.Stage
+import io.github.dqualizer.dqlang.types.adapter.options.*
+import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.ConstantLoadStimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.LoadIncreaseStimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.LoadPeakStimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.Stimulus
+
 import org.springframework.stereotype.Component
 import org.springframework.vault.support.DurationParser
 import java.time.Duration
 import java.util.*
+import java.util.logging.Logger
 import kotlin.math.roundToInt
 
 /**
@@ -16,6 +22,7 @@ import kotlin.math.roundToInt
  */
 @Component
 class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
+    private val log = Logger.getLogger(this.javaClass.name)
 
     /**
      * Create a k6 'options' objects based on the stimulus for the loadtest
@@ -25,22 +32,27 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
      */
     fun adaptStimulus(stimulus: Stimulus): Options {
         val loadProfile = stimulus.loadProfile
-
-        val scenario: Scenario = when (LoadProfileType.valueOf(loadProfile)) {
-            LoadProfileType.LOAD_PEAK -> {
-                getLoadPeakScenario(stimulus)
+        var scenario: Scenario
+        var scenarios: Scenarios
+        when(stimulus) {
+            is LoadPeakStimulus -> {
+                scenario = getLoadPeakScenario(stimulus)
+                scenarios = Scenarios(scenario)
             }
 
-            LoadProfileType.LOAD_INCREASE -> {
-                getLoadIncreaseScenario(stimulus)
+            is LoadIncreaseStimulus -> {
+                scenario = getLoadIncreaseScenario(stimulus)
+                scenarios = Scenarios(scenario)
+            }
+            is ConstantLoadStimulus -> {
+                scenario = getConstantLoadScenario(stimulus)
+                scenarios = Scenarios(scenario)
+            }
+            else -> {
+                throw UnknownStimulusException("Received unsupported stimulus type: ${stimulus::class.java.name}")
             }
 
-            LoadProfileType.CONSTANT_LOAD -> {
-                getConstantLoadScenario(stimulus)
-            }
         }
-        val scenarios = Scenarios(scenario)
-
         return Options(scenarios)
     }
 
@@ -56,12 +68,12 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
      * @param stimulus Stimulus for the loadtest
      * @return A k6 'scenario' object with virtual user ramp-up
      */
-    fun getLoadPeakScenario(stimulus: Stimulus): Scenario {
+    fun getLoadPeakScenario(stimulus: LoadPeakStimulus): Scenario {
 
         val loadPeak = loadTestConstants.loadProfile.loadPeak
 
         val highestLoad = stimulus.highestLoad
-        val target: Int = when (PeakHeight.valueOf(highestLoad)) {
+        val target: Int = when (PeakHeight.valueOf(highestLoad.toString())) {
             PeakHeight.HIGH -> {
                 loadPeak.high
             }
@@ -76,7 +88,7 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
         }
 
         val timeToHighestLoad = stimulus.timeToHighestLoad
-        val duration: String = when (TimeToHighestLoad.valueOf(timeToHighestLoad)) {
+        val duration: String = when (TimeToHighestLoad.valueOf(timeToHighestLoad.toString())) {
             TimeToHighestLoad.SLOW -> {
                 loadPeak.slow
             }
@@ -118,11 +130,11 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
      * @param stimulus Stimulus for the loadtest
      * @return A k6 'scenario' object with increasing virtual user ramp-up
      */
-    fun getLoadIncreaseScenario(stimulus: Stimulus): Scenario {
+    fun getLoadIncreaseScenario(stimulus: LoadIncreaseStimulus): Scenario {
         val loadIncrease = loadTestConstants.loadProfile.loadIncrease
 
         val typeOfIncrease = stimulus.typeOfIncrease
-        val exponent: Int = when (TypeOfIncrease.valueOf(typeOfIncrease)) {
+        val exponent: Int = when (TypeOfIncrease.valueOf(typeOfIncrease.toString())) {
             TypeOfIncrease.CUBIC -> {
                 loadIncrease.cubic
             }
@@ -198,11 +210,11 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
      * @param stimulus Stimulus for the loadtest
      * @return A k6 'scenario' object with constant virtual users
      */
-    fun getConstantLoadScenario(stimulus: Stimulus): Scenario {
+    fun getConstantLoadScenario(stimulus: ConstantLoadStimulus): Scenario {
         val constantLoad = loadTestConstants.loadProfile.constantLoad
 
         val baseLoad = stimulus.baseLoad
-        val vus: Int = when (BaseLoad.valueOf(baseLoad)) {
+        val vus: Int = when (BaseLoad.valueOf(baseLoad.toString())) {
             BaseLoad.LOW -> {
                 constantLoad.low
             }

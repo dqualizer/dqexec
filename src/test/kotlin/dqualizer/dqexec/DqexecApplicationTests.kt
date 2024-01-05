@@ -7,9 +7,4 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @SpringBootTest
 class DqexecApplicationTests {
 
-	@Test
-	fun contextLoadsTest() {
-		
-	}
-
 }

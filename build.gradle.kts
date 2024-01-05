@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val spring_boot_starter_version = "3.0.4"
-val dqlang_version = "0.3.0"
+val dqlang_version = "2.0.16"
 
 plugins {
     id("org.springframework.boot") version "3.1.0-M2"
@@ -84,9 +84,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     implementation("org.springframework.vault:spring-vault-core:3.0.2")
-
-    implementation("dqualizer:dqlang:$dqlang_version")
-
+    implementation("io.github.dqualizer:dqlang:$dqlang_version")
     compileOnly("org.projectlombok:lombok:1.18.26")
     runtimeOnly("com.h2database:h2:2.1.214")
     annotationProcessor("org.projectlombok:lombok:1.18.26")
@@ -102,7 +100,7 @@ dependencyManagement {
     }
 }
 
-tasks.withType<KotlinCompile> {
+tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "17"
