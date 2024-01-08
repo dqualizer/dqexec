@@ -105,8 +105,10 @@ class ConfigRunner(
      */
     @Throws(IOException::class, InterruptedException::class)
     private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
-        val k6Path = "C:\\Users\\HenningMöllers\\Masterarbeit\\k6\\k6.exe"
-        val command = "$k6Path run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
+      /*  val k6Path = "C:\\Users\\HenningMöllers\\Masterarbeit\\k6\\k6.exe"
+        val command = "$k6Path run $scriptPath --out xk6-influxdb=http://$influxHost:8086"*/
+
+        val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
 
         val envp = arrayOf(
             "K6_INFLUXDB_ORGANIZATION=${k6ExecutionConfiguration.influxdbOrganization}",
