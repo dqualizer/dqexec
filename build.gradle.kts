@@ -6,7 +6,7 @@ plugins {
     kotlin("jvm") version "1.9.0"
     kotlin("plugin.spring") version "1.9.0"
 
-    id("org.springframework.boot") version "3.1.0-M2"
+    id("org.springframework.boot") version "3.2.1"
     id("io.spring.dependency-management") version "1.1.0"
 
     id("net.researchgate.release") version "3.0.2"
@@ -79,15 +79,16 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
+    implementation("org.springframework.data:spring-data-mongodb")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     implementation("org.springframework.vault:spring-vault-core:3.0.3")
     implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
 
     implementation("com.github.docker-java:docker-java:3.3.2") {
-        exclude(group="org.slf4j")
+        exclude(group = "org.slf4j")
     }
 
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.2") //dependency of docker-java
@@ -96,10 +97,13 @@ dependencies {
 
     implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
 
+    implementation("io.github.oshai:kotlin-logging:6.0.1")
 
-    implementation("io.github.dqualizer:dqlang:$dqlang_version")
 
-    runtimeOnly("com.h2database:h2:2.1.214")
+//    implementation("io.github.dqualizer:dqlang:$dqlang_version")
+    implementation(project(":dqlang"))
+
+    runtimeOnly("com.h2database:h2:2.2.220")
     annotationProcessor("org.projectlombok:lombok")
 
     testImplementation("org.mockito:mockito-core:5.4.0")
