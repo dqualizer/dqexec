@@ -7,8 +7,8 @@ import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientImpl
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient
 import dqualizer.dqexec.instrumentation.platform.RuntimePlatformAccessor
-import io.github.dqualizer.dqlang.types.architecture.RuntimePlatform
-import io.github.dqualizer.dqlang.types.architecture.ServiceDescription
+import io.github.dqualizer.dqlang.types.dam.architecture.RuntimePlatform
+import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 import java.time.Duration
@@ -28,18 +28,18 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
 
         this.targetContainerName = targetService.getDeploymentName()
 
-        if (!supports(platformDescription.platformName))
-            throw Exception("Platform ${platformDescription.platformName} not supported for this accessor.")
+        if (!supports(platformDescription.name))
+            throw Exception("Platform ${platformDescription.name} not supported for this accessor.")
 
         prepareDockerClient(platformDescription)
     }
 
     private fun prepareDockerClient(platformDescription: RuntimePlatform) {
         val dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
-            .withProperties(Properties().apply { putAll(platformDescription.platformSettings) })
+            .withProperties(Properties().apply { putAll(platformDescription.settings) })
             .apply {
-                if (platformDescription.platformUri != null)
-                    withDockerHost(platformDescription.platformUri)
+                if (platformDescription.uri != null)
+                    withDockerHost(platformDescription.uri!!.host)
             }
             .build()
         val httpDockerClientConfig = ApacheDockerHttpClient.Builder()
@@ -62,9 +62,12 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
 
     }
 
-    override fun getTargetProcessID(processCmd: String): Int {
+    /**
+     * @param processName the name of the process to search for. e.g. "java"
+     */
+    override fun getTargetProcessID(processName: String): Int {
         val result = executeInServiceContainer(
-            "ps -ef | grep \"$processCmd\" | grep -v -E \"grep|ps -ef\" | awk '{print \$1}'"
+            "ps -ef | grep \"$processName\" | grep -v -E \"grep|ps -ef\" | awk '{print \$1}'"
         ).trim()
         return result.split("\n")[0].trim().toInt()
     }
