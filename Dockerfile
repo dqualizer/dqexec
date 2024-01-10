@@ -65,6 +65,11 @@ RUN xk6 build --with github.com/grafana/xk6-output-influxdb --output /tmp/k6
 #### ----------- Runner Definiton ----------- ###
 FROM --platform=$BUILDPLATFORM eclipse-temurin:19-jre-alpine
 
+# Install Python and pip
+RUN apk add --no-cache python3 py3-pip
+# Install Chaos Toolkit via pip
+RUN pip3 install chaostoolkit
+
 # Set the working directory to /app
 WORKDIR /app
 
