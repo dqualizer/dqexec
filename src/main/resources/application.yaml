@@ -11,6 +11,11 @@ dqualizer:
       loadtest: translator-loadtest
       k6: loadtest-k6
 
+  messaging:
+    queues:
+      rqaDefinitionReceiverQueue:
+        name: 'rqaConfiguration'
+
   dqexec:
     influx:
       host: localhost
