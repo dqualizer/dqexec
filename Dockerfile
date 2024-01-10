@@ -66,7 +66,8 @@ RUN xk6 build --with github.com/grafana/xk6-output-influxdb --output /tmp/k6
 FROM --platform=$BUILDPLATFORM eclipse-temurin:19-jre-alpine
 
 # Install Python and pip
-RUN apk add --no-cache python3 py3-pip
+RUN apk --no-cache add gcc python3-dev py3-pip libc-dev linux-headers
+
 # Install Chaos Toolkit via pip
 RUN pip3 install chaostoolkit
 
@@ -76,6 +77,11 @@ WORKDIR /app
 # Copy the executables from the build stages
 COPY --from=build-executor /app/build/libs/*.jar /app/dqexec.jar
 COPY --from=k6-builder /tmp/k6 /usr/bin/k6
+#COPY --from=ctk-builder /usr/local/bin/chaos /usr/local/bin/chaos
+COPY src/main/resources/ctk/python /app/ctk/python
+
+RUN pip3 install -r /app/ctk/python/requirements.txt
+ENV PYTHONPATH=/app/ctk/python:$PYTHONPATH
 
 RUN wget -O ./opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.26.0/opentelemetry-javaagent.jar
 
