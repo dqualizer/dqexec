@@ -145,7 +145,7 @@ class CtkRunner(
             """.trimIndent()
         )
 
-        val process = ProcessBuilder(executeExperimentCommand).inheritIO().start()
+        val process = ProcessBuilder(listOf("/bin/sh", "-c", executeExperimentCommand)).inheritIO().start()
 
         val loggingPath = paths.getLogFilePath(testCounter, runCounter)
         processLogger.log(process, loggingPath)
