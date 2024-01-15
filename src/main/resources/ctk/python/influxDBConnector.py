@@ -5,7 +5,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 
 token = "specialToken000"
 org = "my-org"
-url = "http://localhost:8086"
+url = "http:///host.docker.internal:8086"
 
 write_client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
 
