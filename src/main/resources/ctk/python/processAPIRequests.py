@@ -40,7 +40,8 @@ def request_check_process_exists(process_name, log_result_in_influx_db):
 
 
 def get_duration_until_process_started(process_name, monitoring_duration_sec, checking_interval_sec):
-    print(f"started monitoring until process {process_name} (re)starts: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    print(
+        f"started monitoring until process {process_name} (re)starts: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
     monitoring_start_time = datetime.now()
     # print("monitoring_start_time", monitoring_start_time)
@@ -79,6 +80,6 @@ def request_kill_process_by_name(process_name):
         print("Request timed out")
 
 
-
-
-request_kill_process_by_name('KeePassXC.exe')
+def request_start_process_by_path(path):
+    # TODO if case study evaluates that this is desired.
+    print("Please restart the process manually")
