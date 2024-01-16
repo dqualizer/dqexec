@@ -88,6 +88,7 @@ RUN wget -O ./opentelemetry-javaagent.jar https://github.com/open-telemetry/open
 
 VOLUME /app/scripts
 VOLUME /app/logging
+VOLUME /hostpipe
 
 # Run the jar file
 CMD ["java", "-javaagent:./opentelemetry-javaagent.jar", "-jar", "dqexec.jar"]
