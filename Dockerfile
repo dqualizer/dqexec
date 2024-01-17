@@ -83,7 +83,7 @@ COPY src/main/resources/ctk/python /app/ctk/python
 RUN pip3 install -r /app/ctk/python/requirements.txt
 ENV PYTHONPATH=/app/ctk/python:$PYTHONPATH
 
-RUN wget -O ./opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.26.0/opentelemetry-javaagent.jar
+#RUN wget -O ./opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.26.0/opentelemetry-javaagent.jar
 
 
 VOLUME /app/scripts
@@ -91,4 +91,6 @@ VOLUME /app/logging
 VOLUME /hostpipe
 
 # Run the jar file
-CMD ["java", "-javaagent:./opentelemetry-javaagent.jar", "-jar", "dqexec.jar"]
+CMD ["java", "-jar", "dqexec.jar"]
+#CMD ["java", "-javaagent:./opentelemetry-javaagent.jar", "-jar", "dqexec.jar"]
+#CMD ["/usr/local/bin/chaos", "run", "your_experiment.json"]
