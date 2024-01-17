@@ -1,25 +1,25 @@
 package dqualizer.dqexec.instrumentation.platform.included
 
-import io.github.dqualizer.dqlang.types.architecture.RuntimePlatform
-import io.github.dqualizer.dqlang.types.architecture.ServiceDescription
+import io.github.dqualizer.dqlang.types.dam.architecture.RuntimePlatform
+import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.testcontainers.containers.GenericContainer
 
-private const val ContainerName = "dqexec_test_container"
+private const val ContainerName = "assignment-service"
 private const val TestImageName = "ghcr.io/dqualizer/dqexec"
 
 private const val AccessorType = "Docker"
 
 class DockerAccessorTest {
     companion object {
-        val grafanaContainer = GenericContainer<Nothing>(TestImageName)
-            .apply {
-                withCreateContainerCmdModifier { cmd -> cmd.withName(ContainerName) }
-                start()
-            }
+//        val grafanaContainer = GenericContainer<Nothing>(TestImageName)
+//            .apply {
+//                withCreateContainerCmdModifier { cmd -> cmd.withName(ContainerName) }
+//                start()
+//            }
     }
 
     @Test
@@ -58,4 +58,5 @@ class DockerAccessorTest {
         Assertions.assertNotNull(targetProcessID)
         Assertions.assertTrue(targetProcessID > 0)
     }
+
 }

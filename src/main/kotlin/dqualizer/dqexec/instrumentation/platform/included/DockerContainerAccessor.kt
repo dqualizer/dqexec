@@ -37,6 +37,7 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
     private fun prepareDockerClient(platformDescription: RuntimePlatform) {
         val dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
             .withProperties(Properties().apply { putAll(platformDescription.settings) })
+            .withDockerHost("tcp://localhost:2375")
             .apply {
                 if (platformDescription.uri != null)
                     withDockerHost(platformDescription.uri!!.host)
@@ -54,6 +55,8 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
     }
 
     override fun connect() {
+        checkIfClientIsInitialized()
+
         val containers = dockerClient.listContainersCmd().exec()
         if (containers.size > 0 && containers.any { it.names.contains("/$targetContainerName") })
             println("Container $targetContainerName found.")
@@ -73,12 +76,15 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
     }
 
     override fun executeInServiceContainer(cmd: String): String {
+        checkIfClientIsInitialized()
+
         val outputStream = ByteArrayOutputStream()
 
         dockerClient
             .execStartCmd(
                 dockerClient.execCreateCmd(targetContainerName)
                     .withAttachStdout(true)
+                    .withAttachStderr(true)
                     .withCmd("sh", "-c", cmd)
                     .exec().id
             )
@@ -89,6 +95,12 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
             })
             .awaitCompletion()
         return outputStream.toString()
+    }
+
+    private fun checkIfClientIsInitialized() {
+        if (!this::dockerClient.isInitialized) {
+            throw Exception("DockerClient not initialized. Call setup() first.")
+        }
     }
 
     override fun supports(delimiter: String): Boolean {

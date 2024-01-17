@@ -1,12 +1,38 @@
 package dqualizer.dqexec.instrumentation.framework
 
 import dqualizer.dqexec.instrumentation.platform.RuntimePlatformAccessor
-import io.github.dqualizer.dqlang.types.instrumentation.Instrumentation
-import org.springframework.plugin.core.Plugin
+import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
+import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMonitoringConfiguration
+import org.springframework.stereotype.Service
 
-sealed interface RuntimeServiceInstrumenter<I : InstrumentationPlan> : Plugin<String> {
+@Service
+abstract class RuntimeServiceInstrumenter : IRuntimeServiceInstrumenter {
 
-    fun instrument(instrumentation: Instrumentation, platformAccessor: RuntimePlatformAccessor)
+    final override fun instrument(
+        targetService: ServiceDescription,
+        serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
+        platformAccessor: RuntimePlatformAccessor
+    ) {
+        executeInstrumentationPlan(targetService, serviceMonitoringConfiguration, platformAccessor)
+    }
 
-    fun deinstrument(instrumentation: Instrumentation, platformAccessor: RuntimePlatformAccessor)
+    final override fun deinstrument(
+        targetService: ServiceDescription,
+        serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
+        platformAccessor: RuntimePlatformAccessor
+    ) {
+        revertInstrumentationPlan(targetService, serviceMonitoringConfiguration, platformAccessor)
+    }
+
+    protected abstract fun executeInstrumentationPlan(
+        targetService: ServiceDescription,
+        serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
+        platformAccessor: RuntimePlatformAccessor
+    )
+
+    protected abstract fun revertInstrumentationPlan(
+        targetService: ServiceDescription,
+        serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
+        platformAccessor: RuntimePlatformAccessor
+    )
 }

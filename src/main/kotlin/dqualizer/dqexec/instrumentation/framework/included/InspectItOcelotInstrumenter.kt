@@ -1,40 +1,80 @@
 package dqualizer.dqexec.instrumentation.framework.included
 
-import dqualizer.dqexec.instrumentation.framework.InstrumentationMapper
-import dqualizer.dqexec.instrumentation.framework.RuntimeServiceInstrumenterImpl
+import dqualizer.dqexec.instrumentation.framework.RuntimeServiceInstrumenter
 import dqualizer.dqexec.instrumentation.platform.RuntimePlatformAccessor
+import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
+import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMonitoringConfiguration
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+
+private const val INSPECT_IT_OCELOT_VERSION = "2.6.1"
+
+private const val INSPECTIT_OCELOT_JAR = "inspectit-ocelot-agent-$INSPECT_IT_OCELOT_VERSION.jar"
 
 /**
  * @author Lion Wagner
  */
 @Component
 class InspectItOcelotInstrumenter(
-    override val instrumentationMapper: InstrumentationMapper<InspectItOcelotInstrumentationPlan>
-) : RuntimeServiceInstrumenterImpl<InspectItOcelotInstrumentationPlan>() {
+    val instrumentationMapper: InspectItOcelotInstrumentationPlanMapper
+) : RuntimeServiceInstrumenter() {
+
+    private val log = KotlinLogging.logger { }
 
     override fun executeInstrumentationPlan(
-        instrumentationPlan: InspectItOcelotInstrumentationPlan,
+        targetService: ServiceDescription,
+        serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
         platformAccessor: RuntimePlatformAccessor
     ) {
+        val instrumentationPlan = instrumentationMapper.map(serviceMonitoringConfiguration, "")
+
         platformAccessor.connect()
 
-        val targetProccessId = platformAccessor.getTargetProcessID("java")
+        log.info { "Connected to platform" }
+
 
         //TODOs:
         // - check if container has internet access, otherwise try download locally
         // - location of the jar should be configurable
 
-        platformAccessor.executeInServiceContainer(
+        log.info { "Downloading agent" }
+        var response = platformAccessor.executeInServiceContainer(
             """
-                wget https://github.com/inspectIT/inspectit-oce/releases/download/2.5.3/inspectit-ocelot-agent-2.5.3.jar
-                java -jar inspectit-ocelot-agent-2.5.3.jar $targetProccessId '${instrumentationPlan.inspectItConfiguration}'                
+                curl https://github.com/inspectIT/inspectit-oce/releases/download/$INSPECT_IT_OCELOT_VERSION/$INSPECTIT_OCELOT_JAR -o /tmp/$INSPECTIT_OCELOT_JAR
             """.trimIndent()
         )
+        if (response.contains("curl: not found")) {
+            log.debug { "curl not found, trying wget" }
+            response = platformAccessor.executeInServiceContainer(
+                """
+                    wget https://github.com/inspectIT/inspectit-oce/releases/download/$INSPECT_IT_OCELOT_VERSION/$INSPECTIT_OCELOT_JAR -O /tmp/$INSPECTIT_OCELOT_JAR
+                """.trimIndent()
+            )
+        }
+
+        log.debug { "Response: $response" }
+
+        val targetProcessId = platformAccessor.getTargetProcessID("java")
+        log.info { "Target process id: $targetProcessId" }
+
+
+        log.info { "Starting agent" }
+        val config = instrumentationPlan.inspectItConfiguration
+        val cmd = """
+            java -jar /tmp/$INSPECTIT_OCELOT_JAR $targetProcessId '$config'
+        """.trimIndent()
+        val agentResponse = platformAccessor.executeInServiceContainer(cmd)
+
+        log.debug { "Response: $agentResponse" }
+
+        if(!agentResponse.contains("Agent successfully attached!")) {
+            throw RuntimeException("Agent could not be started")
+        }
     }
 
-    override fun reverseInstrumentationPlan(
-        instrumentation: InspectItOcelotInstrumentationPlan,
+    override fun revertInstrumentationPlan(
+        targetService: ServiceDescription,
+        serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
         platformAccessor: RuntimePlatformAccessor
     ) {
         TODO("Not yet implemented")

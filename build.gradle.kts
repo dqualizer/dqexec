@@ -87,17 +87,19 @@ dependencies {
     implementation("org.springframework.vault:spring-vault-core:3.0.3")
     implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
 
-    implementation("com.github.docker-java:docker-java:3.3.2") {
+    implementation("com.github.docker-java:docker-java:3.3.4") {
         exclude(group = "org.slf4j")
     }
 
-    implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.2") //dependency of docker-java
+    implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
 
     implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
 
     implementation("io.github.oshai:kotlin-logging:6.0.1")
+
+    implementation("io.opentelemetry:opentelemetry-api:1.34.1")
 
 
 //    implementation("io.github.dqualizer:dqlang:$dqlang_version")
@@ -111,6 +113,7 @@ dependencies {
     testImplementation("org.springframework.amqp:spring-rabbit-test")
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
     testImplementation("org.testcontainers:rabbitmq:1.18.0")
+    testImplementation("org.jeasy:easy-random-core:5.0.0")
 }
 
 dependencyManagement {
