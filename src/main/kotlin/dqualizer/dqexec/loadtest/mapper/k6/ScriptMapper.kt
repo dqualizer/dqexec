@@ -1,12 +1,10 @@
 package dqualizer.dqexec.loadtest.mapper.k6
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.ObjectMapper
-import dqualizer.dqexec.adapter.ThymeleafTemplateEngineFactory
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.options.Options
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
-import dqualizer.dqlang.archive.k6configurationrunner.dqlang.LoadTest
-import org.springframework.beans.factory.annotation.Qualifier
+import io.github.dqualizer.dqlang.types.adapter.k6.K6LoadTest
+import io.github.dqualizer.dqlang.types.adapter.options.Options
+import io.github.dqualizer.dqlang.types.adapter.request.Request
+import io.github.dqualizer.dqlang.types.dam.Payload
 import org.springframework.stereotype.Component
 import org.thymeleaf.context.Context
 import org.thymeleaf.context.IContext
@@ -35,11 +33,11 @@ class ScriptMapper(
      * @throws JsonProcessingException
      */
     @Throws(JsonProcessingException::class)
-    fun getScript(baseURL: String, loadTest: LoadTest): List<String> {
+    fun getScript(baseURL: String, loadTest: K6LoadTest): List<String> {
         val script: MutableList<String> = LinkedList()
         val options = loadTest.options
         script.add(startScript(baseURL, options))
-        val request = loadTest.request
+        var request = loadTest.request
         val requestScript = this.map(request)
         script.add(requestScript)
         script.add("}")

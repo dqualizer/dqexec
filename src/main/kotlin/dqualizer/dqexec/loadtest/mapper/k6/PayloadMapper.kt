@@ -2,7 +2,7 @@ package dqualizer.dqexec.loadtest.mapper.k6
 
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.NoReferenceFoundException
-import dqualizer.dqlang.archive.k6adapter.dqlang.k6.request.Request
+import io.github.dqualizer.dqlang.types.adapter.request.Request
 import org.springframework.stereotype.Component
 
 /**
@@ -13,9 +13,9 @@ class PayloadMapper(private val resourcePaths: ResourcePaths) : RuntimeQualityAn
 
     override fun map(request: Request): String {
         val payload = request.payload
-        val maybeReference = payload.values.stream().findFirst()
-        if (maybeReference.isEmpty) throw NoReferenceFoundException(payload)
-        val payloadObject = resourcePaths.readResourceFile(maybeReference.get())
+        val maybeReference = payload[0].scenarios[0].path
+        // if (maybeReference.isEmpty) throw NoReferenceFoundException(payload)
+        val payloadObject = resourcePaths.readResourceFile(maybeReference.toString())
 
         return """
                 const payloadData = %s

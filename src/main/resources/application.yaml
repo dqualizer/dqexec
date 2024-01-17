@@ -3,10 +3,14 @@ server:
 
 
 dqualizer:
-  rabbitmq:
+  messaging:
     queues:
-      loadtest: loadtest
-      k6: k6
+      loadtest:
+        name: loadtest
+      rqaConfigurationProducerQueue:
+        name: rqaConfigurationProducer
+      k6:
+        name: k6
     exchanges:
       loadtest: translator-loadtest
       k6: loadtest-k6
