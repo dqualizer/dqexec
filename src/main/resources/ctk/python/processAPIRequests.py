@@ -4,7 +4,7 @@ import time
 import requests
 import influxDBConnector
 
-base_url = "http://host.docker.internal:443"
+base_url = "http://host.docker.internal:3323"
 request_timeout_sec = 5
 
 
