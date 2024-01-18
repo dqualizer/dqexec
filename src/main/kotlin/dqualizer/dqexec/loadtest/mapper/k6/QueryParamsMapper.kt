@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
  * Maps the url-parameter to Javascript-Code
  */
 @Component
-class QueryParamsMapper(private val paths: ResourcePaths) : RuntimeQualityAnalysisConfigurationTranslator {
+class QueryParamsMapper(private val paths: ResourcePaths) : K6Mapper {
 
     override fun map(request: Request): String {
         val queryParams = request.queryParams

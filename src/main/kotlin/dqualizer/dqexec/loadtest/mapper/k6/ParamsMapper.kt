@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
  * Maps the request-parameter to Javascript-Code
  */
 @Component
-class ParamsMapper(private val resourcePaths: ResourcePaths) : RuntimeQualityAnalysisConfigurationTranslator {
+class ParamsMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
     override fun map(request: Request): String {
         val params: List<RequestParameter>  = request.requestParameters
         if (params.isEmpty()) return String.format("%sconst params = {}%s", K6Mapper.newLine, K6Mapper.newLine)

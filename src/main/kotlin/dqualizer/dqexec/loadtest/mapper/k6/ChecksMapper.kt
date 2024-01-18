@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
  * Maps the expected responses to Javascript-Code
  */
 @Component
-class ChecksMapper : RuntimeQualityAnalysisConfigurationTranslator {
+class ChecksMapper : K6Mapper {
     override fun map(request: Request): String {
         val checksBuilder = StringBuilder()
         val checks = request.checks

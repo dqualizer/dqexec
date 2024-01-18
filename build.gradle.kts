@@ -1,11 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val spring_boot_starter_version = "3.0.4"
 val dqlang_version = "2.0.16"
 
 plugins {
-    id("org.springframework.boot") version "3.1.0-M2"
-    id("io.spring.dependency-management") version "1.1.0"
+    id("org.springframework.boot") version "3.2.1"
+    id("io.spring.dependency-management") version "1.1.4"
     kotlin("jvm") version "1.8.20"
     kotlin("plugin.spring") version "1.8.20"
 
@@ -41,12 +40,9 @@ release {
 publishing{
     repositories {
         maven {
-            name = "GitHubPackages"
+            name = "gpr"
             url = uri("https://maven.pkg.github.com/dqualizer/dqexec")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
+            credentials(PasswordCredentials::class)
         }
         publications {
             register("jar", MavenPublication::class) {
@@ -67,9 +63,12 @@ configurations {
 }
 
 repositories {
-    mavenLocal()
-    mavenCentral()
-    maven { url = uri("https://repo.spring.io/milestone") }
+	mavenCentral()
+	 maven {
+		 name="gpr"
+		url = uri("https://maven.pkg.github.com/dqualizer/dqlang")
+		credentials(PasswordCredentials::class)
+	 }
 }
 
 extra["testcontainersVersion"] = "1.17.6"

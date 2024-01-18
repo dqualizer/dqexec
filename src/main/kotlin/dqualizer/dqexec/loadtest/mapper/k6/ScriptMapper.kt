@@ -22,7 +22,7 @@ class ScriptMapper(
     private val httpMapper: HttpMapper,
     private val checksMapper: ChecksMapper,
     private val pathVariablesMapper: PathVariablesMapper
-) : RuntimeQualityAnalysisConfigurationTranslator {
+) : K6Mapper {
 
     /**
      * Map one loadtest to a k6-script
@@ -82,7 +82,7 @@ class ScriptMapper(
      */
     @Throws(JsonProcessingException::class)
     private fun startScript(baseURL: String, options: Options): String {
-        val optionsString = ObjectMapper().writeValueAsString(options)
+        val optionsString = K6Mapper.objectMapper.writeValueAsString(options)
         val trackDataPerURL = trackDataPerURLInitScript()
         return """
                 import http from 'k6/http';
