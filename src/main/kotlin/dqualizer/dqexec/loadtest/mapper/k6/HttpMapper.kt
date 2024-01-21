@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.UnknownRequestTypeException
 import io.github.dqualizer.dqlang.types.adapter.request.Request
-import java.util.*
+import java.util.Locale
 import org.springframework.stereotype.Component
 
 /** Maps the specified request to a k6 'default function()' */

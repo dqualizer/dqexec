@@ -13,54 +13,54 @@ import org.thymeleaf.templatemode.TemplateMode
 
 @Configuration
 class ThymeleafTemplateEngineFactory(
-    private val applicationContext: ApplicationContext,
-    private val resourcePaths: ResourcePaths,
+  private val applicationContext: ApplicationContext,
+  private val resourcePaths: ResourcePaths,
 ) {
-    @Cacheable("templateEngines")
-    fun getEngine(
-        templateMode: TemplateMode,
-        prefix: String = "",
-    ): SpringTemplateEngine {
-        val templateResolver = SpringResourceTemplateResolver()
-        templateResolver.setApplicationContext(applicationContext)
-        templateResolver.prefix = prefix
-        templateResolver.templateMode = templateMode
-        templateResolver.isCacheable = false
+  @Cacheable("templateEngines")
+  fun getEngine(
+    templateMode: TemplateMode,
+    prefix: String = "",
+  ): SpringTemplateEngine {
+    val templateResolver = SpringResourceTemplateResolver()
+    templateResolver.setApplicationContext(applicationContext)
+    templateResolver.prefix = prefix
+    templateResolver.templateMode = templateMode
+    templateResolver.isCacheable = false
 
-        val templateEngine = SpringTemplateEngine()
-        templateEngine.setTemplateResolver(templateResolver)
+    val templateEngine = SpringTemplateEngine()
+    templateEngine.setTemplateResolver(templateResolver)
 
-        // Enabling the SpringEL compiler with Spring 4.2.4 or newer can
-        // speed up execution in most scenarios, but might be incompatible
-        // with specific cases when expressions in one template are reused
-        // across different data types, so this flag is "false" by default
-        // for safer backwards compatibility.
-        templateEngine.enableSpringELCompiler = true
+    // Enabling the SpringEL compiler with Spring 4.2.4 or newer can
+    // speed up execution in most scenarios, but might be incompatible
+    // with specific cases when expressions in one template are reused
+    // across different data types, so this flag is "false" by default
+    // for safer backwards compatibility.
+    templateEngine.enableSpringELCompiler = true
 
-        return templateEngine
-    }
+    return templateEngine
+  }
 
-    @Bean
-    @Primary
-    fun templateEngine(): SpringTemplateEngine {
-        return getEngine(TemplateMode.TEXT)
-    }
+  @Bean
+  @Primary
+  fun templateEngine(): SpringTemplateEngine {
+    return getEngine(TemplateMode.TEXT)
+  }
 
-    @Bean
-    @Qualifier("resource")
-    fun templateEngineRes(): SpringTemplateEngine {
-        return getEngine(TemplateMode.TEXT, "classpath:")
-    }
+  @Bean
+  @Qualifier("resource")
+  fun templateEngineRes(): SpringTemplateEngine {
+    return getEngine(TemplateMode.TEXT, "classpath:")
+  }
 
-    @Bean("templateEngineJS")
-    @Qualifier("js")
-    fun templateEngineJS(): SpringTemplateEngine {
-        return getEngine(TemplateMode.JAVASCRIPT)
-    }
+  @Bean("templateEngineJS")
+  @Qualifier("js")
+  fun templateEngineJS(): SpringTemplateEngine {
+    return getEngine(TemplateMode.JAVASCRIPT)
+  }
 
-    @Bean("templateEngineJSRes")
-    @Qualifier("jsRes")
-    fun templateEngineJSRes(): SpringTemplateEngine {
-        return getEngine(TemplateMode.JAVASCRIPT, "classpath:")
-    }
+  @Bean("templateEngineJSRes")
+  @Qualifier("jsRes")
+  fun templateEngineJSRes(): SpringTemplateEngine {
+    return getEngine(TemplateMode.JAVASCRIPT, "classpath:")
+  }
 }

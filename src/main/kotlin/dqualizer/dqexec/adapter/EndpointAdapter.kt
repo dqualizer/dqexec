@@ -7,7 +7,7 @@ import io.github.dqualizer.dqlang.types.adapter.request.Request
 import io.github.dqualizer.dqlang.types.dam.Endpoint
 import io.github.dqualizer.dqlang.types.rqa.definition.enums.ResponseTime
 import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.ResponseMeasures
-import java.util.*
+import java.util.LinkedList
 import java.util.regex.Pattern
 import org.springframework.stereotype.Component
 

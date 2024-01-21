@@ -139,7 +139,7 @@ class ConfigRunner(
       """
             ### RUN COMMAND: $command ###
             With Environment:
-            ${envp.joinToString("\n")}                
+            ${envp.joinToString("\n")}
       """
         .trimIndent(),
     )
