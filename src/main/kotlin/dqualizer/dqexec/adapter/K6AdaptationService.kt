@@ -19,7 +19,7 @@ class K6AdaptationService(
 ) {
   private val log = Logger.getLogger(this.javaClass.name)
 
-  // TODO: extract and make generic for different load types<
+  // TODO: extract and make generic for different load types
 
   /**
    * Import the loadtest configuration and start the adaptation process
