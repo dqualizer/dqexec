@@ -13,12 +13,14 @@ import org.thymeleaf.templatemode.TemplateMode
 
 @Configuration
 class ThymeleafTemplateEngineFactory(
-    private val applicationContext: ApplicationContext, private val resourcePaths: ResourcePaths
+    private val applicationContext: ApplicationContext,
+    private val resourcePaths: ResourcePaths,
 ) {
-
     @Cacheable("templateEngines")
-    fun getEngine(templateMode: TemplateMode, prefix: String = ""): SpringTemplateEngine {
-
+    fun getEngine(
+        templateMode: TemplateMode,
+        prefix: String = "",
+    ): SpringTemplateEngine {
         val templateResolver = SpringResourceTemplateResolver()
         templateResolver.setApplicationContext(applicationContext)
         templateResolver.prefix = prefix

@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dqlang_version = "2.0.16"
+val dqlangVersion = "2.0.16"
 
 plugins {
     id("org.springframework.boot") version "3.2.1"
@@ -12,16 +12,39 @@ plugins {
     id("maven-publish")
     id("idea")
     id("eclipse")
+    id("com.diffplug.spotless") version "6.24.0"
 }
 
-idea { //allows downloading sources and javadoc for IntelliJ with gradle cleanIdea idea
+spotless {
+    java {
+        googleJavaFormat()
+        formatAnnotations()
+        removeUnusedImports()
+    }
+    kotlin {
+        ktlint()
+            .editorConfigOverride(
+                mapOf(
+                    "indent_size" to 2,
+                    "continuation_indent_size" to "2",
+                ),
+            )
+        ktfmt().googleStyle()
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint()
+    }
+}
+
+idea { // allows downloading sources and javadoc for IntelliJ with gradle cleanIdea idea
     module {
         isDownloadJavadoc = true
         isDownloadSources = true
     }
 }
 
-eclipse { //allows downloading sources and javadoc for Eclipse with gradle cleanEclipse eclipse
+eclipse { // allows downloading sources and javadoc for Eclipse with gradle cleanEclipse eclipse
     classpath {
         isDownloadJavadoc = true
         isDownloadSources = true
@@ -34,10 +57,10 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 java.targetCompatibility = JavaVersion.VERSION_17
 
 release {
-    //no config needed, see https://github.com/researchgate/gradle-release for options
+    // no config needed, see https://github.com/researchgate/gradle-release for options
 }
 
-publishing{
+publishing {
     repositories {
         maven {
             name = "gpr"
@@ -55,7 +78,6 @@ publishing{
     }
 }
 
-
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
@@ -63,12 +85,12 @@ configurations {
 }
 
 repositories {
-	mavenCentral()
-	 maven {
-		 name="gpr"
-		url = uri("https://maven.pkg.github.com/dqualizer/dqlang")
-		credentials(PasswordCredentials::class)
-	 }
+    mavenCentral()
+    maven {
+        name = "gpr"
+        url = uri("https://maven.pkg.github.com/dqualizer/dqlang")
+        credentials(PasswordCredentials::class)
+    }
 }
 
 extra["testcontainersVersion"] = "1.17.6"
@@ -86,7 +108,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.freemarker:freemarker:2.3.31")
     implementation("org.springframework.vault:spring-vault-core:3.0.2")
-    implementation("io.github.dqualizer:dqlang:$dqlang_version")
+    implementation("io.github.dqualizer:dqlang:$dqlangVersion")
     compileOnly("org.projectlombok:lombok:1.18.26")
     runtimeOnly("com.h2database:h2:2.1.214")
     annotationProcessor("org.projectlombok:lombok:1.18.26")

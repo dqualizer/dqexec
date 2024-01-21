@@ -28,5 +28,9 @@ COPY --from=k6-builder /tmp/k6 /usr/bin/k6
 VOLUME /app/scripts
 VOLUME /app/logging
 
+EXPOSE 8080
+
+HEALTHCHECK --interval=25s --timeout=3s --retries=2 CMD wget --spider http://localhost:8080/actuator/health || exit 1
+
 # Run the jar file
 CMD [ "java", "-jar", "dqexec.jar" ]
