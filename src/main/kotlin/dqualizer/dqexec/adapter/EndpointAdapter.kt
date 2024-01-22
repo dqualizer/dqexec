@@ -1,15 +1,8 @@
 package dqualizer.dqexec.adapter
 
-import dqualizer.dqexec.exception.UnknownTermException
 import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
-import io.github.dqualizer.dqlang.types.adapter.request.Checks
-import io.github.dqualizer.dqlang.types.adapter.request.Request
-import io.github.dqualizer.dqlang.types.dam.Endpoint
-import io.github.dqualizer.dqlang.types.rqa.definition.enums.ResponseTime
-import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.ResponseMeasures
-import java.util.LinkedList
-import java.util.regex.Pattern
 import org.springframework.stereotype.Component
+
 
 /** Adapts one endpoint to a Request object */
 @Component

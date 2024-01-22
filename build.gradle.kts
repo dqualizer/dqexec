@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dqlangVersion = "2.0.16"
+val dqlangVersion = "3.0.4"
 
 plugins {
   id("org.springframework.boot") version "3.2.1"
