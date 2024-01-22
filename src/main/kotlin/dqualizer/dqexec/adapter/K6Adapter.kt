@@ -62,3 +62,4 @@ class K6Adapter(
     return repetition.coerceAtLeast(min)
   }
 }
+
