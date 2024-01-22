@@ -34,18 +34,18 @@ class CtkAdapterTest {
         val title = "testDescription"
         val description = "testDescription"
 
-        val providerForSteadyStateProbe = Provider("python", "processAPIRequests", "request_check_process_exists", Map.of<String, Any>("process_name", "testProcessId.exe"))
+        val providerForSteadyStateProbe = Provider("python", "processMonitoring", "check_process_exists", Map.of<String, Any>("process_name", "testProcessId.exe"))
         val steadyStateProbe = SteadyStateProbe("testProcessId.exe must be running", providerForSteadyStateProbe, objectMapper.convertValue(true, JsonNode::class.java))
         val steadyStateHypothesis = SteadyStateHypothesis("Application is running", listOf<Probe>(steadyStateProbe))
 
-        val providerForProbe = Provider("python", "processAPIRequests", "get_duration_until_process_started",  Map.of<String, Any>("process_name", "testProcessId.exe", "monitoring_duration_sec", 10, "checking_interval_sec", 0))
+        val providerForProbe = Provider("python", "processMonitoring", "get_duration_until_process_started",  Map.of<String, Any>("process_name", "testProcessId.exe", "monitoring_duration_sec", 10, "checking_interval_sec", 0))
         val probe = Probe("measure duration until process testProcessId.exe is eventually available again", providerForProbe)
 
-        val providerForAction = Provider("python", "processAPIRequests", "request_kill_process_by_name", Map.of<String, Any>("process_name", "testProcessId.exe"))
+        val providerForAction = Provider("python", "processKilling", "kill_process_by_name", Map.of<String, Any>("process_name", "testProcessId.exe"))
         val action = Action("kill process testProcessId.exe", providerForAction)
         val method = listOf(action, probe)
 
-        val providerForRollbackAction = Provider("python", "processAPIRequests", "request_start_process_by_path", Map.of<String, Any>("path", "C:\\testPathToProcessToRestart"))
+        val providerForRollbackAction = Provider("python", "processStarting", "start_process_by_path", Map.of<String, Any>("path", "C:\\testPathToProcessToRestart"))
         val actionForRollbacks = Action("start process testProcessId.exe", providerForRollbackAction)
         val rollbacks = listOf(actionForRollbacks)
 

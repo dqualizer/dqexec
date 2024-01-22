@@ -44,7 +44,7 @@ class CtkAdapter()
     private fun createActionToStartProcess(artifact: EnrichedArtifact): Action {
         val actionName = "start process " + (artifact.processId)
         // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val actionProvider = Provider("python", "processAPIRequests", "request_start_process_by_path", mapOf("path" to (artifact.processPath
+        val actionProvider = Provider("python", "processStarting", "start_process_by_path", mapOf("path" to (artifact.processPath
                 ?: null)))
 
         return Action(actionName, actionProvider)
@@ -59,7 +59,7 @@ class CtkAdapter()
     fun createProbeToLookIfProcessIsRunning(isSteadyStateHypothesis: Boolean, artifact: EnrichedArtifact): Probe {
         val probeName = artifact.processId + " must be running"
         // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val probeProvider = Provider("python", "processAPIRequests", "request_check_process_exists", mapOf("process_name" to artifact.processId, "log_result_in_influx_db" to true))
+        val probeProvider = Provider("python", "processMonitoring", "check_process_exists", mapOf("process_name" to artifact.processId, "log_result_in_influx_db" to true))
 
         if (isSteadyStateHypothesis){
             val probeTolerance = ObjectMapper().convertValue<JsonNode>(true, JsonNode::class.java)
@@ -72,7 +72,7 @@ class CtkAdapter()
     private fun createActionToKillProcess(artifact: EnrichedArtifact): Action {
         val actionName = "kill process " + artifact.processId
         // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val actionProvider = Provider("python", "processAPIRequests", "request_kill_process_by_name", mapOf("process_name" to artifact.processId))
+        val actionProvider = Provider("python", "processKilling", "kill_process_by_name", mapOf("process_name" to artifact.processId))
 
         return Action(actionName, actionProvider)
     }
@@ -80,7 +80,7 @@ class CtkAdapter()
     private fun createProbeToMonitorRecoveryTimeOfProcess(artifact: EnrichedArtifact): Probe {
         val probeName = "measure duration until process " + artifact.processId + " is eventually available again"
         // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val provider = Provider("python", "processAPIRequests", "get_duration_until_process_started", mapOf("process_name" to artifact.processId, "monitoring_duration_sec" to 10, "checking_interval_sec" to 0))
+        val provider = Provider("python", "processMonitoring", "get_duration_until_process_started", mapOf("process_name" to artifact.processId, "monitoring_duration_sec" to 10, "checking_interval_sec" to 0))
 
         return Probe(probeName, provider)
     }
