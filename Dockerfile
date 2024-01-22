@@ -10,11 +10,12 @@ RUN gradle -PgprPassword=$GITHUB_TOKEN -PgprUsername=$GITHUB_USER assemble --no-
 
 ### ----------- K6 Builder ----------- ###
 # Copied xk6-Dockerfile from: https://github.com/grafana/xk6-output-influxdb/blob/main/Dockerfile
-FROM golang:1.20-alpine as k6-builder
+FROM golang:1.21-alpine as k6-builder
 WORKDIR $GOPATH/src/go.k6.io/k6
 
-RUN apk --no-cache add git && go install go.k6.io/xk6/cmd/xk6@v0.9.0
-RUN xk6 build --with github.com/grafana/xk6-output-influxdb --output /tmp/k6
+RUN apk --no-cache --update add git
+RUN go install go.k6.io/xk6/cmd/xk6@v0.10.0
+RUN xk6 build --with github.com/LeonAdato/xk6-output-statsd --output /tmp/k6
 
 
 #### ----------- Runner Definiton ----------- ###

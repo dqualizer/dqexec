@@ -1,7 +1,6 @@
 package dqualizer.dqexec.loadtest
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dqualizer.dqexec.config.K6ExecutorConfiguration
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.loadtest.mapper.k6.ScriptMapper
@@ -28,10 +27,9 @@ class ConfigRunner(
   private val writer: MultiLineFileWriter,
   private val mapper: ScriptMapper,
   private val paths: ResourcePaths,
-  private val k6ExecutionConfiguration: K6ExecutorConfiguration,
   @Value("\${dqualizer.dqexec.docker.localhost_replacement:}")
   private val alternativeTargetHost: String,
-  @Value("\${dqualizer.dqexec.influx.host:localhost}") private val influxHost: String,
+  @Value("\${dqualizer.dqexec.statsd.addr}") private val statsdAddr: String,
 ) {
   private val logger = Logger.getLogger(this.javaClass.name)
 
@@ -126,13 +124,12 @@ class ConfigRunner(
     testCounter: Int,
     runCounter: Int,
   ): Int {
-    val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
+    val command = "k6 run -o output-statsd $scriptPath"
 
     val envp =
       arrayOf(
-        "K6_INFLUXDB_ORGANIZATION=${k6ExecutionConfiguration.influxdbOrganization}",
-        "K6_INFLUXDB_BUCKET=${k6ExecutionConfiguration.influxdbBucket}",
-        "K6_INFLUXDB_TOKEN=${k6ExecutionConfiguration.influxdbToken}",
+        "K6_STATSD_ADDR=$statsdAddr",
+        "K6_STATSD_ENABLE_TAGS=true",
       )
 
     logger.info(

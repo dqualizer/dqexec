@@ -15,15 +15,9 @@ dqualizer:
       k6: loadtest-k6
 
   dqexec:
-    influx:
-      host: localhost
-    #    enabled: true #not a features yet
-    export:
-      k6:
-        influx:
-          organization: ${K6_INFLUXDB_ORGANIZATION:my-org}
-          bucket: ${K6_INFLUXDB_BUCKET:my-bucket}
-          token: ${K6_INFLUXDB_TOKEN:specialToken000}
+    statsd:
+      addr: ${K6_STATSD_ADDR:localhost:8125}
+
     output:
       logs: logging
       loadtest_configurations: loadtest_configurations
