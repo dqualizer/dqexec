@@ -88,7 +88,7 @@ ENV PYTHONPATH=/app/ctk/python:$PYTHONPATH
 
 VOLUME /app/scripts
 VOLUME /app/logging
-VOLUME /hostpipe
+VOLUME /app/generated_experiments
 
 # Run the jar file
 CMD ["java", "-jar", "dqexec.jar"]

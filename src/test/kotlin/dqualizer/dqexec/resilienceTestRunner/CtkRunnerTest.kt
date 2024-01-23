@@ -23,4 +23,19 @@ class CtkRunnerTest {
         Assertions.assertEquals(0, result)
     }
 
+    @Test
+    fun testRequestExperimentExecutionOnHost() {
+
+        //arrange
+        val processLogger = ProcessLogger()
+        val ctkRunner = CtkRunner(processLogger, ResourcePaths())
+        val experimentFilename = "TestDescription_experiment.json"
+
+        //act
+        val result = ctkRunner.requestExperimentExecutionOnHost(experimentFilename, 1, 1 )
+
+        //assert
+        Assertions.assertEquals(0, result)
+    }
+
 }

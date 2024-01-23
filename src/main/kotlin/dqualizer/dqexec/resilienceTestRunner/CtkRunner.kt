@@ -7,6 +7,7 @@ import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.util.ProcessLogger
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
 import org.springframework.stereotype.Service
+import org.springframework.web.client.RestTemplate
 import java.io.IOException
 import java.nio.file.Path
 import java.util.logging.Logger
@@ -64,8 +65,8 @@ class CtkRunner(
 
         for (chaosExperiment in config.ctkChaosExperiments) {
             val jsonPayload = objectMapper.writeValueAsString(chaosExperiment)
-            //val experimentFilePath = Path("C:/Users/HenningMöllers/IdeaProjects/dqexec/src/main/resources/ctk/generatedExperiments/${chaosExperiment.title.replace(" ", "")}_experiment.json")
-            val experimentFilePath = Path("/app/ctk/generatedExperiments/${chaosExperiment.title.replace(" ", "")}_experiment.json")
+            val experimentFilePath = Path("C:/Users/HenningMöllers/IdeaProjects/dqexec/src/main/resources/ctk/generatedExperiments/${chaosExperiment.title.replace(" ", "")}_experiment.json")
+            //val experimentFilePath = Path("/app/generated_experiments/${chaosExperiment.title.replace(" ", "")}_experiment.json")
             saveJsonToFile(jsonPayload, experimentFilePath)
             logger.info("### CHAOS EXPERIMENT $testCounter WAS CREATED IN $experimentFilePath ###")
             var runCounter = 1
@@ -73,7 +74,7 @@ class CtkRunner(
             //repeat one loadtest if as many times as specified in the configuration
             while (runCounter <= chaosExperiment.repetitions){
                 //val exitValue = runExperimentOnLocalWindowsChaosToolkit(experimentFilePath, testCounter, runCounter)
-                val exitValue = runExperiment(experimentFilePath, testCounter, runCounter)
+                val exitValue = requestExperimentExecutionOnHost(experimentFilePath.fileName.toString(), testCounter, runCounter)
                 logger.info(" CHAOS EXPERIMENT $testCounter-$runCounter FINISHED WITH VALUE $exitValue ###")
                 runCounter++
             }
@@ -135,31 +136,19 @@ class CtkRunner(
 
     // TODO make private again later
     @Throws(IOException::class, InterruptedException::class)
-    public fun runExperiment(experimentPath: Path, testCounter: Int, runCounter: Int): Int {
+    public fun requestExperimentExecutionOnHost(experimentFilename: String, testCounter: Int, runCounter: Int): Int {
 
-        val executeExperimentCommand = """chaos run $experimentPath"""
+        val restTemplate = RestTemplate()
+        val journalFilename = experimentFilename.removeSuffix(".json") + "_journal.json"
 
-        logger.info(
-                """
-            ### RUN COMMAND: $executeExperimentCommand ###
-            """.trimIndent()
-        )
+        // TODO make Url/Port configurable
+        val url = "http://localhost:3323/execute_experiment?experiment_filename=$experimentFilename&journal_filename=$journalFilename"
+        val response: String? = restTemplate.postForObject(url, null, String::class.java)
 
-        val process = ProcessBuilder(listOf("/bin/sh", "-c", executeExperimentCommand)).inheritIO().start()
+        println("response: $response")
 
-        val loggingPath = paths.getLogFilePath(testCounter, runCounter)
-        processLogger.log(process, loggingPath)
-
-        // TODO Is already logged by processLogger?!
-        // Capture and print the output and error streams
-        /* val reader = BufferedReader(InputStreamReader(process.inputStream))
-         var line: String?
-         while (reader.readLine().also { line = it } != null) {
-             println(line)
-         }*/
-
-        val exitCode = process.waitFor()
-        println("Exit Code: $exitCode")
-        return exitCode
+        // TODO Logging
+        // TODO if successfull return ...
+        return 0
     }
 }
