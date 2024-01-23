@@ -21,7 +21,7 @@ In short:
 Then you can use:
 
 ```
- <dependency>
+<dependency>
     <groupId>dqualizer</groupId>
     <artifactId>dqlang</artifactId>
     <version>${dqlang.version}</version>
