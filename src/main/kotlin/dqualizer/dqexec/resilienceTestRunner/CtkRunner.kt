@@ -142,7 +142,7 @@ class CtkRunner(
         val journalFilename = experimentFilename.removeSuffix(".json") + "_journal.json"
 
         // TODO make Url/Port configurable
-        val url = "http://localhost:3323/execute_experiment?experiment_filename=$experimentFilename&journal_filename=$journalFilename"
+        val url = "http://host.docker.internal:3323/execute_experiment?experiment_filename=$experimentFilename&journal_filename=$journalFilename"
         data class CtkExperimentExecutorAPIResponse(val exit_code: Int, val status: String, val ctk_logs:String, val custom_modules_logs:String)
 
         val response: CtkExperimentExecutorAPIResponse? = restTemplate.postForObject(url, null, CtkExperimentExecutorAPIResponse::class.java)
