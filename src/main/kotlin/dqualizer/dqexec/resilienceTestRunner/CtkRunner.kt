@@ -143,12 +143,33 @@ class CtkRunner(
 
         // TODO make Url/Port configurable
         val url = "http://localhost:3323/execute_experiment?experiment_filename=$experimentFilename&journal_filename=$journalFilename"
-        val response: String? = restTemplate.postForObject(url, null, String::class.java)
+        data class CtkExperimentExecutorAPIResponse(val exit_code: Int, val status: String)
 
-        println("response: $response")
+        val response: CtkExperimentExecutorAPIResponse? = restTemplate.postForObject(url, null, CtkExperimentExecutorAPIResponse::class.java)
+        val objectMapper = ObjectMapper()
+        val responseMap = objectMapper.convertValue(response, Map::class.java)
+        val exitCode = responseMap["exit_code"]
+        val status = responseMap["status"]
+        if (exitCode !is Int) {
+            throw Exception("Following Exit Code returned from host experimentExecutor API is not an Integer: $exitCode")
+        }
 
-        // TODO Logging
-        // TODO if successfull return ...
-        return 0
+        if (exitCode != 0){
+            logger.info(
+            """
+            ### Chaos Experiment finished with non 0 Value: $exitCode !###
+            ### and returned following status message: $status ###
+            """.trimIndent()
+            )
+        }
+        else{
+            logger.info(
+            """
+            ### Chaos Experiment finished successfully with exit code: $exitCode ###
+            ### and returned following status message: $status ###
+            """.trimIndent()
+            )
+        }
+        return exitCode
     }
 }
