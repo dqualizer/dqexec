@@ -1,7 +1,7 @@
 package dqualizer.dqexec.loadtest.mapper.k6
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.dqualizer.dqlang.types.adapter.request.Request
+import io.github.dqualizer.dqlang.types.adapter.k6.request.Request
 
 /** An interface for all mappers necessary for creating a k6-script */
 interface K6Mapper {

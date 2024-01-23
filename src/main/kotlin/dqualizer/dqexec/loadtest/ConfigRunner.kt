@@ -75,18 +75,18 @@ class ConfigRunner(
   private fun run(config: K6Configuration) {
     logger.info("Trying to run configuration: " + ObjectMapper().writeValueAsString(config))
 
-    var baseURL = config.baseURL
+    var baseURL = config.baseURL!!
     val localhostMatcher = "localhost|127\\.0\\.0\\.1".toRegex()
     // If config-runner runs inside docker, localhost can´t be used so its replaced by the
     // alternative host
-    if (alternativeTargetHost.isNotBlank() && localhostMatcher.containsMatchIn(config.baseURL)) {
-      baseURL = config.baseURL.replace(localhostMatcher, alternativeTargetHost)
+    if (alternativeTargetHost.isNotBlank() && localhostMatcher.containsMatchIn(baseURL)) {
+      baseURL = baseURL.replace(localhostMatcher, alternativeTargetHost)
       logger.info(
         "Alternative host was provided (\$dqualizer.dqexec.docker.localhost_replacement): Replacing 'localhost' or '127.0.0.1' in ${config.baseURL} with $alternativeTargetHost. Result: $baseURL",
       )
     }
 
-    val loadTests = config.k6LoadTests
+    val loadTests = config.k6LoadTests!!
     var testCounter = 1
 
     // iterate through all loadtests inside the configuration
@@ -95,7 +95,7 @@ class ConfigRunner(
       val scriptPath = paths.getScriptFilePath(testCounter)
       writer.write(script, scriptPath.toFile())
       logger.info("### SCRIPT $testCounter WAS CREATED ###")
-      val repetition = loadTest.repetition
+      val repetition = loadTest.repetition!!
       var runCounter = 1
 
       // repeat one loadtest if as many times as specified in the configuration

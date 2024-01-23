@@ -1,22 +1,27 @@
 package dqualizer.dqexec.instrumentation.framework
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.plugin.core.PluginRegistry
 import org.springframework.stereotype.Service
 
 @Service
 class RuntimeServiceInstrumenters {
-    lateinit var registry: PluginRegistry<RuntimeServiceInstrumenter<*>, String>
 
+  private val log = KotlinLogging.logger {}
 
-    @Autowired
-    fun setInstrumenters(instrumenters: List<RuntimeServiceInstrumenter<*>>) {
-        registry = PluginRegistry.of(instrumenters)
-    }
+  lateinit var registry: PluginRegistry<IRuntimeServiceInstrumenter, String>
 
+  @Autowired
+  fun setInstrumenters(instrumenters: List<IRuntimeServiceInstrumenter>) {
+    registry = PluginRegistry.of(instrumenters)
 
-    fun getInstrumenter(delimiter: String): RuntimeServiceInstrumenter<*> {
-        return registry.getPluginFor(delimiter)
-            .orElseThrow { IllegalArgumentException("No instrumenter found for delimiter $delimiter") }
-    }
+    val availableRuntimeInstrumenters = instrumenters.map { it.javaClass.canonicalName }
+    log.info { "Registered ${instrumenters.size} RuntimeServiceInstrumenters: $availableRuntimeInstrumenters" }
+  }
+
+  fun getRuntimeServiceInstrumenter(platformTypeIdentifier: String): IRuntimeServiceInstrumenter {
+    return registry.getPluginFor(platformTypeIdentifier)
+      .orElseThrow { IllegalArgumentException("No instrumenter found for delimiter $platformTypeIdentifier") }
+  }
 }

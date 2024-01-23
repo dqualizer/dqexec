@@ -1,12 +1,9 @@
 package dqualizer.dqexec.instrumentation.framework.included
 
-import dqualizer.dqexec.instrumentation.framework.InstrumentationPlan
-import io.github.dqualizer.dqlang.types.instrumentation.Instrumentation
+import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMonitoringConfiguration
 
 
 data class InspectItOcelotInstrumentationPlan(
-    val instrumentationDefinition: Instrumentation,
+    val instrumentationDefinition: ServiceMonitoringConfiguration,
     val inspectItConfiguration: String,
-    ) : InstrumentationPlan(
-    instrumentationDefinition
-)
+    )

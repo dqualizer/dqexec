@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.UnknownRequestTypeException
-import io.github.dqualizer.dqlang.types.adapter.request.Request
+import io.github.dqualizer.dqlang.types.adapter.k6.request.Request
 import java.util.Locale
 import org.springframework.stereotype.Component
 
@@ -15,7 +15,7 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
     val httpBuilder = StringBuilder()
     httpBuilder.append(exportFunctionScript())
     val path = request.path
-    val type = request.type.uppercase(Locale.getDefault())
+    val type = request.type?.uppercase(Locale.getDefault())!!
     val method =
       when (type) {
         "GET" -> "get"
@@ -26,11 +26,11 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
       }
 
     // Code for choosing one random variable for every existing path variable
-    val pathVariables = request.pathVariables
-    val maybeReference = pathVariables.stream().findFirst()
+    val pathVariables = request.pathVariables!!
+    val maybeReference = pathVariables.values.stream().findFirst()
     if (maybeReference.isPresent) {
       val pathVariablesString =
-        resourcePaths.readResourceFile(maybeReference.get().scenarios[0].path)
+        resourcePaths.readResourceFile(maybeReference.get())
       try {
         val node = ObjectMapper().readTree(pathVariablesString)
         val variables = node.fieldNames()
@@ -45,8 +45,8 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
     }
 
     // Code for using the request-parameter and payload inside the http method
-    val payload = request.payload
-    val queryParams = request.queryParams
+    val payload = request.payload!!
+    val queryParams = request.queryParams!!
     var extraParams = ""
     if (!payload.isEmpty() || !queryParams.isEmpty()) {
       extraParams =

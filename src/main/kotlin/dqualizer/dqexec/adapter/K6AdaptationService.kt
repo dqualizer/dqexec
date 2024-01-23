@@ -37,7 +37,7 @@ class K6AdaptationService(
   private fun start(loadTestConfig: LoadTestConfiguration) {
     val k6Config = adapter.adapt(loadTestConfig)
     log.info("### CONFIGURATION ADAPTED ###")
-    log.info("k6 config" + k6Config)
+    log.info("k6 config: $k6Config")
     producer.produce(k6Config)
     log.info("### k6 CONFIGURATION PRODUCED ###")
   }

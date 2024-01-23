@@ -1,6 +1,6 @@
 package dqualizer.dqexec.loadtest.mapper.k6
 
-import io.github.dqualizer.dqlang.types.adapter.request.Request
+import io.github.dqualizer.dqlang.types.adapter.k6.request.Request;
 import org.springframework.stereotype.Component
 
 /** Maps the expected responses to Javascript-Code */
@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component
 class ChecksMapper : K6Mapper {
   override fun map(request: Request): String {
     val checksBuilder = StringBuilder()
-    val checks = request.checks
-    val duration = checks.duration
+    val checks = request.checks!!
+    val duration = checks.duration!!
     val durationScript =
       String.format(
         "\t'Duration < %d': x => x.timings && x.timings.duration < %d,%n",
@@ -18,7 +18,7 @@ class ChecksMapper : K6Mapper {
       )
     checksBuilder.append(durationScript)
     val type = request.type
-    val statusCodes = checks.statusCodes
+    val statusCodes = checks.statusCodes!!
     val statusBuilder = StringBuilder()
     for (status in statusCodes) {
       val statusBooleanScript = String.format("x.status == %d || ", status)

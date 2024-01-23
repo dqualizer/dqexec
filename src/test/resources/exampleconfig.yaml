@@ -1,0 +1,179 @@
+---
+inspectit:
+#  self-monitoring:
+#    action-tracing: ALL_WITHOUT_DEFAULT
+  logging:
+    debug: false
+  tracing:
+    propagation-format: TRACE_CONTEXT
+    log-correlation:
+      trace-id-auto-injection:
+        enabled: true
+        prefix: '[TraceID: '
+        suffix: ']'
+  metrics:
+    definitions:
+      '[value_inspection]':
+        unit: '1'
+        views:
+          '[value_inspection/sum]':
+            aggregation: SUM
+            tags:
+              'context': true
+              'component': true
+              'measurement_name': true
+          '[value_inspection/count]':
+            aggregation: COUNT
+            tags:
+              'context': true
+              'component': true
+              'measurement_name': true
+          '[value_inspection/hist]':
+            aggregation: HISTOGRAM
+            bucket-boundaries: [1,2,4,8,16]
+            tags:
+              'context': true
+              'component': true
+              'measurement_name': true
+          '[value_inspection/last_value]':
+            tags:
+              'context': true
+              'component': true
+              'measurement_name': true
+  instrumentation:
+    scopes:
+      's_master_data_search_execution_time_entry':
+        type:
+          name: 'dqualizer.fibumock.stammdaten.stammdaten.acds.kafka.MasterDataRequestProducer'
+          matcher-mode: ENDS_WITH
+        methods:
+          - name: 'requestMasterData'
+            matcher-mode: EQUALS_FULLY
+      's_master_data_search_execution_time_exit':
+        type:
+          name: 'dqualizer.fibumock.stammdaten.stammdaten.acds.kafka.MasterDataResponseConsumer'
+          matcher-mode: ENDS_WITH
+        methods:
+          - name: 'process'
+            matcher-mode: EQUALS_FULLY
+    actions:
+      'a_get_context_name':
+        value: 'domain-story'
+      'a_get_measurement_MasterDataSearchExecutionTime_name':
+        value: 'MasterDataSearchExecutionTime'
+      'a_get_Activity_5_name':
+        value: 'Activity 5'
+      'a_timestamp_ms':
+        value: 'Long.valueOf(System.currentTimeMillis())'
+      'a_get_correlation_id_entry':
+        imports:
+          - java.util
+          - dqualizer.fibumock.stammdaten.ordnungsbegriff.model
+          - org.springframework.messaging
+          - dqualizer.fibumock.stammdaten.stammdaten.acds.kafka
+        input:
+          _this: dqualizer.fibumock.stammdaten.stammdaten.acds.kafka.MasterDataRequestProducer
+          _arg0: java.util.UUID
+          _context: InspectitContext
+        value-body: |
+          MasterDataRequestProducer producer = (MasterDataRequestProducer)_this;
+          String id = producer.createCorrelationId(_arg0).toString();
+          return id;
+      'a_get_correlation_id_exit':
+        imports:
+          - org.springframework.messaging.Message
+          - dqualizer.fibumock.stammdaten.stammdaten.acds.kafka
+          - java.util
+        input:
+          _arg2: org.springframework.messaging.Message
+          _context: InspectitContext
+        value-body: |
+          Message msg = (Message)_arg2;
+          MasterDataResponseDto responseDto = (MasterDataResponseDto)msg.getPayload();
+          String id = new String(responseDto.getCorrelationId());
+          return id;
+
+      'a_get_master_data_search_list_length':
+        imports:
+          - org.springframework.messaging.Message
+          - dqualizer.fibumock.stammdaten.stammdaten.acds.kafka
+        input:
+          _arg2: org.springframework.messaging.Message
+        value-body: |
+          Message msg = (Message)_arg2;
+          return Integer.valueOf(((MasterDataResponseDto)msg.getPayload()).getAccountDataForFiscalYearList().size());
+    rules:
+      'r_inspect_value_master_data_search_list_length':
+        exit:
+          'result_value':
+            action: 'a_get_master_data_search_list_length'
+        scopes:
+          's_master_data_search_execution_time_exit': true
+        metrics:
+          '[value_inspection]':
+            value: 'result_value'
+            data-tags:
+              'class': 'value'
+            constant-tags:
+              'context': 'domain-story'
+              'component': 'Activity 5'
+              'measurement_name': 'MasterDataSearchValueInspection'
+
+
+      'r_timestamp_on_master_data_search_execution_time_entry':
+        entry:
+          'method_entry_time':
+            action: 'a_timestamp_ms'
+          'correlation_id':
+            action: 'a_get_correlation_id_entry'
+          'measurement_name':
+            action: 'a_get_measurement_MasterDataSearchExecutionTime_name'
+          'context_name':
+            action: 'a_get_context_name'
+          'component_name':
+            action: 'a_get_Activity_5_name'
+        tracing:
+          start-span: true
+          store-span: 'my_dist_span'
+          auto-tracing: true
+          #end-span: false
+          kind: SERVER
+          attributes:
+            'correlation_id': 'correlation_id'
+            'start_time_ms': 'method_entry_time'
+            'context': 'context_name'
+            'component': 'component_name'
+            'measurement_name': 'measurement_name'
+        include:
+          r_tracing_global_attributes: true
+        scopes:
+          's_master_data_search_execution_time_entry': true
+
+      'r_timestamp_on_master_data_search_execution_time_exit':
+        exit:
+          'method_exit_time':
+            action: 'a_timestamp_ms'
+          'correlation_id':
+            action: 'a_get_correlation_id_exit'
+          'measurement_name':
+            action: 'a_get_measurement_MasterDataSearchExecutionTime_name'
+          'context_name':
+            action: 'a_get_context_name'
+          'component_name':
+            action: 'a_get_Activity_5_name'
+        tracing:
+          continue-span: 'my_dist_span'
+          end-span: true
+          auto-tracing: true
+          kind: SERVER
+          'name': 'correlation_id'
+          attributes:
+            'correlation_id': 'correlation_id'
+            'end_time_ms': 'method_exit_time'
+            'context': 'context_name'
+            'component': 'component_name'
+            'measurement_name': 'measurement_name'
+        include:
+          r_trace_method: true
+        scopes:
+          's_master_data_search_execution_time_exit': true

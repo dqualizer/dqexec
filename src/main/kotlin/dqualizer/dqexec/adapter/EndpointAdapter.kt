@@ -1,7 +1,18 @@
 package dqualizer.dqexec.adapter
 
+import dqualizer.dqexec.exception.UnknownTermException
 import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.types.adapter.k6.request.Checks
+import io.github.dqualizer.dqlang.types.adapter.k6.request.Request
+import io.github.dqualizer.dqlang.types.dam.architecture.RESTEndpoint
+import io.github.dqualizer.dqlang.types.dam.architecture.RESTEndpoint.EndpointComponent
+import io.github.dqualizer.dqlang.types.dam.architecture.RESTEndpoint.EndpointComponentType
+import io.github.dqualizer.dqlang.types.rqa.definition.enums.ResponseTime
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.ResponseMeasures
 import org.springframework.stereotype.Component
+import java.util.*
+import java.util.regex.Pattern
+import kotlin.collections.LinkedHashSet
 
 
 /** Adapts one endpoint to a Request object */
@@ -13,20 +24,28 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
    * @return An inoffical k6 Request object
    */
   fun adaptEndpoint(
-    endpoint: Endpoint,
+    endpoint: RESTEndpoint,
     responseMeasure: ResponseMeasures,
   ): Request {
-    val field = endpoint.field
+    val field = endpoint.route
     val path = markPathVariables(field)
-    val type = endpoint.operation
-    val pathVariables = endpoint.path_variables
-    val queryParams = endpoint.url_parameter
-    val params = endpoint.request_parameter
-    val payload = endpoint.payloads
+    val type = endpoint.methods.first().name()
+    val components = endpoint.components
+    val pathVariables = components[EndpointComponentType.PathVariable]!!
+    val queryParams = components[EndpointComponentType.QueryParameter]!!
+    val params = components[EndpointComponentType.Header]!!
+    val payload = components[EndpointComponentType.RequestBody]!!
     val duration: Int = this.getDuration(responseMeasure)
     val statusCodes = getStatusCodes(endpoint)
     val checks = Checks(statusCodes, duration)
-    return Request(type, path, pathVariables, queryParams as List<Any>?, params, payload, checks)
+    return Request(type, path, convertSet(pathVariables), convertSet(queryParams), convertSet(params), convertSet(payload), checks)
+  }
+
+  /**
+   * Temporary helper function to convert inconvenient data type
+   */
+  private fun convertSet(set: Set<EndpointComponent>): Map<String,String> {
+    return set.associateBy( {it.type.toString()}, {it.format!!} )
   }
 
   /**
@@ -73,13 +92,11 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
    * @param endpoint Endpoint for this request
    * @return A set of expected status codes
    */
-  private fun getStatusCodes(endpoint: Endpoint): LinkedHashSet<Int> {
-    val responses = endpoint.responses
+  private fun getStatusCodes(endpoint: RESTEndpoint): LinkedHashSet<Int> {
+    val responses = endpoint.responseDescription!!
     val statusCodes = LinkedHashSet<Int>()
-    for (response in responses) {
-      val statusCode = response.expected_code
-      statusCodes.add(statusCode)
-    }
+    statusCodes.addAll(responses.expectedStatusCodes)
+
     return statusCodes
   }
 }

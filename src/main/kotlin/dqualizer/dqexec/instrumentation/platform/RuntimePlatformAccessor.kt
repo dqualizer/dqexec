@@ -1,7 +1,7 @@
 package dqualizer.dqexec.instrumentation.platform
 
-import io.github.dqualizer.dqlang.types.architecture.RuntimePlatform
-import io.github.dqualizer.dqlang.types.architecture.ServiceDescription
+import io.github.dqualizer.dqlang.types.dam.architecture.RuntimePlatform
+import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
 import org.springframework.plugin.core.Plugin
 
 interface RuntimePlatformAccessor : Plugin<String> {

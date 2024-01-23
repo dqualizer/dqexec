@@ -2,8 +2,8 @@ package dqualizer.dqexec.loadtest.mapper.k6
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import io.github.dqualizer.dqlang.types.adapter.k6.K6LoadTest
-import io.github.dqualizer.dqlang.types.adapter.options.Options
-import io.github.dqualizer.dqlang.types.adapter.request.Request
+import io.github.dqualizer.dqlang.types.adapter.k6.options.Options
+import io.github.dqualizer.dqlang.types.adapter.k6.request.Request
 import java.util.LinkedList
 import java.util.Random
 import org.springframework.stereotype.Component
@@ -32,9 +32,9 @@ class ScriptMapper(
     loadTest: K6LoadTest,
   ): List<String> {
     val script: MutableList<String> = LinkedList()
-    val options = loadTest.options
+    val options = loadTest.options!!
     script.add(startScript(baseURL, options))
-    var request = loadTest.request
+    val request = loadTest.request!!
     val requestScript = this.map(request)
     script.add(requestScript)
     script.add("}")
@@ -45,15 +45,19 @@ class ScriptMapper(
     val requestBuilder = StringBuilder()
     val paramsScript = paramsMapper.map(request)
     requestBuilder.append(paramsScript)
-    if (request.payload.isNotEmpty()) {
+    val payload = request.payload!!
+    val queryParams = request.queryParams!!
+    val pathVariables = request.pathVariables!!
+
+    if (payload.isNotEmpty()) {
       val payloadScript = payloadMapper.map(request)
       requestBuilder.append(payloadScript)
     }
-    if (request.queryParams.isNotEmpty()) {
+    if (queryParams.isNotEmpty()) {
       val queryParamsScript = queryParamsMapper.map(request)
       requestBuilder.append(queryParamsScript)
     }
-    if (request.pathVariables.isNotEmpty()) {
+    if (pathVariables.isNotEmpty()) {
       val pathVariablesScript = pathVariablesMapper.map(request)
       requestBuilder.append(pathVariablesScript)
     }

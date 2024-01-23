@@ -2,27 +2,31 @@ package dqualizer.dqexec.adapter
 
 import dqualizer.dqexec.exception.UnknownStimulusException
 import dqualizer.dqexec.util.LoadCurveHelper
+import dqualizer.dqexec.util.SymbolicTransformer
+import dqualizer.dqexec.util.SymbolicTransformer.TimeUnitType
 import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
-import io.github.dqualizer.dqlang.types.adapter.k6.Stage
-import io.github.dqualizer.dqlang.types.adapter.options.ConstantScenario
-import io.github.dqualizer.dqlang.types.adapter.options.Options
-import io.github.dqualizer.dqlang.types.adapter.options.RampingScenario
-import io.github.dqualizer.dqlang.types.adapter.options.Scenario
-import io.github.dqualizer.dqlang.types.adapter.options.Scenarios
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.ConstantLoadStimulus
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.LoadIncreaseStimulus
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.LoadPeakStimulus
+import io.github.dqualizer.dqlang.types.adapter.k6.options.ConstantK6Scenario
+import io.github.dqualizer.dqlang.types.adapter.k6.options.RampingK6Scenario
+import io.github.dqualizer.dqlang.types.adapter.k6.options.Options
+import io.github.dqualizer.dqlang.types.adapter.k6.options.Stage
+import io.github.dqualizer.dqlang.types.adapter.k6.options.K6Scenario
+import io.github.dqualizer.dqlang.types.adapter.k6.options.Scenarios
+
 import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.Stimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.loadprofile.ConstantLoad
+import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.loadprofile.LoadIncrease
+import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.loadprofile.LoadPeak
 import java.time.Duration
-import java.util.logging.Logger
 import kotlin.math.roundToInt
 import org.springframework.stereotype.Component
 import org.springframework.vault.support.DurationParser
 
 /** Adapts the stimulus to a k6 'options' object */
 @Component
-class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
-  private val log = Logger.getLogger(this.javaClass.name)
+class StimulusAdapter(
+  private val loadTestConstants: LoadTestConstants,
+  private val symbolicTransformer: SymbolicTransformer
+) {
 
   /**
    * Create a k6 'options' objects based on the stimulus for the loadtest
@@ -31,20 +35,21 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
    * @return A k6 'options' object
    */
   fun adaptStimulus(stimulus: Stimulus): Options {
-    // val loadProfile = stimulus.loadProfile
-    var scenario: Scenario
+    val loadProfile = stimulus.workload!!.loadProfile!!
+    val accuracy = stimulus.accuracy!!
+    var scenario: K6Scenario
     var scenarios: Scenarios
-    when (stimulus) {
-      is LoadPeakStimulus -> {
-        scenario = getLoadPeakScenario(stimulus)
+    when (loadProfile) {
+      is LoadPeak -> {
+        scenario = getLoadPeakScenario(loadProfile)
         scenarios = Scenarios(scenario)
       }
-      is LoadIncreaseStimulus -> {
-        scenario = getLoadIncreaseScenario(stimulus)
+      is LoadIncrease -> {
+        scenario = getLoadIncreaseScenario(loadProfile)
         scenarios = Scenarios(scenario)
       }
-      is ConstantLoadStimulus -> {
-        scenario = getConstantLoadScenario(stimulus)
+      is ConstantLoad -> {
+        scenario = getConstantLoadScenario(loadProfile, accuracy)
         scenarios = Scenarios(scenario)
       }
       else -> {
@@ -56,70 +61,33 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
     return Options(scenarios)
   }
 
-  private enum class LoadProfileType {
-    LOAD_PEAK,
-    LOAD_INCREASE,
-    CONSTANT_LOAD,
-  }
-
   /**
    * Create a k6 'scenario' object for the load_profile 'LOAD_PEAK'
    *
    * @param stimulus Stimulus for the loadtest
    * @return A k6 'scenario' object with virtual user ramp-up
    */
-  fun getLoadPeakScenario(stimulus: LoadPeakStimulus): Scenario {
-    val loadPeak = loadTestConstants.loadProfile.loadPeak
+  fun getLoadIncreaseScenario(loadIncrease: LoadIncrease): K6Scenario {
+    val highestLoad = symbolicTransformer.calculateValue(loadIncrease.highestLoad!!)
+    val timeToHighestLoad = symbolicTransformer.calculateValue(loadIncrease.timeToHighestLoad!!)
+    val constantDuration = symbolicTransformer.calculateValue(loadIncrease.constantDuration!!)
 
-    val highestLoad = stimulus.highestLoad
-    val target: Int =
-      when (PeakHeight.valueOf(highestLoad.toString())) {
-        PeakHeight.HIGH -> {
-          loadPeak.high
-        }
-        PeakHeight.VERY_HIGH -> {
-          loadPeak.veryHigh
-        }
-        PeakHeight.EXTREMELY_HIGH -> {
-          loadPeak.extremelyHigh
-        }
-      }
+    val adaptedHighestLoad = symbolicTransformer.calculateTimeUnit(highestLoad, TimeUnitType.LOAD).toInt()
+    val adaptedDuration = symbolicTransformer.calculateTimeUnit(timeToHighestLoad, TimeUnitType.LOAD).toString()
+    val adaptedConstantDuration = symbolicTransformer.calculateTimeUnit(constantDuration, TimeUnitType.DURATION).toString()
+    val coolDownDuration = loadTestConstants.technicalConstants.coolDownDuration.toString()
 
-    val timeToHighestLoad = stimulus.timeToHighestLoad
-    val duration: String =
-      when (TimeToHighestLoad.valueOf(timeToHighestLoad.toString())) {
-        TimeToHighestLoad.SLOW -> {
-          loadPeak.slow
-        }
-        TimeToHighestLoad.FAST -> {
-          loadPeak.fast
-        }
-        TimeToHighestLoad.VERY_FAST -> {
-          loadPeak.veryFast
-        }
-      }
-    val coolDownDuration = loadPeak.coolDownDuration
-
-    val stage1 = Stage(duration, target)
-    val stage2 = Stage(coolDownDuration, 0)
+    val stage1 = Stage(adaptedDuration, adaptedHighestLoad)
+    val stage2 = Stage(adaptedConstantDuration, adaptedHighestLoad)
+    val stage3 = Stage(coolDownDuration, 0)
 
     val stages = LinkedHashSet<Stage>()
     stages.add(stage1)
     stages.add(stage2)
-    return RampingScenario(stages)
+    stages.add(stage3)
+    return RampingK6Scenario(stages = stages)
   }
 
-  private enum class PeakHeight {
-    HIGH,
-    VERY_HIGH,
-    EXTREMELY_HIGH,
-  }
-
-  private enum class TimeToHighestLoad {
-    SLOW,
-    FAST,
-    VERY_FAST,
-  }
 
   /**
    * Create a k6 'scenario' object for the load_profile 'LOAD_INCREASE'
@@ -127,36 +95,22 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
    * @param stimulus Stimulus for the loadtest
    * @return A k6 'scenario' object with increasing virtual user ramp-up
    */
-  fun getLoadIncreaseScenario(stimulus: LoadIncreaseStimulus): Scenario {
-    val loadIncrease = loadTestConstants.loadProfile.loadIncrease
+  fun getLoadPeakScenario(loadPeak: LoadPeak): K6Scenario {
+    val highestLoad = symbolicTransformer.calculateValue(loadPeak.peakLoad!!)
+    val duration = symbolicTransformer.calculateValue(loadPeak.duration!!)
 
-    val typeOfIncrease = stimulus.typeOfIncrease
-    val exponent: Int =
-      when (TypeOfIncrease.valueOf(typeOfIncrease.toString())) {
-        TypeOfIncrease.CUBIC -> {
-          loadIncrease.cubic
-        }
-        TypeOfIncrease.QUADRATIC -> {
-          loadIncrease.quadratic
-        }
-        TypeOfIncrease.LINEAR -> {
-          loadIncrease.linear
-        }
-      }
+    val adaptedHighestLoad = symbolicTransformer.calculateTimeUnit(highestLoad, TimeUnitType.LOAD).toInt()
+    val adaptedDuration = symbolicTransformer.calculateTimeUnit(duration, TimeUnitType.DURATION).toString()
+    val coolDownDuration = loadTestConstants.technicalConstants.coolDownDuration.toString()
 
-    val endTarget = loadIncrease.endTarget
-    val startTarget = loadIncrease.startTarget
-    val numberOfStages = loadIncrease.stages
-    val testDuration: String = loadIncrease.testDuration
+    val stage1 = Stage(adaptedDuration, adaptedHighestLoad)
+    val stage2 = Stage(coolDownDuration, 0)
 
-    val stages = getIncreasingStages(startTarget, endTarget, exponent, testDuration, numberOfStages)
-    return RampingScenario(stages)
-  }
+    val stages = LinkedHashSet<Stage>()
+    stages.add(stage1)
+    stages.add(stage2)
 
-  private enum class TypeOfIncrease {
-    LINEAR,
-    QUADRATIC,
-    CUBIC,
+    return RampingK6Scenario(stages = stages)
   }
 
   /**
@@ -167,7 +121,7 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
    * @param exponent How fast should the amount of users increase
    * @return An ordered set of stages
    */
-  private fun getIncreasingStages(
+  private fun getPeakStages(
     startTarget: Int,
     endTarget: Int,
     exponent: Int,
@@ -218,37 +172,16 @@ class StimulusAdapter(private val loadTestConstants: LoadTestConstants) {
    * @param stimulus Stimulus for the loadtest
    * @return A k6 'scenario' object with constant virtual users
    */
-  fun getConstantLoadScenario(stimulus: ConstantLoadStimulus): Scenario {
-    val constantLoad = loadTestConstants.loadProfile.constantLoad
+  fun getConstantLoadScenario(constantLoad: ConstantLoad, accuracy: Int): K6Scenario {
+    val targetLoad = symbolicTransformer.calculateValue(constantLoad.targetLoad!!)
+    val duration = symbolicTransformer.calculateValue(constantLoad.duration!!)
 
-    val baseLoad = stimulus.baseLoad
-    val vus: Int =
-      when (BaseLoad.valueOf(baseLoad.toString())) {
-        BaseLoad.LOW -> {
-          constantLoad.low
-        }
-        BaseLoad.MEDIUM -> {
-          constantLoad.medium
-        }
-        BaseLoad.HIGH -> {
-          constantLoad.high
-        }
-      }
+    val adaptedTargetLoad = symbolicTransformer.calculateTimeUnit(targetLoad, TimeUnitType.LOAD).toInt()
+    val adaptedDuration = symbolicTransformer.calculateTimeUnit(duration, TimeUnitType.DURATION).toString()
 
-    val accuracy = stimulus.accuracy
-    val maxDuration = constantLoad.maxDuration
-    val minDuration = constantLoad.minDuration
+    //TODO Use accuracy
 
-    val duration = (maxDuration * (accuracy / 100.0)).toInt()
-    val trueDuration = minDuration.coerceAtLeast(duration)
-
-    return ConstantScenario(vus, trueDuration)
-  }
-
-  private enum class BaseLoad {
-    LOW,
-    MEDIUM,
-    HIGH,
+    return ConstantK6Scenario(vus = adaptedTargetLoad, duration = adaptedDuration)
   }
 
   private fun convertToTimeString(timeString: String): Duration {

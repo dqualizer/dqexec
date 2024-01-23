@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dqlangVersion = "3.0.4"
+val dqlangVersion = "3.0.7"
 
 plugins {
   id("org.springframework.boot") version "3.2.1"
   id("io.spring.dependency-management") version "1.1.4"
-  kotlin("jvm") version "1.8.20"
-  kotlin("plugin.spring") version "1.8.20"
+  kotlin("jvm") version "1.9.0"
+  kotlin("plugin.spring") version "1.9.0"
 
   id("net.researchgate.release") version "3.0.2"
   id("maven-publish")
@@ -15,27 +15,7 @@ plugins {
   id("com.diffplug.spotless") version "6.24.0"
 }
 
-spotless {
-  java {
-    googleJavaFormat()
-    formatAnnotations()
-    removeUnusedImports()
-  }
-  kotlin {
-    ktlint()
-      .editorConfigOverride(
-        mapOf(
-          "indent_size" to 2,
-          "continuation_indent_size" to "2",
-        ),
-      )
-    ktfmt().googleStyle()
-  }
-  kotlinGradle {
-    target("*.gradle.kts")
-    ktlint()
-  }
-}
+
 
 idea { // allows downloading sources and javadoc for IntelliJ with gradle cleanIdea idea
   module {
@@ -86,6 +66,7 @@ configurations {
 
 repositories {
   mavenCentral()
+  mavenLocal()
   maven {
     name = "gpr"
     url = uri("https://maven.pkg.github.com/dqualizer/dqlang")
@@ -99,7 +80,25 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("org.springframework.boot:spring-boot-starter-amqp")
   implementation("org.springframework.boot:spring-boot-starter-web")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
+  implementation("org.springframework.data:spring-data-mongodb")
+  implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
+
+  implementation("io.github.oshai:kotlin-logging:6.0.1")
+
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
+  implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
+
+  implementation("com.github.docker-java:docker-java:3.3.4") {
+    exclude(group = "org.slf4j")
+  }
+  implementation("com.github.docker-java:docker-java-transport-httpclient5:3.2.3")
+
+
+  implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
+
+  implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
+
+
   implementation("io.micrometer:micrometer-tracing-bridge-brave:1.0.3")
   implementation("io.zipkin.reporter2:zipkin-reporter-brave:2.16.3")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -112,10 +111,13 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.26")
   runtimeOnly("com.h2database:h2:2.1.214")
   annotationProcessor("org.projectlombok:lombok:1.18.26")
+
+  testImplementation("org.mockito:mockito-core:5.4.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
-  testImplementation("org.springframework.amqp:spring-rabbit-test:3.0.2")
+  testImplementation("org.springframework.amqp:spring-rabbit-test")
   testImplementation("org.testcontainers:junit-jupiter:1.17.6")
   testImplementation("org.testcontainers:rabbitmq:1.18.0")
+  testImplementation("org.jeasy:easy-random-core:5.0.0")
 }
 
 dependencyManagement {
