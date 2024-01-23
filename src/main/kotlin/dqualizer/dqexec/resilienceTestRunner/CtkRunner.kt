@@ -143,30 +143,26 @@ class CtkRunner(
 
         // TODO make Url/Port configurable
         val url = "http://localhost:3323/execute_experiment?experiment_filename=$experimentFilename&journal_filename=$journalFilename"
-        data class CtkExperimentExecutorAPIResponse(val exit_code: Int, val status: String)
+        data class CtkExperimentExecutorAPIResponse(val exit_code: Int, val status: String, val ctk_logs:String, val custom_modules_logs:String)
 
         val response: CtkExperimentExecutorAPIResponse? = restTemplate.postForObject(url, null, CtkExperimentExecutorAPIResponse::class.java)
         val objectMapper = ObjectMapper()
         val responseMap = objectMapper.convertValue(response, Map::class.java)
         val exitCode = responseMap["exit_code"]
         val status = responseMap["status"]
-        if (exitCode !is Int) {
-            throw Exception("Following Exit Code returned from host experimentExecutor API is not an Integer: $exitCode")
+        val ctkLogs = responseMap["ctk_logs"]
+        val customModuleLogs = responseMap["custom_modules_logs"]
+        if (exitCode !is Int || exitCode != 0) {
+            throw Exception("Following non 0 or non integer exit code returned from host experimentExecutor API: $exitCode || CTK Logs: $ctkLogs || Custom Python Module Logs: $customModuleLogs")
         }
 
-        if (exitCode != 0){
-            logger.info(
-            """
-            ### Chaos Experiment finished with non 0 Value: $exitCode !###
-            ### and returned following status message: $status ###
-            """.trimIndent()
-            )
-        }
         else{
             logger.info(
             """
             ### Chaos Experiment finished successfully with exit code: $exitCode ###
             ### and returned following status message: $status ###
+            ### CTK Logs: $ctkLogs ###
+            ### Custom Python Module Logs: $customModuleLogs ###
             """.trimIndent()
             )
         }
