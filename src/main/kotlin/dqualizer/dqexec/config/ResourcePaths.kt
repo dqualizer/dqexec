@@ -19,7 +19,7 @@ class ResourcePaths {
     fun readResourceFile(resourcePath: String): String {
         val isRunningInDocker = Path("/proc/1/cgroup").exists()
         if (isRunningInDocker){
-            val ressourcePath = Path("/app/request_params/$resourcePath")
+            val ressourcePath = Path("/app/input_ressources/$resourcePath")
             return Files.readString(ressourcePath)
         }
     return ClassPathResource(resourcePath).inputStream.bufferedReader().readText()

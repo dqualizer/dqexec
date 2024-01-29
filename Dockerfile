@@ -78,6 +78,7 @@ COPY --from=k6-builder /tmp/k6 /usr/bin/k6
 VOLUME /app/scripts
 VOLUME /app/logging
 VOLUME /app/generated_experiments
+VOLUME /app/input_ressources
 
 # Run the jar file
 CMD ["java", "-jar", "dqexec.jar"]
