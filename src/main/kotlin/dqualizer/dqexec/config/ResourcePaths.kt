@@ -2,7 +2,10 @@ package dqualizer.dqexec.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
+import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.Path
 
 /**
  * Configuration for local file paths
@@ -13,7 +16,12 @@ class ResourcePaths {
     val logging: Path = Path.of("logging")
 
     fun readResourceFile(resourcePath: String): String {
-        return ClassPathResource(resourcePath).inputStream.bufferedReader().readText()
+        val isRunningInDocker = System.getenv("DOCKER_CONTAINER")?.toBoolean() ?: false
+        if (isRunningInDocker){
+            val ressourcePath = Path("/app/request_params/$resourcePath")
+            return Files.readString(ressourcePath)
+        }
+    return ClassPathResource(resourcePath).inputStream.bufferedReader().readText()
     }
 
     fun getScriptFilePath(scriptID: Int): Path {
