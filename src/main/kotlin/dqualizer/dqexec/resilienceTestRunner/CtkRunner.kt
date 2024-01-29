@@ -9,9 +9,11 @@ import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.io.IOException
+import java.nio.file.Files
 import java.nio.file.Path
 import java.util.logging.Logger
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 
 /**
  *
@@ -141,9 +143,9 @@ class CtkRunner(
         val restTemplate = RestTemplate()
         val journalFilename = experimentFilename.removeSuffix(".json") + "_journal.json"
 
-        // TODO make Url/Port configurable
-        val isRunningInDocker = System.getenv("DOCKER_CONTAINER")?.toBoolean() ?: false
+        val isRunningInDocker = Path("/proc/1/cgroup").exists()
         var url = ""
+        // TODO make Url/Port configurable
         if (isRunningInDocker){
             url = "http://host.docker.internal:3323/execute_experiment?experiment_filename=$experimentFilename&journal_filename=$journalFilename"
         }

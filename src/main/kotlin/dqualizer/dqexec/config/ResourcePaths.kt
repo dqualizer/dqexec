@@ -6,6 +6,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 
 /**
  * Configuration for local file paths
@@ -16,7 +17,7 @@ class ResourcePaths {
     val logging: Path = Path.of("logging")
 
     fun readResourceFile(resourcePath: String): String {
-        val isRunningInDocker = System.getenv("DOCKER_CONTAINER")?.toBoolean() ?: false
+        val isRunningInDocker = Path("/proc/1/cgroup").exists()
         if (isRunningInDocker){
             val ressourcePath = Path("/app/request_params/$resourcePath")
             return Files.readString(ressourcePath)
