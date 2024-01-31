@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.dqualizer.dqlang.types.adapter.ctk.*
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedArtifact
-import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedResilienceTestDefinition
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.ResilienceTestConfiguration
-import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.UnavailabilityStimulus
-import kotlinx.coroutines.delay
 import org.springframework.stereotype.Component
 
 /**
@@ -30,15 +27,27 @@ class CtkAdapter()
     fun adapt(resilienceTestConfig: ResilienceTestConfiguration): CtkConfiguration {
         val ctkChaosExperiments = LinkedHashSet<CtkChaosExperiment>()
         for (resilienceTestDefinition in resilienceTestConfig.enrichedResilienceTestDefinitions) {
+            val secrets = createEnvironmentSecrets()
             val steadyStateHypothesis = createSteadyStateHypothesisForUnaivalabilityStimulus(resilienceTestDefinition.artifact)
             val method = listOf(createActionToKillProcess(resilienceTestDefinition.artifact), createProbeToMonitorRecoveryTimeOfProcess(resilienceTestDefinition.artifact))
             val rollbacks = listOf(createActionToStartProcess(resilienceTestDefinition.artifact))
-            val repitions = 1 // TODO get value from accuracy defined in resilienceTestConfig
+            val repetitions = 1 // TODO get value from accuracy defined in resilienceTestConfig
 
-            val ctkChaosExperiment = CtkChaosExperiment(resilienceTestDefinition.description, resilienceTestDefinition.description, steadyStateHypothesis, method, rollbacks, repitions);
+            val ctkChaosExperiment = CtkChaosExperiment(resilienceTestDefinition.description, resilienceTestDefinition.description, secrets, steadyStateHypothesis, method, rollbacks, repetitions);
             ctkChaosExperiments.add(ctkChaosExperiment)
         }
         return CtkConfiguration(resilienceTestConfig.context, ctkChaosExperiments)
+    }
+
+
+    /**
+     * Creates a Secrets object which defines authentication secrets which point to the runtime environment of the CTK experiment
+     */
+    private fun createEnvironmentSecrets(): Secrets {
+        val username = Credential("env", "USERNAME")
+        val password = Credential("env", "PASSWORD")
+        val authenticationSecret = AuthenticationSecret(username, password)
+        return Secrets(authenticationSecret)
     }
 
     private fun createActionToStartProcess(artifact: EnrichedArtifact): Action {

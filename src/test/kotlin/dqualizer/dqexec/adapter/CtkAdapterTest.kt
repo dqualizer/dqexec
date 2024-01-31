@@ -34,6 +34,11 @@ class CtkAdapterTest {
         val title = "testDescription"
         val description = "testDescription"
 
+        val username = Credential("env", "USERNAME")
+        val password = Credential("env", "PASSWORD")
+        val authenticationSecret = AuthenticationSecret(username, password)
+        val secrets =  Secrets(authenticationSecret)
+
         val providerForSteadyStateProbe = Provider("python", "processMonitoring", "check_process_exists", Map.of<String, Any>("process_name", "testProcessId.exe"))
         val steadyStateProbe = SteadyStateProbe("testProcessId.exe must be running", providerForSteadyStateProbe, objectMapper.convertValue(true, JsonNode::class.java))
         val steadyStateHypothesis = SteadyStateHypothesis("Application is running", listOf<Probe>(steadyStateProbe))
@@ -49,7 +54,7 @@ class CtkAdapterTest {
         val actionForRollbacks = Action("start process testProcessId.exe", providerForRollbackAction)
         val rollbacks = listOf(actionForRollbacks)
 
-        val ctkChaosExperiment = CtkChaosExperiment(title, description, steadyStateHypothesis, method, rollbacks, 1)
+        val ctkChaosExperiment = CtkChaosExperiment(title, description, secrets, steadyStateHypothesis, method, rollbacks, 1)
 
         //act
         val result = ctkAdapter.adapt(resilienceTestConfiguration)
