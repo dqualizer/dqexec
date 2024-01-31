@@ -6,6 +6,7 @@ import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.util.ProcessLogger
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
+import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.io.IOException
@@ -67,8 +68,15 @@ class CtkRunner(
 
         for (chaosExperiment in config.ctkChaosExperiments) {
             val jsonPayload = objectMapper.writeValueAsString(chaosExperiment)
-            val experimentFilePath = Path("/app/generated_experiments/${chaosExperiment.title.replace(" ", "")}_experiment.json")
-            //val experimentFilePath = Path("/app/generated_experiments/${chaosExperiment.title.replace(" ", "")}_experiment.json")
+            val isRunningInDocker = Path("/proc/1/cgroup").exists()
+            var experimentFilePath: Path
+            if (isRunningInDocker){
+                // TODO refactor this case decision into paths/ResourcePaths
+                experimentFilePath = Path("/app/generated_experiments/${chaosExperiment.title.replace(" ", "")}_experiment.json")
+            } else{
+                experimentFilePath = paths.getExperimentFilePath(chaosExperiment.title.replace(" ", ""))
+            }
+
             saveJsonToFile(jsonPayload, experimentFilePath)
             logger.info("### CHAOS EXPERIMENT $testCounter WAS CREATED IN $experimentFilePath ###")
             var runCounter = 1

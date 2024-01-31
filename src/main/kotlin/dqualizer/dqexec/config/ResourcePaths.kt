@@ -15,6 +15,7 @@ import kotlin.io.path.exists
 class ResourcePaths {
     val scripts: Path = Path.of("scripts")
     val logging: Path = Path.of("logging")
+    val experiments: Path = Path.of("generated_experiments")
 
     fun readResourceFile(resourcePath: String): String {
         val isRunningInDocker = Path("/proc/1/cgroup").exists()
@@ -32,4 +33,9 @@ class ResourcePaths {
     fun getLogFilePath(testID: Int, runID: Int): Path {
         return logging.resolve("test$testID-run$runID")
     }
+
+    fun getExperimentFilePath(title:String): Path {
+        return experiments.resolve(title + "_experiment.json")
+    }
+
 }
