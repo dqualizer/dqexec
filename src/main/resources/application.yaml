@@ -1,6 +1,12 @@
 server:
   port: 8090
 
+spring:
+  rabbitmq:
+    listener:
+      simple:
+        default-requeue-rejected: false
+
 dqualizer:
   messaging:
     queues:

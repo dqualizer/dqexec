@@ -26,7 +26,7 @@ class K6AdaptationService(
    *
    * @param loadTestConfig Imported loadtest configuration
    */
-  @RabbitListener(queues = ["\${dqualizer.messaging.queues.k6.name}"])
+  @RabbitListener(queues = ["\${dqualizer.messaging.queues.loadtest.name}"])
   private fun receive(
     @Payload loadTestConfig: LoadTestConfiguration,
   ) {

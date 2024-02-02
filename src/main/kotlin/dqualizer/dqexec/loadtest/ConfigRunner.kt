@@ -44,7 +44,6 @@ class ConfigRunner(
   fun receive(
     @Payload config: K6Configuration,
   ) {
-    logger.info("Received k6 configuration\n" + config)
     start(config)
   }
 
@@ -54,11 +53,11 @@ class ConfigRunner(
    * @param config Received inofficial k6-configuration
    */
   private fun start(config: K6Configuration) {
-    logger.info("### LOAD TEST CONFIGURATION RECEIVED ###")
+    logger.info("### K6 CONFIGURATION RECEIVED ###")
     try {
       this.run(config)
     } catch (e: Exception) {
-      logger.severe("### LOAD TESTING FAILED ###")
+      logger.severe("### K6 LOAD TESTING FAILED ###")
       e.printStackTrace()
       throw RunnerFailedException(e.message!!)
     }
