@@ -6,13 +6,18 @@ dqualizer:
     queues:
       loadtest:
         name: loadtest
-      rqaConfigurationProducerQueue:
-        name: rqaConfigurationProducer
+        durable: false
       k6:
         name: k6
+        durable: false
+
     exchanges:
-      loadtest: translator-loadtest
-      k6: loadtest-k6
+      loadtest:
+        name: translator-loadtest
+        exchangeType: TOPIC
+      k6:
+        name: loadtest-k6
+        exchangeType: TOPIC
 
   dqexec:
     influx:

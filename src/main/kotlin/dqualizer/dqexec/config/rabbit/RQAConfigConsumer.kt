@@ -16,15 +16,12 @@ class RQAConfigConsumer(
 
     private val log = KotlinLogging.logger {}
 
-    @RabbitListener(queues = ["\${dqualizer.messaging.queues.rqaDefinitionReceiverQueue.name}"])
+    @RabbitListener(queues = ["\${dqualizer.messaging.queues.loadtest.name}"])
     fun receive(@Payload rqaConfiguration: RQAConfiguration, @Headers headers: MessageHeaders) {
         log.debug { "${"Received an RQA Configuration: {}"} $rqaConfiguration" }
 
         try {
-
             applyMonitoring(rqaConfiguration)
-
-
         } catch (e: Exception) {
             throw RuntimeException(e)
         }

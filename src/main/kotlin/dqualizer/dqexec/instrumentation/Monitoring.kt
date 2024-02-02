@@ -3,19 +3,20 @@ package dqualizer.dqexec.instrumentation
 import dqualizer.dqexec.instrumentation.framework.RuntimeServiceInstrumenters
 import dqualizer.dqexec.instrumentation.platform.RuntimePlatformAccessors
 import io.github.dqualizer.dqlang.context.DAMRepository
+import io.github.dqualizer.dqlang.types.dam.DomainArchitectureMapping
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.MonitoringConfiguration
 import org.springframework.stereotype.Service
 
 @Service
 class Monitoring(
-    private val damRepository: DAMRepository,
+    private val domainArchitectureMapping: DomainArchitectureMapping,
     private val platformAccessors: RuntimePlatformAccessors,
     private val runtimeServiceInstrumenters: RuntimeServiceInstrumenters
 ) {
 
     fun apply(monitoringConfiguration: MonitoringConfiguration, damID: String) {
-        val domainArchitectureMapping =
-            damRepository.findById(damID).orElseThrow { IllegalArgumentException("DAM with ID $damID not found") }
+//        val domainArchitectureMapping =
+//            damRepository.findById(damID).orElseThrow { IllegalArgumentException("DAM with ID $damID not found") }
 
 
         monitoringConfiguration.serviceMonitoringConfigurations.forEach { monitoringConfig ->

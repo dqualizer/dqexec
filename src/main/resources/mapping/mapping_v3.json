@@ -1,0 +1,29 @@
+{
+  "software_system": {
+    "name": "Dummy",
+    "environment": "DEV",
+    "services": [
+
+    ],
+    "runtime_platforms": [
+
+    ]
+  },
+  "domain_story": {
+    "actors": [
+
+    ],
+    "workObjects": [
+
+    ],
+    "activities": [
+
+    ]
+  },
+  "mappings": [
+    {
+      "dst_element_id": "id1",
+      "architecture_element_id": "id1"
+    }
+  ]
+}
