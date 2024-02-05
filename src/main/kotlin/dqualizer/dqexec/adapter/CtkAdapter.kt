@@ -46,7 +46,9 @@ class CtkAdapter()
     private fun createEnvironmentSecrets(): Secrets {
         val username = Credential("env", "USERNAME")
         val password = Credential("env", "PASSWORD")
-        val authenticationSecret = AuthenticationSecret(username, password)
+        val dbUsername = Credential("env", "DB_USERNAME")
+        val dbPassword = Credential("env", "DB_PASSWORD")
+        val authenticationSecret = AuthenticationSecret(username, password, dbUsername, dbPassword)
         return Secrets(authenticationSecret)
     }
 
