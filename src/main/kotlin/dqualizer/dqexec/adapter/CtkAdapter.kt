@@ -4,6 +4,7 @@ package dqualizer.dqexec.adapter
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import dqualizer.dqexec.config.StartupConfig
 import io.github.dqualizer.dqlang.types.adapter.ctk.*
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.ResilienceTestConfiguration
@@ -13,8 +14,10 @@ import org.springframework.stereotype.Component
  * Adapts a resilience test configuration to CTK tests
  * */
 @Component
-class CtkAdapter()
+class CtkAdapter(private val startupConfig: StartupConfig)
 {
+    // $ pointers are used to reference the secretes defined in the top-level of the experiment definition
+    val authenticationParameters = mapOf("db_username" to "\${db_username}", "db_password" to "\${db_password}", "username" to "\${username}", "password" to "\${password}")
 
     /**
      * Adapt the loadtest configuration. It consists of 3 steps:
@@ -27,7 +30,7 @@ class CtkAdapter()
     fun adapt(resilienceTestConfig: ResilienceTestConfiguration): CtkConfiguration {
         val ctkChaosExperiments = LinkedHashSet<CtkChaosExperiment>()
         for (resilienceTestDefinition in resilienceTestConfig.enrichedResilienceTestDefinitions) {
-            val secrets = createEnvironmentSecrets()
+            val secrets = createTopLevelSecrets()
             val steadyStateHypothesis = createSteadyStateHypothesisForUnaivalabilityStimulus(resilienceTestDefinition.artifact)
             val method = listOf(createActionToKillProcess(resilienceTestDefinition.artifact), createProbeToMonitorRecoveryTimeOfProcess(resilienceTestDefinition.artifact))
             val rollbacks = listOf(createActionToStartProcess(resilienceTestDefinition.artifact))
@@ -43,11 +46,11 @@ class CtkAdapter()
     /**
      * Creates a Secrets object which defines authentication secrets which point to the runtime environment of the CTK experiment
      */
-    private fun createEnvironmentSecrets(): Secrets {
-        val username = Credential("env", "USERNAME")
-        val password = Credential("env", "PASSWORD")
-        val dbUsername = Credential("env", "DB_USERNAME")
-        val dbPassword = Credential("env", "DB_PASSWORD")
+    private fun createTopLevelSecrets(): Secrets {
+        val dbUsername = startupConfig.getDbUsername()
+        val dbPassword = startupConfig.getDbPassword()
+        val username = startupConfig.getUsername()
+        val password = startupConfig.getPassword()
         val authenticationSecret = AuthenticationSecret(username, password, dbUsername, dbPassword)
         return Secrets(authenticationSecret)
     }
@@ -55,8 +58,8 @@ class CtkAdapter()
     private fun createActionToStartProcess(artifact: EnrichedArtifact): Action {
         val actionName = "start process " + (artifact.processId)
         // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val actionProvider = Provider("python", "processStarting", "start_process_by_path", mapOf("path" to (artifact.processPath
-                ?: null)))
+        val argumentsForFunction =  authenticationParameters + ("path" to artifact.processPath) + ("log_result_in_influx_db" to true)
+        val actionProvider = Provider("python", "processStarting", "start_process_by_path", argumentsForFunction)
 
         return Action(actionName, actionProvider)
     }
@@ -70,7 +73,8 @@ class CtkAdapter()
     fun createProbeToLookIfProcessIsRunning(isSteadyStateHypothesis: Boolean, artifact: EnrichedArtifact): Probe {
         val probeName = artifact.processId + " must be running"
         // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val probeProvider = Provider("python", "processMonitoring", "check_process_exists", mapOf("process_name" to artifact.processId, "log_result_in_influx_db" to true))
+        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId) + ("log_result_in_influx_db" to true)
+        val probeProvider = Provider("python", "processMonitoring", "check_process_exists",argumentsForFunction)
 
         if (isSteadyStateHypothesis){
             val probeTolerance = ObjectMapper().convertValue<JsonNode>(true, JsonNode::class.java)
@@ -80,10 +84,13 @@ class CtkAdapter()
     }
 
 
+
+
     private fun createActionToKillProcess(artifact: EnrichedArtifact): Action {
         val actionName = "kill process " + artifact.processId
         // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val actionProvider = Provider("python", "processKilling", "kill_process_by_name", mapOf("process_name" to artifact.processId))
+        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId)
+        val actionProvider = Provider("python", "processKilling", "kill_process_by_name", argumentsForFunction)
 
         return Action(actionName, actionProvider)
     }
@@ -91,7 +98,8 @@ class CtkAdapter()
     private fun createProbeToMonitorRecoveryTimeOfProcess(artifact: EnrichedArtifact): Probe {
         val probeName = "measure duration until process " + artifact.processId + " is eventually available again"
         // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val provider = Provider("python", "processMonitoring", "get_duration_until_process_started", mapOf("process_name" to artifact.processId, "monitoring_duration_sec" to 10, "checking_interval_sec" to 0))
+        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId) +  ("monitoring_duration_sec" to 10) +  ("checking_interval_sec" to 0)
+        val provider = Provider("python", "processMonitoring", "get_duration_until_process_started", argumentsForFunction)
 
         return Probe(probeName, provider)
     }

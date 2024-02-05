@@ -2,6 +2,7 @@ package dqualizer.dqexec.adapter
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import dqualizer.dqexec.config.StartupConfig
 import io.github.dqualizer.dqlang.types.adapter.ctk.*
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedResilienceTestDefinition
@@ -13,14 +14,18 @@ import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.U
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.Map
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
 class CtkAdapterTest {
 
+    // TODO fix test
     @Test
     fun testAdapt(){
 
         //arrange input resilienceTestConfiguration
-        val ctkAdapter = CtkAdapter()
+        val startupConfig = mock<StartupConfig>()
+        val ctkAdapter = CtkAdapter(startupConfig)
 
         val artifact = Artifact("aTestSystemId","aTestActivityId")
         val enrichedArtifact = EnrichedArtifact(artifact, "testProcessId.exe", "C:\\testPathToProcessToRestart")
@@ -34,9 +39,12 @@ class CtkAdapterTest {
         val title = "testDescription"
         val description = "testDescription"
 
-        val username = Credential("env", "USERNAME")
-        val password = Credential("env", "PASSWORD")
-        val authenticationSecret = AuthenticationSecret(username, password)
+        val username = "aUsername"
+        val password = "aPassword"
+        val dbUsername = "aDbUsername"
+        val dbPassword = "aDbPassword"
+
+        val authenticationSecret = AuthenticationSecret(username, password, dbUsername, dbPassword)
         val secrets =  Secrets(authenticationSecret)
 
         val providerForSteadyStateProbe = Provider("python", "processMonitoring", "check_process_exists", Map.of<String, Any>("process_name", "testProcessId.exe"))
@@ -56,15 +64,22 @@ class CtkAdapterTest {
 
         val ctkChaosExperiment = CtkChaosExperiment(title, description, secrets, steadyStateHypothesis, method, rollbacks, 1)
 
+        `when`(startupConfig.getDbUsername()).thenReturn(dbUsername)
+        `when`(startupConfig.getDbPassword()).thenReturn(dbPassword)
+        `when`(startupConfig.getUsername()).thenReturn(username)
+        `when`(startupConfig.getPassword()).thenReturn(password)
+
         //act
         val result = ctkAdapter.adapt(resilienceTestConfiguration)
 
         //assert
         Assertions.assertEquals("testDescription" , result.ctkChaosExperiments.first().title)
         Assertions.assertEquals("testDescription" , result.ctkChaosExperiments.first().description)
+        Assertions.assertEquals(secrets , result.ctkChaosExperiments.first().secrets)
         Assertions.assertEquals(steadyStateHypothesis , result.ctkChaosExperiments.first().steadyStateHypothesis)
         Assertions.assertEquals(method , result.ctkChaosExperiments.first().method)
         Assertions.assertEquals(rollbacks , result.ctkChaosExperiments.first().rollbacks)
         Assertions.assertEquals(ctkChaosExperiment, result.ctkChaosExperiments.first())
+
     }
 }
