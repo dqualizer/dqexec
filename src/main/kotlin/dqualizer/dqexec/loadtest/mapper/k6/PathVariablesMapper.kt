@@ -13,7 +13,11 @@ class PathVariablesMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
     val pathVariablesBuilder = StringBuilder()
     val pathVariables = request.pathVariables!!
     val reference = pathVariables.values.first()
+    if (reference.isEmpty()) {
+      return String.format("%sconst path_variables = {}%s", K6Mapper.newLine, K6Mapper.newLine)
+    }
     val pathVariablesString = resourcePaths.readResourceFile(reference)
+
 
     val pathVariablesScript =
       String.format(

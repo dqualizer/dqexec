@@ -10,6 +10,13 @@ class QueryParamsMapper(private val paths: ResourcePaths) : K6Mapper {
   override fun map(request: Request): String {
     val queryParams = request.queryParams!!
     val reference = queryParams.values.first()
+    if (reference.isEmpty()) {
+      return """
+            const queryParams = {}
+            const searchParams = {}
+
+            """.trimIndent()
+    }
     val queryParamsObject = paths.readResourceFile(reference)
 
     return """

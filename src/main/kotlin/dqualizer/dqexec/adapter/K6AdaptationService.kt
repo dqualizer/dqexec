@@ -30,11 +30,11 @@ class K6AdaptationService(
   private fun receive(
     @Payload loadTestConfig: LoadTestConfiguration,
   ) {
-    log.info("Received loadtest configuration\n$loadTestConfig")
     start(loadTestConfig)
   }
 
   private fun start(loadTestConfig: LoadTestConfiguration) {
+    log.info("LOAD TEST CONFIGURATION RECEIVED: \n$loadTestConfig")
     val k6Config = adapter.adapt(loadTestConfig)
     log.info("### CONFIGURATION ADAPTED ###")
     log.info("k6 config: $k6Config")

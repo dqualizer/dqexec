@@ -10,6 +10,9 @@ class PayloadMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
   override fun map(request: Request): String {
     val payload = request.payload!!
     val reference = payload.values.first()
+    if (reference.isEmpty()) {
+      return String.format("%sconst payloadData = {}%s", K6Mapper.newLine, K6Mapper.newLine)
+    }
     val payloadObject = resourcePaths.readResourceFile(reference)
 
     return """
