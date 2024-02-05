@@ -3,10 +3,12 @@ package dqualizer.dqexec.resilienceTestRunner
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import dqualizer.dqexec.config.ResourcePaths
+import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.util.ProcessLogger
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
 import org.springframework.core.io.ClassPathResource
+import org.springframework.http.HttpEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.io.IOException
@@ -22,7 +24,8 @@ import kotlin.io.path.exists
 @Service
 class CtkRunner(
         private val processLogger: ProcessLogger,
-        private val paths: ResourcePaths
+        private val paths: ResourcePaths,
+        private val startupConfig: StartupConfig
 ) {
     private val logger = Logger.getLogger(this.javaClass.name)
 
@@ -160,9 +163,18 @@ class CtkRunner(
         else{
             url = "http://localhost:3323/execute_experiment?experiment_filename=$experimentFilename&journal_filename=$journalFilename"
         }
+
+        val requestBody = mapOf(
+                "db_username" to startupConfig.getDbUsername(),
+                "db_password" to startupConfig.getDbPassword(),
+                "username" to startupConfig.getUsername(),
+                "password" to startupConfig.getPassword()
+        )
+
         data class CtkExperimentExecutorAPIResponse(val exit_code: Int, val status: String, val ctk_logs:String, val custom_modules_logs:String)
 
-        val response: CtkExperimentExecutorAPIResponse? = restTemplate.postForObject(url, null, CtkExperimentExecutorAPIResponse::class.java)
+        val response: CtkExperimentExecutorAPIResponse? = restTemplate.postForObject(url, HttpEntity(requestBody), CtkExperimentExecutorAPIResponse::class.java)
+
         val objectMapper = ObjectMapper()
         val responseMap = objectMapper.convertValue(response, Map::class.java)
         val exitCode = responseMap["exit_code"]
