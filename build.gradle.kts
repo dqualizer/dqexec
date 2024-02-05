@@ -67,6 +67,7 @@ configurations {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
 }
@@ -84,7 +85,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-Beta")
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     implementation("org.springframework.vault:spring-vault-core:3.0.2")
-    implementation("io.github.dqualizer:dqlang:2.0.23-resilience-language-SNAPSHOT")
+    implementation("io.github.dqualizer:dqlang:2.0.24-resilience-language-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.26")
     runtimeOnly("com.h2database:h2:2.1.214")
     annotationProcessor("org.projectlombok:lombok:1.18.26")
