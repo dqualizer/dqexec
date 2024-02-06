@@ -23,27 +23,29 @@ class StartupConfig {
     private fun collectUserInput() {
         val scanner = Scanner(System.`in`)
 
-        print("###\n" +
+        System.out.print("###\n" +
                 "###\n" +
                 "###\n" +
                 "###\n" +
-                "###\n" +
-                "###\n" +
-                ">>>>>>>>>>>>>> Please enter MySQL username: ")
+                "###\n")
+
+        System.out.flush()
+        System.out.println(">>>>>>>>>>>>>> Please enter MySQL username: ")
+
         System.out.flush()
         dbUsername = scanner.nextLine()
 
         //TODO hide input in console
-        print(">>>>>>>>>>>>>> Please enter MySQL password: ")
+        System.out.println(">>>>>>>>>>>>>> Please enter MySQL password: ")
         System.out.flush()
         dbPassword = scanner.nextLine()
 
-        print(">>>>>>>>>>>>>> Please enter authentication username: ")
+        System.out.println(">>>>>>>>>>>>>> Please enter authentication username: ")
         System.out.flush()
         username = scanner.nextLine()
 
         //TODO hide input in console
-        print(">>>>>>>>>>>>>> Please enter authentication password: ")
+        System.out.println(">>>>>>>>>>>>>> Please enter authentication password: ")
         System.out.flush()
         password = scanner.nextLine()
 
