@@ -25,13 +25,10 @@ class StartupConfig {
 
         System.out.print("###\n" +
                 "###\n" +
-                "###\n" +
-                "###\n" +
                 "###\n")
 
         System.out.flush()
         System.out.println(">>>>>>>>>>>>>> Please enter MySQL username: ")
-
         System.out.flush()
         dbUsername = scanner.nextLine()
 
