@@ -1,5 +1,6 @@
 package dqualizer.dqexec.adapter
 
+import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.loadtest.ConfigRunner
 // import dqualizer.dqexec.output.K6ConfigProducer
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
@@ -16,7 +17,8 @@ import java.util.logging.Logger
 @Service
 class K6AdaptationService(
    private val adapter: K6Adapter,
-   private val k6ConfigRunner: ConfigRunner
+   private val k6ConfigRunner: ConfigRunner,
+   private val startupConfig: StartupConfig
 ) {
     private val log = Logger.getLogger(this.javaClass.name)
 
@@ -28,8 +30,14 @@ class K6AdaptationService(
     //TODO: extract and make generic for different load types
     @RabbitListener(queues = ["\${dqualizer.messaging.queues.loadTestConfigurationQueue.name}"])
     private fun receive(@Payload loadTestConfig: LoadTestConfiguration) {
-        log.info("Received loadtest configuration\n$loadTestConfig")
-        start(loadTestConfig)
+
+        if (startupConfig.isUserAuthenticated()){
+            log.info("Received loadtest configuration\n$loadTestConfig")
+            start(loadTestConfig)
+        }
+        else{
+            log.info("Missing dqexec authentication: received load test configuration could not be processed.")
+        }
     }
 
     private fun start(loadTestConfig: LoadTestConfiguration  ) {
