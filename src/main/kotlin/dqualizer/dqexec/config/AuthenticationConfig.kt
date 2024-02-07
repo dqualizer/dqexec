@@ -77,34 +77,29 @@ class StartupConfig {
     private fun collectUserAuthenticationInput() {
         val scanner = Scanner(System.`in`)
 
-        System.out.print("###\n" +
+        print("###\n" +
                 "###\n" +
                 "###\n")
 
-        System.out.flush()
-        System.out.println(">>>>>>>>>>>>>> Please enter MySQL username: ")
-        System.out.flush()
+        println(">>>>>>>>>>>>>> Please enter MySQL username: ")
         dbUsername = scanner.nextLine()
 
         // Hides the password input, but is only available with true console usage, not from IDE
         if (System.console() != null){
             dbPassword = System.console().readPassword(">>>>>>>>>>>>>> Please enter MySQL password: ").joinToString("")
         } else{
-            System.out.println(">>>>>>>>>>>>>> Please enter MySQL password: ")
-            System.out.flush()
+            println(">>>>>>>>>>>>>> Please enter MySQL password: ")
             dbPassword = scanner.nextLine()
         }
 
-        System.out.println(">>>>>>>>>>>>>> Please enter authentication username: ")
-        System.out.flush()
+        println(">>>>>>>>>>>>>> Please enter authentication username: ")
         username = scanner.nextLine()
 
         // Hides the password input, but is only available with true console usage, not from IDE
         if (System.console() != null){
             password = System.console().readPassword(">>>>>>>>>>>>>> Please enter authentication password: ").joinToString("")
         } else{
-            System.out.println(">>>>>>>>>>>>>> Please enter authentication password: ")
-            System.out.flush()
+            println(">>>>>>>>>>>>>> Please enter authentication password: ")
             password = scanner.nextLine()
         }
         scanner.close()
