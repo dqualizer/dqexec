@@ -45,7 +45,7 @@ class StartupConfig {
 
     private fun authenticateUser() {
         try {
-            DriverManager.getConnection("jdbc:mysql://localhost:3306/user", getDbUsername(), getDbPassword()).use { connection ->
+            DriverManager.getConnection("jdbc:mysql://localhost:3306/authentication", getDbUsername(), getDbPassword()).use { connection ->
 
                 val query = "SELECT COUNT(*) FROM users WHERE username = ? AND password_hash = ?"
                 val preparedStatement = connection.prepareStatement(query)
@@ -64,6 +64,7 @@ class StartupConfig {
             }
         } catch (e: SQLException) {
             e.printStackTrace()
+            exitProcess(401)
         }
 
     }
