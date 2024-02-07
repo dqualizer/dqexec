@@ -50,7 +50,6 @@ class StartupConfig {
 
     private fun authenticateUser() {
         try {
-            print("connection inputs: jdbc:mysql://${mySqlHost}:${mySqlPort}/authentication, ${getDbUsername()}, ${getDbPassword()}")
             DriverManager.getConnection("jdbc:mysql://${mySqlHost}:${mySqlPort}/authentication", getDbUsername(), getDbPassword()).use { connection ->
 
                 val query = "SELECT COUNT(*) FROM users WHERE username = ? AND password_hash = ?"
@@ -96,7 +95,6 @@ class StartupConfig {
             dbPassword = scanner.nextLine()
         }
 
-        System.out.println("Set mysql password: ${dbPassword}")
         System.out.println(">>>>>>>>>>>>>> Please enter authentication username: ")
         System.out.flush()
         username = scanner.nextLine()
