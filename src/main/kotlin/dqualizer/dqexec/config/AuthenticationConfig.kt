@@ -89,7 +89,7 @@ class StartupConfig {
 
         // Hides the password input, but is only available with true console usage, not from IDE
         if (System.console() != null){
-            dbPassword = System.console().readPassword(">>>>>>>>>>>>>> Please enter MySQL password: ").toString()
+            dbPassword = System.console().readPassword(">>>>>>>>>>>>>> Please enter MySQL password: ").joinToString("")
         } else{
             System.out.println(">>>>>>>>>>>>>> Please enter MySQL password: ")
             System.out.flush()
@@ -103,7 +103,7 @@ class StartupConfig {
 
         // Hides the password input, but is only available with true console usage, not from IDE
         if (System.console() != null){
-            password = System.console().readPassword(">>>>>>>>>>>>>> Please enter authentication password: ").toString()
+            password = System.console().readPassword(">>>>>>>>>>>>>> Please enter authentication password: ").joinToString("")
         } else{
             System.out.println(">>>>>>>>>>>>>> Please enter authentication password: ")
             System.out.flush()
