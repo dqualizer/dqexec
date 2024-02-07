@@ -1,4 +1,5 @@
 package dqualizer.dqexec.config
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,6 +13,10 @@ import kotlin.system.exitProcess
 @Configuration
 class StartupConfig {
 
+    @Value("\${dqualizer.dqexec.mysql.host}")
+    private lateinit var mySqlHost: String
+    @Value("\${dqualizer.dqexec.mysql.port}")
+    private lateinit var mySqlPort: String
     private lateinit var dbUsername: String
     private lateinit var dbPassword: String
     private lateinit var username: String
@@ -45,7 +50,7 @@ class StartupConfig {
 
     private fun authenticateUser() {
         try {
-            DriverManager.getConnection("jdbc:mysql://localhost:3306/authentication", getDbUsername(), getDbPassword()).use { connection ->
+            DriverManager.getConnection("jdbc:mysql://${mySqlHost}:${mySqlPort}/authentication", getDbUsername(), getDbPassword()).use { connection ->
 
                 val query = "SELECT COUNT(*) FROM users WHERE username = ? AND password_hash = ?"
                 val preparedStatement = connection.prepareStatement(query)

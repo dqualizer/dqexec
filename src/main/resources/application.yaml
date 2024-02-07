@@ -31,6 +31,10 @@ dqualizer:
   dqexec:
     influx:
       host: localhost
+    mysql:
+      host: localhost
+      port: 3306
+
     #    enabled: true #not a features yet
     export:
       k6:
