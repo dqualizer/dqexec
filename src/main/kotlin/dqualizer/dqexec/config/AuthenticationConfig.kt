@@ -7,6 +7,7 @@ import java.security.MessageDigest
 import java.sql.DriverManager
 import java.sql.SQLException
 import java.util.*
+import kotlin.system.exitProcess
 
 @Configuration
 class StartupConfig {
@@ -46,7 +47,7 @@ class StartupConfig {
         try {
             DriverManager.getConnection("jdbc:mysql://localhost:3306/user", getDbUsername(), getDbPassword()).use { connection ->
 
-                val query = "SELECT * FROM users WHERE username = ? AND password_hash = ?"
+                val query = "SELECT COUNT(*) FROM users WHERE username = ? AND password_hash = ?"
                 val preparedStatement = connection.prepareStatement(query)
 
                 preparedStatement.setString(1, getUsername())
@@ -54,7 +55,7 @@ class StartupConfig {
 
                 val resultSet = preparedStatement.executeQuery()
 
-                if (resultSet.next()) {
+                if (resultSet.next() && resultSet.getInt(1) > 0) {
                     println("Authentication successful! Ready to execute tests.")
                     isUserAuthenticated=true;
                 } else {
