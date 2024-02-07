@@ -27,7 +27,7 @@ class StartupConfig {
     @Bean
     fun init(): CommandLineRunner {
         return CommandLineRunner {
-            collectUserInput()
+            collectUserAuthenticationInput()
             authenticateUser()
         }
     }
@@ -74,7 +74,7 @@ class StartupConfig {
 
     }
 
-    private fun collectUserInput() {
+    private fun collectUserAuthenticationInput() {
         val scanner = Scanner(System.`in`)
 
         System.out.print("###\n" +
@@ -86,20 +86,27 @@ class StartupConfig {
         System.out.flush()
         dbUsername = scanner.nextLine()
 
-        //TODO hide input in console
-        System.out.println(">>>>>>>>>>>>>> Please enter MySQL password: ")
-        System.out.flush()
-        dbPassword = scanner.nextLine()
+        // Hides the password input, but is only available with true console usage, not from IDE
+        if (System.console() != null){
+            dbPassword = System.console().readPassword(">>>>>>>>>>>>>> Please enter MySQL password: ").toString()
+        } else{
+            System.out.println(">>>>>>>>>>>>>> Please enter MySQL password: ")
+            System.out.flush()
+            dbPassword = scanner.nextLine()
+        }
 
         System.out.println(">>>>>>>>>>>>>> Please enter authentication username: ")
         System.out.flush()
         username = scanner.nextLine()
 
-        //TODO hide input in console
-        System.out.println(">>>>>>>>>>>>>> Please enter authentication password: ")
-        System.out.flush()
-        password = scanner.nextLine()
-
+        // Hides the password input, but is only available with true console usage, not from IDE
+        if (System.console() != null){
+            password = System.console().readPassword(">>>>>>>>>>>>>> Please enter authentication password: ").toString()
+        } else{
+            System.out.println(">>>>>>>>>>>>>> Please enter authentication password: ")
+            System.out.flush()
+            password = scanner.nextLine()
+        }
         scanner.close()
     }
 
