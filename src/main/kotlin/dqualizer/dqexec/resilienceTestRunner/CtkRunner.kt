@@ -6,13 +6,14 @@ import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.util.ProcessLogger
+import io.github.dqualizer.dqlang.types.adapter.ctk.CtkChaosExperiment
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
-import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.io.IOException
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.logging.Logger
 import kotlin.io.path.Path
@@ -70,24 +71,13 @@ class CtkRunner(
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT)
 
         for (chaosExperiment in config.ctkChaosExperiments) {
-            val jsonPayload = objectMapper.writeValueAsString(chaosExperiment)
-            val isRunningInDocker = Path("/proc/1/cgroup").exists()
-            var experimentFilePath: Path
-            if (isRunningInDocker){
-                // TODO refactor this case decision into paths/ResourcePaths
-                experimentFilePath = Path("/app/generated_experiments/${chaosExperiment.title.replace(" ", "")}_experiment.json")
-            } else{
-                experimentFilePath = paths.getExperimentFilePath(chaosExperiment.title.replace(" ", ""))
-            }
+            val experimentJsonPayload = objectMapper.writeValueAsString(chaosExperiment)
 
-            saveJsonToFile(jsonPayload, experimentFilePath)
-            logger.info("### CHAOS EXPERIMENT $testCounter WAS CREATED IN $experimentFilePath ###")
+            logger.info("### CHAOS EXPERIMENT $testCounter WAS CREATED ###")
             var runCounter = 1
 
-            //repeat one loadtest if as many times as specified in the configuration
             while (runCounter <= chaosExperiment.repetitions){
-                //val exitValue = runExperimentOnLocalWindowsChaosToolkit(experimentFilePath, testCounter, runCounter)
-                val exitValue = requestExperimentExecutionOnHost(experimentFilePath.fileName.toString(), testCounter, runCounter)
+                val exitValue = requestExperimentExecutionOnHost(experimentJsonPayload, testCounter, runCounter)
                 logger.info(" CHAOS EXPERIMENT $testCounter-$runCounter FINISHED WITH VALUE $exitValue ###")
                 runCounter++
             }
@@ -149,40 +139,39 @@ class CtkRunner(
 
     // TODO make private again later
     @Throws(IOException::class, InterruptedException::class)
-    public fun requestExperimentExecutionOnHost(experimentFilename: String, testCounter: Int, runCounter: Int): Int {
+    fun requestExperimentExecutionOnHost(experimentJson: String, testCounter: Int, runCounter: Int): Int {
 
         val restTemplate = RestTemplate()
-        val journalFilename = experimentFilename.removeSuffix(".json") + "_journal.json"
-
         val isRunningInDocker = Path("/proc/1/cgroup").exists()
         var url = ""
         // TODO make Url/Port configurable
         if (isRunningInDocker){
-            url = "http://host.docker.internal:3323/execute_experiment?experiment_filename=$experimentFilename&journal_filename=$journalFilename"
+            url = "http://host.docker.internal:3323/execute_experiment"
         }
         else{
-            url = "http://localhost:3323/execute_experiment?experiment_filename=$experimentFilename&journal_filename=$journalFilename"
+            url = "http://localhost:3323/execute_experiment"
         }
 
-        val requestBody = mapOf(
-                "db_username" to startupConfig.getDbUsername(),
-                "db_password" to startupConfig.getDbPassword(),
-                "username" to startupConfig.getUsername(),
-                "password" to startupConfig.getPassword()
-        )
+        val headers = HttpHeaders()
+        headers.contentType = MediaType.APPLICATION_JSON
+        headers.set("dbUsername", startupConfig.getDbUsername())
+        headers.set("dbPassword", startupConfig.getDbPassword())
+        headers.set("username", startupConfig.getUsername())
+        headers.set("password", startupConfig.getPassword())
 
-        data class CtkExperimentExecutorAPIResponse(val exit_code: Int, val status: String, val ctk_logs:String, val custom_modules_logs:String)
+        val httpEntity = HttpEntity(experimentJson, headers)
 
-        val response: CtkExperimentExecutorAPIResponse? = restTemplate.postForObject(url, HttpEntity(requestBody), CtkExperimentExecutorAPIResponse::class.java)
+        data class CtkExperimentExecutorAPIResponse(val exit_code: Int, val status: String, val errorTrace:String)
+
+        val response: CtkExperimentExecutorAPIResponse? = restTemplate.postForObject(url, httpEntity, CtkExperimentExecutorAPIResponse::class.java)
 
         val objectMapper = ObjectMapper()
         val responseMap = objectMapper.convertValue(response, Map::class.java)
         val exitCode = responseMap["exit_code"]
         val status = responseMap["status"]
-        val ctkLogs = responseMap["ctk_logs"]
-        val customModuleLogs = responseMap["custom_modules_logs"]
+        val errorTrace = responseMap["error_trace"]
         if (exitCode !is Int || exitCode != 0) {
-            throw Exception("Following non 0 or non integer exit code returned from host experimentExecutor API: $exitCode || CTK Logs: $ctkLogs || Custom Python Module Logs: $customModuleLogs")
+            throw Exception("Following non 0 or non integer exit code returned from host experimentExecutor API: $exitCode || status: $status || error trace: $errorTrace")
         }
 
         else{
@@ -190,8 +179,7 @@ class CtkRunner(
             """
             ### Chaos Experiment finished successfully with exit code: $exitCode ###
             ### and returned following status message: $status ###
-            ### CTK Logs: $ctkLogs ###
-            ### Custom Python Module Logs: $customModuleLogs ###
+            ###  error trace: $errorTrace ###
             """.trimIndent()
             )
         }
