@@ -1,12 +1,60 @@
 {
   "software_system": {
-    "name": "Dummy",
-    "environment": "DEV",
+    "id": "workshop-manager",
+    "name": "Mock System",
+    "description": "A mock system for the dqualizer project",
+    "environment": "TEST",
     "services": [
-
+      {
+        "name": "Assignment Service",
+        "deployment_name": "assignment-service",
+        "uri": "http://localhost:8090",
+        "programming_framework": {"type": "Spring Boot", "version": "2.7.10"},
+        "programming_language": "Java",
+        "instrumentation_framework": {
+          "name": "inspectIT Ocelot",
+          "existing": false,
+          "options": {
+            "inspectit.exporter.metrics.otlp.endpoint": "http://otel-collector:4317",
+            "inspectit.exporters.metrics.otlp.protocol": "grpc"
+          }
+        },
+        "runtime_platform_id": "Docker Local",
+        "endpoints": [
+          {
+            "name": "read order",
+            "route": "/order"
+          }
+        ],
+        "api_schema": {
+          "version": "3.0.0",
+          "context": "workshop",
+          "api": "I don´t know what to do with that.",
+          "server_info": [
+            {
+              "host": "localhost",
+              "environment": "DEV"
+            }
+          ]
+        },
+        "controllers": [
+          {
+            "name": "OrderController",
+            "operation_id": "any.package.OrderController",
+            "type": "Controller-Class",
+            "file": "REST Endpoint"
+          }
+        ]
+      }
     ],
     "runtime_platforms": [
+      {
+        "platform_id": "Docker",
+        "name": "Docker Local",
+        "settings": {
 
+        }
+      }
     ]
   },
   "domain_story": {

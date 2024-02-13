@@ -14,8 +14,12 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.stereotype.Component
 import rocks.inspectit.ocelot.config.model.InspectitConfig
+import rocks.inspectit.ocelot.config.model.instrumentation.InstrumentationSettings
+import rocks.inspectit.ocelot.config.model.instrumentation.actions.ActionCallSettings
 import rocks.inspectit.ocelot.config.model.instrumentation.actions.GenericActionSettings
 import rocks.inspectit.ocelot.config.model.instrumentation.rules.InstrumentationRuleSettings
+import rocks.inspectit.ocelot.config.model.instrumentation.rules.MetricRecordingSettings
+import rocks.inspectit.ocelot.config.model.instrumentation.rules.RuleTracingSettings
 import rocks.inspectit.ocelot.config.model.instrumentation.scope.ElementDescriptionMatcherSettings
 import rocks.inspectit.ocelot.config.model.instrumentation.scope.InstrumentationScopeSettings
 import rocks.inspectit.ocelot.config.model.instrumentation.scope.MatcherMode
@@ -29,46 +33,50 @@ import rocks.inspectit.ocelot.config.model.metrics.definition.ViewDefinitionSett
 @Component
 class InspectItOcelotInstrumentationPlanMapper {
 
-
     fun map(instrumentation: ServiceMonitoringConfiguration, contextID: String): InspectItOcelotInstrumentationPlan {
 
-        val resourceLoader: ResourceLoader = DefaultResourceLoader()
-        val resource: Resource = resourceLoader.getResource("classpath:exampleconfig.yaml")
-        val content = String(resource.contentAsByteArray)
+      // TODO Remove hard coded
+      val resourceLoader: ResourceLoader = DefaultResourceLoader()
+      val resource: Resource = resourceLoader.getResource("classpath:exampleconfig.yaml")
+      val content = String(resource.contentAsByteArray)
 
+      val yamlMapper = ObjectMapper(YAMLFactory())
+      yamlMapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
 
-        val yamlMapper = ObjectMapper(YAMLFactory())
-        yamlMapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
+//        var configMap = yamlMapper.readValue<Map<String, MutableMap<String,Any>>>(content).toMutableMap()
 
-        var configMap = yamlMapper.readValue<Map<String, MutableMap<String,Any>>>(content).toMutableMap()
-
-        configMap["inspectit"]?.remove("instrumentation")
+//        configMap["inspectit"]?.remove("instrumentation")
 //        configMap["inspectit"]?.remove("metrics")
 //        configMap["inspectit"]?.remove("tracing")
 //        configMap["inspectit"]?.remove("logging")
 
 
 
-        val jsonMapper = ObjectMapper()
+        //val jsonMapper = ObjectMapper()
         //ignore null values
-        jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
-        val json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(configMap)
+        //jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
+        //val json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(configMap)
 
-        return InspectItOcelotInstrumentationPlan(instrumentation, json)
+        //return InspectItOcelotInstrumentationPlan(instrumentation, json)
 
 
-//        val metrics = generateMetrics(instrumentation)
-//
-//        val instrumentationSettings = InstrumentationSettings().apply {
-//            this.scopes = getScopes(instrumentation)
-//            this.actions = getActions(instrumentation, contextID)
-//            this.rules = getRules(instrumentation, metrics, scopes, actions)
-//        }
-//        val config = InspectitConfig().apply {
-//            this.instrumentation = instrumentationSettings
-//            this.metrics = metrics
-//        }
-//        return InspectItOcelotInstrumentationPlan(instrumentation, toYamlString(config));
+
+      val metrics = generateMetrics(instrumentation)
+
+      val instrumentationSettings = InstrumentationSettings().apply {
+          this.scopes = getScopes(instrumentation)
+          this.actions = getActions(instrumentation, contextID)
+          this.rules = getRules(instrumentation, metrics, scopes, actions, contextID)
+      }
+      val config = InspectitConfig().apply {
+        this.serviceName = "dqOcelot"
+        this.instrumentation = instrumentationSettings
+        this.metrics = metrics
+        // TODO Further configuration, e.g. Tracing
+      }
+
+      val configString = toYamlString(config)
+      return InspectItOcelotInstrumentationPlan(instrumentation, configString);
     }
 
     private fun generateMetrics(instrumentation: ServiceMonitoringConfiguration): MetricsSettings {
@@ -210,12 +218,13 @@ class InspectItOcelotInstrumentationPlanMapper {
     ): Map<String, GenericActionSettings> {
         val actions = mutableMapOf<String, GenericActionSettings>()
 
-        actions["a_get_context_name"] = GenericActionSettings().apply {
-            this.value = contextID
-        }
-        actions["a_timestamp_ms"] = GenericActionSettings().apply {
-            this.value = "Long.valueOf(System.currentTimeMillis())"
-        }
+//        actions["a_get_context_name"] = GenericActionSettings().apply {
+//            this.value = contextID
+//        }
+      // There is already an Ocelot Default Action for this: a_timing_nanos
+//        actions["a_timestamp_ms"] = GenericActionSettings().apply {
+//            this.value = "Long.valueOf(System.currentTimeMillis())"
+//        }
 
         instrumentation.instruments.forEach {
             it.measurementName
@@ -228,66 +237,88 @@ class InspectItOcelotInstrumentationPlanMapper {
     }
 
     //where to execute the actions and what are the resulting metrics (including tags)
+    private fun getRules(
+        instrumentation: ServiceMonitoringConfiguration,
+        metrics: MetricsSettings,
+        scopes: Map<String, InstrumentationScopeSettings>,
+        actions: Map<String, GenericActionSettings>,
+        contextID: String
+    ): Map<String, InstrumentationRuleSettings> {
+        val rules = mutableMapOf<String, InstrumentationRuleSettings>()
+
+        instrumentation.instruments.map {
+            val measurementTypeName = sanitizeToString(it.measurementType)
+            val location = Location.fromString(it.location.location)
+            val instrumentLocationName = sanitizeToString(location)
+            val ruleName = "r_" + measurementTypeName + "_" + instrumentLocationName
+
+           val entryContext = "entry_time"
+           val exitContext = "elapsed_time"
+
+            val scope = "s_" + location.methodName
+            val metric = getMetricFromType(metrics, it.measurementType)
+
+            val metricName = getMetricNameTemplateFromType(it.measurementType).format("")
+            val metricRecordingSettings = MetricRecordingSettings().apply {
+                this.metric = metricName
+                this.value = exitContext
+                this.dataTags = mapOf(
+                    Pair("class", "value")
+                )
+                this.constantTags = mapOf(
+                    Pair("context", contextID),
+                    Pair("component", it.targetComponentId),
+                    Pair("measurement_name", it.measurementName))
+            }
+
+            val (entry,exit) = when (it.measurementType) {
+                MeasurementType.EXECUTION_TIME -> {
+                    Pair(
+                      ActionCallSettings().apply { this.action = "a_timing_nanos" },
+
+                      ActionCallSettings().apply {
+                        this.action = "a_timing_elapsedMillis"
+                        this.dataInput = mutableMapOf(Pair("since_nanos", "entry_time"))
+                      }
+                    )
+                }
+              // TODO Implement other MeasurementTypes
+                else -> {
+                    Pair(null, null)
+                }
+            }
+
+            val rule = InstrumentationRuleSettings().apply {
+              // Use Ocelot default rule to enable tracing for provided scope
+              this.include = mutableMapOf(Pair("r_trace_method", true))
+              this.tracing = RuleTracingSettings().apply {
+                // Add attributes for tracing
+                this.attributes = mutableMapOf(
+                  Pair("component", it.targetComponentId),
+                  Pair("context", contextID)
+                )
+              }
+
+              this.scopes = mutableMapOf(Pair(scope, true))
+              this.metrics = mutableMapOf(Pair(metricName, metricRecordingSettings))
+              this.entry = mutableMapOf(Pair(entryContext, entry))
+              this.exit = mutableMapOf(Pair(exitContext, exit))
+            }
+
+          rules.put(ruleName, rule)
+        }
+
+        return rules.toMap()
+    }
+
 //    private fun getRules(
 //        instrumentation: ServiceMonitoringConfiguration,
 //        metrics: MetricsSettings,
 //        scopes: Map<String, InstrumentationScopeSettings>,
 //        actions: Map<String, GenericActionSettings>
 //    ): Map<String, InstrumentationRuleSettings> {
-//        val rules = mutableMapOf<String, InstrumentationRuleSettings>()
-//
-//        instrumentation.instruments.map {
-//            val measurementTypeName = sanitizeToString(it.measurementType)
-//            val location = Location.fromString(it.location.location)
-//            val instrumentLocationName = sanitizeToString(location)
-//            val ruleName = "r_" + measurementTypeName + "_" + instrumentLocationName
-//
-//            val resultValueName = "result_value"
-//
-//            val scope = "s_" + location.methodName
-//            val metric = getMetricFromType(metrics, it.measurementType)
-//
-//            val metricRecordingSettings = MetricRecordingSettings().apply {
-//                this.metric = getMetricNameTemplateFromType(it.measurementType).format("")
-//                this.value = resultValueName
-//                this.dataTags = mapOf(
-//                    Pair("class", "value")
-//                )
-//                this.constantTags = mapOf(
-//                    Pair("context", "\${a_get_context_name}"),
-//                    Pair("component", it.targetComponentId),
-//                    Pair("measurement_name", it.measurementName))
-//            }
-//
-//            val (entry,exit) = when (it.measurementType) {
-//                MeasurementType.EXECUTION_TIME -> {
-//                    Pair(ActionCallSettings().apply { this.action = "a_timestamp_ms"},
-//                        ActionCallSettings().apply { this.action = "a_timestamp_ms"})
-//                }
-//                else -> {
-//                    Pair(null, null)
-//                }
-//            }
-//
-//
-//            return@map InstrumentationRuleSettings().apply {
-//                this.scopes = mutableMapOf(Pair(scope, true))
-//                this.metrics =
-//                    this.ent
-//            }
-//        }
-//
-//        return rules.toImmutableMap()
+//        return mapOf()
 //    }
-
-    private fun getRules(
-        instrumentation: ServiceMonitoringConfiguration,
-        metrics: MetricsSettings,
-        scopes: Map<String, InstrumentationScopeSettings>,
-        actions: Map<String, GenericActionSettings>
-    ): Map<String, InstrumentationRuleSettings> {
-        return mapOf()
-    }
 
 
     private val yamlMapper =

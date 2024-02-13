@@ -11,8 +11,8 @@ import io.github.dqualizer.dqlang.types.dam.architecture.RuntimePlatform
 import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
+import java.time.Duration
 import java.util.*
-
 
 /**
  * Uses <a href="https://github.com/docker-java/docker-java/blob/main/docs/getting_started.md">docker-java</a> to connect to a docker container.
@@ -35,16 +35,22 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
 
   private fun prepareDockerClient(platformDescription: RuntimePlatform) {
     val dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
-      .withProperties(Properties().apply { putAll(platformDescription.settings) })
-      .withDockerHost("tcp://localhost:2375")
+      .withDockerHost("tcp://localhost:2375") // default docker tcp port
+      .withProperties(
+        Properties().apply { putAll(platformDescription.settings) }
+      )
       .apply {
         if (platformDescription.uri != null)
           withDockerHost(platformDescription.uri!!.host)
       }
       .build()
+
     val httpDockerClientConfig = ApacheDockerHttpClient.Builder()
       .dockerHost(dockerClientConfig.dockerHost)
       .sslConfig(dockerClientConfig.sslConfig)
+      .maxConnections(100)
+      .connectionTimeout(Duration.ofSeconds(30))
+      .responseTimeout(Duration.ofSeconds(45))
       .build()
 
     dockerClient = DockerClientImpl.getInstance(dockerClientConfig, httpDockerClientConfig)

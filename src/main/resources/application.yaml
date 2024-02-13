@@ -10,6 +10,9 @@ spring:
 dqualizer:
   messaging:
     queues:
+      rqa:
+        name: rqa
+        durable: false
       loadtest:
         name: loadtest
         durable: false

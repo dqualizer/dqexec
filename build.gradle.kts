@@ -88,16 +88,14 @@ dependencies {
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
   implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
 
-  implementation("com.github.docker-java:docker-java:3.3.4") {
+  implementation("com.github.docker-java:docker-java-core:3.3.4") {
     exclude(group = "org.slf4j")
   }
-  implementation("com.github.docker-java:docker-java-transport-httpclient5:3.2.3")
-
-
-  implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
-
+  implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.4")
   implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
 
+  implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
+  implementation("io.opentelemetry:opentelemetry-api:1.35.0")
 
   implementation("io.micrometer:micrometer-tracing-bridge-brave:1.0.3")
   implementation("io.zipkin.reporter2:zipkin-reporter-brave:2.16.3")

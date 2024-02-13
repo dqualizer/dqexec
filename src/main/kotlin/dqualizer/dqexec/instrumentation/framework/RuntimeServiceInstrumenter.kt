@@ -5,6 +5,8 @@ import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMonitoringConfiguration
 import org.springframework.plugin.core.Plugin
 
+// TODO: Also add interfaces like LoadTestRunner (set up and run load tests)
+//  and ResilienceTestRunner (set up and run resilience tests)
 sealed interface IRuntimeServiceInstrumenter : Plugin<String> {
 
   fun instrument(

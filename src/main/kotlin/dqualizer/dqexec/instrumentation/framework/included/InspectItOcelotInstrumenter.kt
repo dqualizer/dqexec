@@ -26,16 +26,16 @@ class InspectItOcelotInstrumenter(
         serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
         platformAccessor: RuntimePlatformAccessor
     ) {
-        val instrumentationPlan = instrumentationMapper.map(serviceMonitoringConfiguration, "")
+        val instrumentationPlan = instrumentationMapper.map(serviceMonitoringConfiguration, targetService.name)
 
         platformAccessor.connect()
 
         log.info { "Connected to platform" }
 
 
-        //TODOs:
-        // - check if container has internet access, otherwise try download locally
-        // - location of the jar should be configurable
+        // TODO:
+        //  - check if container has internet access, otherwise try download locally
+        //  - location of the jar should be configurable
 
         log.info { "Downloading agent" }
         var response = platformAccessor.executeInServiceContainer(

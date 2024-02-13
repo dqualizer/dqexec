@@ -24,6 +24,7 @@ abstract class RuntimeServiceInstrumenter : IRuntimeServiceInstrumenter {
     revertInstrumentationPlan(targetService, serviceMonitoringConfiguration, platformAccessor)
   }
 
+  // TODO Do we need those two extra methods? Can't we use the already provided ones?
   protected abstract fun executeInstrumentationPlan(
     targetService: ServiceDescription,
     serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
