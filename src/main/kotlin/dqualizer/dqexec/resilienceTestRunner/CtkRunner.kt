@@ -6,7 +6,6 @@ import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.util.ProcessLogger
-import io.github.dqualizer.dqlang.types.adapter.ctk.CtkChaosExperiment
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -161,28 +160,28 @@ class CtkRunner(
 
         val httpEntity = HttpEntity(experimentJson, headers)
 
-        data class CtkExperimentExecutorAPIResponse(val exit_code: Int, val status: String, val errorTrace:String)
+        data class CtkExperimentExecutorAPIResponse(val status_code: Int, val status: String, val info:String)
 
         val response: CtkExperimentExecutorAPIResponse? = restTemplate.postForObject(url, httpEntity, CtkExperimentExecutorAPIResponse::class.java)
 
         val objectMapper = ObjectMapper()
         val responseMap = objectMapper.convertValue(response, Map::class.java)
-        val exitCode = responseMap["exit_code"]
+        val statusCode = responseMap["status_code"]
         val status = responseMap["status"]
-        val errorTrace = responseMap["error_trace"]
-        if (exitCode !is Int || exitCode != 0) {
-            throw Exception("Following non 0 or non integer exit code returned from host experimentExecutor API: $exitCode || status: $status || error trace: $errorTrace")
+        val info = responseMap["info"]
+        if (statusCode !is Int || statusCode != 200) {
+            throw Exception("Following non 200 or non integer exit code returned from host experimentExecutor API: $statusCode || status: $status || info: $info")
         }
 
         else{
             logger.info(
             """
-            ### Chaos Experiment finished successfully with exit code: $exitCode ###
+            ### Chaos Experiment finished successfully and returned status code: $statusCode ###
             ### and returned following status message: $status ###
-            ###  error trace: $errorTrace ###
+            ### error trace: $info ###
             """.trimIndent()
             )
         }
-        return exitCode
+        return statusCode
     }
 }
