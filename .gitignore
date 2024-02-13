@@ -40,3 +40,6 @@ out/
 .devenv
 .direnv
 .envrc
+
+### MacOS ###
+**/.DS_STORE
