@@ -94,7 +94,7 @@ dependencies {
   implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.4")
   implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
 
-  implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
+  implementation(files("inspectit-ocelot-config-SNAPSHOT.jar"))
   implementation("io.opentelemetry:opentelemetry-api:1.35.0")
 
   implementation("io.micrometer:micrometer-tracing-bridge-brave:1.0.3")
