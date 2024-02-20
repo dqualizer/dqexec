@@ -183,7 +183,7 @@ class CtkAdapter(private val startupConfig: StartupConfig)
 
         val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator", "watcher_configuration" to watcherConfiguration)
         // TODO Needs be written in chaostoolkit extension and then added as function
-        val provider = Provider("python", "chaosspring.actions", "", argumentsForFunction)
+        val provider = Provider("python", "chaosspring.actions", "change_watchers_configuration", argumentsForFunction)
         return Action(actionName, provider)
     }
 
