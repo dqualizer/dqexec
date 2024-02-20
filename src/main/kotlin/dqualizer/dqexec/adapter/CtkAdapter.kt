@@ -156,7 +156,7 @@ class CtkAdapter(private val startupConfig: StartupConfig)
     // Also if the assaultConfiguration already adds a watched service, also the corresponding watcher needs to be enabled for the failure injection to work for the watchedCustomService
     private fun createActionToChangeWatcherConfiguration(artifact: EnrichedArtifact):Action{
         val actionName = "configure_watchers"
-        val watcherConfiguration = object {
+        val watchersConfiguration = object {
             var controller: String = "false"
             var restController: String = "false"
             var service: String = "false"
@@ -174,14 +174,14 @@ class CtkAdapter(private val startupConfig: StartupConfig)
         // check on the member name entered in the DAM which type of Beans should be watched in the experiment
         // this assumes that e.g. Spring Repository Beans contain "Repo" in their class name to work
         when {
-            "controller" in artifact.packageMember.lowercase() -> watcherConfiguration.controller = "true"
-            "restController" in artifact.packageMember.lowercase() -> watcherConfiguration.restController = "true"
-            "repo" in artifact.packageMember.lowercase() -> watcherConfiguration.repository = "true"
-            "controller" in artifact.packageMember.lowercase() -> watcherConfiguration.controller = "true"
-            "component" in artifact.packageMember.lowercase() -> watcherConfiguration.component = "true"
+            "controller" in artifact.packageMember.lowercase() -> watchersConfiguration.controller = "true"
+            "restController" in artifact.packageMember.lowercase() -> watchersConfiguration.restController = "true"
+            "repo" in artifact.packageMember.lowercase() -> watchersConfiguration.repository = "true"
+            "controller" in artifact.packageMember.lowercase() -> watchersConfiguration.controller = "true"
+            "component" in artifact.packageMember.lowercase() -> watchersConfiguration.component = "true"
         }
 
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator", "watcher_configuration" to watcherConfiguration)
+        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator", "watchers_configuration" to watchersConfiguration)
         // TODO Needs be written in chaostoolkit extension and then added as function
         val provider = Provider("python", "chaosspring.actions", "change_watchers_configuration", argumentsForFunction)
         return Action(actionName, provider)
