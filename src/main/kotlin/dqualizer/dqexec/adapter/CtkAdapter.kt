@@ -125,7 +125,7 @@ class CtkAdapter(private val startupConfig: StartupConfig)
 
     private fun createActionToEnableChaosMonkeyForSpringBoot(artifact: EnrichedArtifact): Action{
         val actionName = "enable_chaosmonkey"
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator")
+        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}")
         val provider = Provider("python", "chaosspring.actions", "enable_chaosmonkey", argumentsForFunction)
 
         return Action(actionName, provider)
@@ -147,7 +147,7 @@ class CtkAdapter(private val startupConfig: StartupConfig)
             val watchedCustomServices:List<String> = listOf(artifact.packageMember)
         }
 
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator", "assaults_configuration" to assaultsConfiguration)
+        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}", "assaults_configuration" to assaultsConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
 
         return Action(actionName, provider)
@@ -181,7 +181,7 @@ class CtkAdapter(private val startupConfig: StartupConfig)
             "component" in artifact.packageMember.lowercase() -> watchersConfiguration.component = "true"
         }
 
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator", "watchers_configuration" to watchersConfiguration)
+        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}", "watchers_configuration" to watchersConfiguration)
         // TODO Needs be written in chaostoolkit extension and then added as function
         val provider = Provider("python", "chaosspring.actions", "change_watchers_configuration", argumentsForFunction)
         return Action(actionName, provider)
@@ -189,7 +189,7 @@ class CtkAdapter(private val startupConfig: StartupConfig)
 
     private fun createActionToDisableChaosMonkeyForSpringBoot(artifact: EnrichedArtifact): Action {
         val actionName = "disable_chaosmonkey"
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator")
+        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}")
         val provider = Provider("python", "chaosspring.actions", "disable_chaosmonkey", argumentsForFunction)
 
         return Action(actionName, provider)
