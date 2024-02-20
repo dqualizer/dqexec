@@ -30,12 +30,7 @@ class CtkRunner(
     private val logger = Logger.getLogger(this.javaClass.name)
 
 
-    /**
-     * Start the configuration-runner
-     *
-     * @param config Received inofficial k6-configuration
-     */
-    public fun start(config: CtkConfiguration) {
+    fun start(config: CtkConfiguration) {
         logger.info("### CTK CONFIGURATION RECEIVED ###")
         try {
             this.run(config)
