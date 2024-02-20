@@ -4,9 +4,13 @@ package dqualizer.dqexec.adapter
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import dqualizer.dqexec.exception.UnknownTermException
+import io.github.dqualizer.dqlang.types.adapter.constants.resilienceTesting.ResilienceTestConstants
 import io.github.dqualizer.dqlang.types.adapter.ctk.*
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.ResilienceTestConfiguration
+import io.github.dqualizer.dqlang.types.rqa.definition.enums.Satisfaction
+import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.ResilienceResponseMeasures
 import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.LateResponsesStimulus
 import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.UnavailabilityStimulus
 import org.springframework.stereotype.Component
@@ -15,7 +19,7 @@ import org.springframework.stereotype.Component
  * Adapts a resilience test configuration to CTK tests
  * */
 @Component
-class CtkAdapter()
+class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 {
     // $ pointers are used to reference the secretes defined in the top-level of the experiment definition
     val authenticationParameters = mapOf("db_username" to "\${db_username}", "db_password" to "\${db_password}", "username" to "\${username}", "password" to "\${password}")
@@ -42,10 +46,13 @@ class CtkAdapter()
                 val method = listOf(createActionToKillProcess(resilienceTestDefinition.artifact),
                         createProbeToMonitorRecoveryTimeOfProcess(resilienceTestDefinition.artifact))
                 val rollbacks = listOf(createActionToStartProcess(resilienceTestDefinition.artifact))
+                val extension = createExtensionHoldingResponesMeasureValues(resilienceTestDefinition.responseMeasure)
+
                 ctkChaosExperiment = CtkChaosExperiment(resilienceTestDefinition.description, resilienceTestDefinition.description, method, repetitions)
                 ctkChaosExperiment.secrets = secrets
                 ctkChaosExperiment.steadyStateHypothesis = steadyStateHypothesis
                 ctkChaosExperiment.rollbacks = rollbacks
+                ctkChaosExperiment.extensions = listOf(extension)
             }
 
             else if (resilienceTestDefinition.stimulus is LateResponsesStimulus){
@@ -60,6 +67,53 @@ class CtkAdapter()
             ctkChaosExperiments.add(ctkChaosExperiment)
         }
         return CtkConfiguration(resilienceTestConfig.context, ctkChaosExperiments)
+    }
+
+    /**
+     * Creates an extension object which holds numerical values for expected response measures
+     */
+    private fun createExtensionHoldingResponesMeasureValues(responseMeasures: ResilienceResponseMeasures): ResponseMeasuresExtension? {
+
+        val extension = ResponseMeasuresExtension()
+        extension.setName("expected response measures")
+
+        if (responseMeasures.recoveryTime != null){
+            val recoveryTimeConstants = resilienceTestConstants.recoveryTime
+            var expectedRecoveryTime: Int
+            when (val responseTimeValue = responseMeasures.recoveryTime) {
+                Satisfaction.SATISFIED -> expectedRecoveryTime = recoveryTimeConstants.satisfied
+                Satisfaction.TOLERATED -> expectedRecoveryTime = recoveryTimeConstants.tolerated
+                Satisfaction.FRUSTRATED-> expectedRecoveryTime = recoveryTimeConstants.frustrated
+                else -> throw UnknownTermException(responseTimeValue.toString())
+            }
+            extension.setExpectedRecoveryTimeInMilliseconds(expectedRecoveryTime)
+        }
+
+        if (responseMeasures.responseTime != null){
+            val responseTimeConstants = resilienceTestConstants.responseTime
+            var expectedResponseTime: Int
+            when (val responseTimeValue = responseMeasures.responseTime) {
+                Satisfaction.SATISFIED -> expectedResponseTime = responseTimeConstants.satisfied
+                Satisfaction.TOLERATED -> expectedResponseTime = responseTimeConstants.tolerated
+                Satisfaction.FRUSTRATED-> expectedResponseTime = responseTimeConstants.frustrated
+                else -> throw UnknownTermException(responseTimeValue.toString())
+            }
+            extension.setExpectedResponseTimeInMilliseconds(expectedResponseTime)
+        }
+
+        if (responseMeasures.errorRate != null){
+            val errorRateConstants = resilienceTestConstants.errorRate
+            var expectedErrorate: Int
+            when (val errorRateValue = responseMeasures.errorRate) {
+                Satisfaction.SATISFIED -> expectedErrorate = errorRateConstants.satisfied
+                Satisfaction.TOLERATED -> expectedErrorate = errorRateConstants.tolerated
+                Satisfaction.FRUSTRATED-> expectedErrorate = errorRateConstants.frustrated
+                else -> throw UnknownTermException(errorRateValue.toString())
+            }
+            extension.setExpectedRecoveryTimeInMilliseconds(expectedErrorate)
+        }
+
+       return extension
     }
 
     /**

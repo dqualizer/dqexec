@@ -36,12 +36,5 @@
     "satisfied": 1200,
     "tolerated": 2400,
     "frustrated": 4800
-  },
-
-  "recovery_time": {
-    "satisfied": 500,
-    "tolerated": 2000,
-    "frustrated": 5000
   }
-
 }
