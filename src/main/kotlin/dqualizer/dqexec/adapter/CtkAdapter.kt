@@ -136,15 +136,15 @@ class CtkAdapter(private val startupConfig: StartupConfig)
         // TODO move this to DAM, should be translated to stimulus, which is then additional input for this method
         val assaultsConfiguration = object {
             val level: Int = 1
-            val deterministic: Boolean = true
+            val deterministic: String = "True"
             val latencyRangeStart: Int = 2000
             val latencyRangeEnd: Int = 2000
-            val latencyActive: Boolean = true
-            val exceptionsActive: Boolean = false
-            val killApplicationActive: Boolean = false
-            val restartApplicationActive: Boolean = false
+            val latencyActive: String = "True"
+            val exceptionsActive: String = "false"
+            val killApplicationActive: String = "false"
+            val restartApplicationActive: String = "false"
             // this can also inhabit beans other than services, e.g. a repo-class or method see https://codecentric.github.io/chaos-monkey-spring-boot/latest/
-            val watchedCustomServices:List<String> = listOf(artifact.processId)
+            val watchedCustomServices:List<String> = listOf(artifact.packageMember)
         }
 
         val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator", "assault_configuration" to assaultsConfiguration)
@@ -157,27 +157,28 @@ class CtkAdapter(private val startupConfig: StartupConfig)
     private fun createActionToChangeWatcherConfiguration(artifact: EnrichedArtifact):Action{
         val actionName = "configure_watchers"
         val watcherConfiguration = object {
-            var controller: Boolean = false
-            var restController: Boolean = false
-            var service: Boolean = false
-            var repository: Boolean = false
-            var component: Boolean = false
-            val restTemplate: Boolean = false
-            val webClient: Boolean = false
-            val actuatorHealth: Boolean = false
+            var controller: String = "false"
+            var restController: String = "false"
+            var service: String = "false"
+            var repository: String = "false"
+            var component: String = "false"
+            val restTemplate: String = "false"
+            val webClient: String = "false"
+            val actuatorHealth: String = "false"
             // TODO maybe it also works when member name entered in the DAM is just put into "beans" List?
             val beans: List<String> = emptyList()
             val beanClasses: List<String> = emptyList()
             val excludeClasses: List<String> = emptyList()
         }
 
-        // check on the member name entered in the DAM which type of Beans should be watched in the experiment; this assumes that e.g. Spring Repository Beans contain "Repo" in their class name
+        // check on the member name entered in the DAM which type of Beans should be watched in the experiment
+        // this assumes that e.g. Spring Repository Beans contain "Repo" in their class name to work
         when {
-            "controller" in artifact.packageMember.lowercase() -> watcherConfiguration.controller = true
-            "restController" in artifact.packageMember.lowercase() -> watcherConfiguration.restController = true
-            "repo" in artifact.packageMember.lowercase() -> watcherConfiguration.repository = true
-            "controller" in artifact.packageMember.lowercase() -> watcherConfiguration.controller = true
-            "component" in artifact.packageMember.lowercase() -> watcherConfiguration.component = true
+            "controller" in artifact.packageMember.lowercase() -> watcherConfiguration.controller = "true"
+            "restController" in artifact.packageMember.lowercase() -> watcherConfiguration.restController = "true"
+            "repo" in artifact.packageMember.lowercase() -> watcherConfiguration.repository = "true"
+            "controller" in artifact.packageMember.lowercase() -> watcherConfiguration.controller = "true"
+            "component" in artifact.packageMember.lowercase() -> watcherConfiguration.component = "true"
         }
 
         val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator", "watcher_configuration" to watcherConfiguration)
