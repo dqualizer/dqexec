@@ -3,7 +3,7 @@ package dqualizer.dqexec.adapter
 import dqualizer.dqexec.input.LoadTestingConstantsLoader
 
 
-import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.types.adapter.constants.loadTesting.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.k6.K6Configuration
 import io.github.dqualizer.dqlang.types.adapter.k6.K6LoadTest
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestArtifact

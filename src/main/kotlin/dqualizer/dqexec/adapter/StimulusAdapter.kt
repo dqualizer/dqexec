@@ -2,7 +2,7 @@ package dqualizer.dqexec.adapter
 
 import dqualizer.dqexec.exception.UnknownStimulusException
 import dqualizer.dqexec.util.LoadCurveHelper
-import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.types.adapter.constants.loadTesting.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.k6.Stage
 import io.github.dqualizer.dqlang.types.adapter.options.*
 import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.ConstantLoadStimulus

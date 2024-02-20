@@ -2,7 +2,7 @@ package dqualizer.dqexec.adapter
 
 import dqualizer.dqexec.exception.UnknownTermException
 
-import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.types.adapter.constants.loadTesting.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.request.Checks
 import io.github.dqualizer.dqlang.types.adapter.request.Request
 import io.github.dqualizer.dqlang.types.dam.Endpoint
