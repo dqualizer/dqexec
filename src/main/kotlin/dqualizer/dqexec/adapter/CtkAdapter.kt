@@ -147,7 +147,7 @@ class CtkAdapter(private val startupConfig: StartupConfig)
             val watchedCustomServices:List<String> = listOf(artifact.packageMember)
         }
 
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator", "assault_configuration" to assaultsConfiguration)
+        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}/actuator", "assaults_configuration" to assaultsConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
 
         return Action(actionName, provider)
