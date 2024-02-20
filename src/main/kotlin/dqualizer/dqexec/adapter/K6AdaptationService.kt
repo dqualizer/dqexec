@@ -1,6 +1,5 @@
 package dqualizer.dqexec.adapter
 
-import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.loadtest.ConfigRunner
 // import dqualizer.dqexec.output.K6ConfigProducer
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
@@ -18,7 +17,6 @@ import java.util.logging.Logger
 class K6AdaptationService(
    private val adapter: K6Adapter,
    private val k6ConfigRunner: ConfigRunner,
-   private val startupConfig: StartupConfig
 ) {
     private val log = Logger.getLogger(this.javaClass.name)
 

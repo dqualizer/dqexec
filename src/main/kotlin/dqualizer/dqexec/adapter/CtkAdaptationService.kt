@@ -1,7 +1,5 @@
 package dqualizer.dqexec.adapter
 
-// import dqualizer.dqexec.output.K6ConfigProducer
-import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.resilienceTestRunner.CtkRunner
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.ResilienceTestConfiguration
@@ -15,7 +13,6 @@ import java.util.logging.Logger
 class CtkAdaptationService(
    private val adapter: CtkAdapter,
    private val ctkRunner: CtkRunner,
-   private val startupConfig: StartupConfig
 ) {
     private val log = Logger.getLogger(this.javaClass.name)
 
