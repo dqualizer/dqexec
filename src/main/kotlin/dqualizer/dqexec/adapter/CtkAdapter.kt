@@ -229,6 +229,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
         // this assumes that e.g. Spring Repository Beans contain "Repo" in their class name to work
         when {
             "controller" in artifact.packageMember.lowercase() -> watchersConfiguration.controller = "true"
+            "service" in artifact.packageMember.lowercase() -> watchersConfiguration.service = "true"
             "restController" in artifact.packageMember.lowercase() -> watchersConfiguration.restController = "true"
             "repo" in artifact.packageMember.lowercase() -> watchersConfiguration.repository = "true"
             "controller" in artifact.packageMember.lowercase() -> watchersConfiguration.controller = "true"
