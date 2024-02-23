@@ -236,9 +236,10 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
         }
 
         val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}", "watchers_configuration" to watchersConfiguration)
-        // TODO Needs be written in chaostoolkit extension and then added as function
         val provider = Provider("python", "chaosspring.actions", "change_watchers_configuration", argumentsForFunction)
-        return Action(actionName, provider)
+        // TODO hardcoded value should be configurable via DAM or RQA-Def in dqAnalyzer
+        val pauses = Pauses(0,120)
+        return Action(actionName, provider, pauses )
     }
 
     private fun createActionToDisableChaosMonkeyForSpringBoot(artifact: EnrichedArtifact): Action {
