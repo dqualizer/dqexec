@@ -19,14 +19,14 @@ class CtkAdaptationService(
     @RabbitListener(queues = ["\${dqualizer.messaging.queues.resilienceTestConfigurationQueue.name}"])
     private fun receive(@Payload resilienceTestConfiguration: ResilienceTestConfiguration) {
 
-        if (startupConfig.isUserAuthenticated()){
+        //if (startupConfig.isUserAuthenticated()){
             log.info("Received resilience test configuration\n$resilienceTestConfiguration")
             start(resilienceTestConfiguration)
-        }
+        //}
 
-        else{
-            log.info("Missing dqexec authentication: received resilience test configuration could not be processed.")
-        }
+//        else{
+//            log.info("Missing dqexec authentication: received resilience test configuration could not be processed.")
+//        }
     }
 
     private fun start(resilienceTestConfiguration: ResilienceTestConfiguration ) {

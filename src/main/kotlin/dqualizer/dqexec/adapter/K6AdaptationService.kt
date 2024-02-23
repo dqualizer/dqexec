@@ -29,13 +29,13 @@ class K6AdaptationService(
     @RabbitListener(queues = ["\${dqualizer.messaging.queues.loadTestConfigurationQueue.name}"])
     private fun receive(@Payload loadTestConfig: LoadTestConfiguration) {
 
-        if (startupConfig.isUserAuthenticated()){
+//        if (startupConfig.isUserAuthenticated()){
             log.info("Received loadtest configuration\n$loadTestConfig")
             start(loadTestConfig)
-        }
-        else{
-            log.info("Missing dqexec authentication: received load test configuration could not be processed.")
-        }
+//        }
+//        else{
+//            log.info("Missing dqexec authentication: received load test configuration could not be processed.")
+//        }
     }
 
     private fun start(loadTestConfig: LoadTestConfiguration  ) {
