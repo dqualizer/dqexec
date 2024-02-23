@@ -34,34 +34,34 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
      */
     fun adapt(resilienceTestConfig: ResilienceTestConfiguration): CtkConfiguration {
         val ctkChaosExperiments = LinkedHashSet<CtkChaosExperiment>()
-        for (resilienceTestDefinition in resilienceTestConfig.enrichedResilienceTestDefinitions) {
+        for (enrichedResilienceTestDefinition in resilienceTestConfig.enrichedResilienceTestDefinitions) {
 
             // TODO consider accuracy defined in resilienceTestConfig for multiple repetitions
             val repetitions = 1
             lateinit var ctkChaosExperiment: CtkChaosExperiment
 
-            if (resilienceTestDefinition.stimulus is UnavailabilityStimulus){
+            if (enrichedResilienceTestDefinition.stimulus is UnavailabilityStimulus){
                 val secrets = createTopLevelSecrets()
-                val steadyStateHypothesis = createSteadyStateHypothesisForUnaivalabilityStimulus(resilienceTestDefinition.artifact)
-                val method = listOf(createActionToKillProcess(resilienceTestDefinition.artifact),
-                        createProbeToMonitorRecoveryTimeOfProcess(resilienceTestDefinition.artifact))
-                val rollbacks = listOf(createActionToStartProcess(resilienceTestDefinition.artifact))
-                val extension = createExtensionHoldingResponesMeasureValues(resilienceTestDefinition.responseMeasure)
+                val steadyStateHypothesis = createSteadyStateHypothesisForUnaivalabilityStimulus(enrichedResilienceTestDefinition.artifact)
+                val method = listOf(createActionToKillProcess(enrichedResilienceTestDefinition.artifact),
+                        createProbeToMonitorRecoveryTimeOfProcess(enrichedResilienceTestDefinition.artifact))
+                val rollbacks = listOf(createActionToStartProcess(enrichedResilienceTestDefinition.artifact))
+                val extension = createExtensionHoldingResponesMeasureValues(enrichedResilienceTestDefinition.responseMeasure)
 
-                ctkChaosExperiment = CtkChaosExperiment(resilienceTestDefinition.description, resilienceTestDefinition.description, method, repetitions)
+                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method, repetitions)
                 ctkChaosExperiment.secrets = secrets
                 ctkChaosExperiment.steadyStateHypothesis = steadyStateHypothesis
                 ctkChaosExperiment.rollbacks = rollbacks
                 ctkChaosExperiment.extensions = listOf(extension)
             }
 
-            else if (resilienceTestDefinition.stimulus is LateResponsesStimulus){
+            else if (enrichedResilienceTestDefinition.stimulus is LateResponsesStimulus){
                 // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
-                val method = listOf(createActionToEnableChaosMonkeyForSpringBoot(resilienceTestDefinition.artifact),
-                        createActionToConfigureAssaults(resilienceTestDefinition.artifact),
-                        createActionToChangeWatcherConfiguration(resilienceTestDefinition.artifact))
-                val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(resilienceTestDefinition.artifact))
-                ctkChaosExperiment = CtkChaosExperiment(resilienceTestDefinition.description, resilienceTestDefinition.description, method, repetitions)
+                val method = listOf(createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact),
+                        createActionToConfigureAssaults(enrichedResilienceTestDefinition.artifact),
+                        createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact))
+                val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
+                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method, repetitions)
                 ctkChaosExperiment.rollbacks = rollbacks
             }
             ctkChaosExperiments.add(ctkChaosExperiment)
@@ -140,8 +140,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 
 
     fun createSteadyStateHypothesisForUnaivalabilityStimulus(artifact: EnrichedArtifact): SteadyStateHypothesis {
-        val name = "Application is running"
-        return SteadyStateHypothesis(name, listOf(createProbeToLookIfProcessIsRunning(true, artifact)))
+        return SteadyStateHypothesis("Application is running", listOf(createProbeToLookIfProcessIsRunning(true, artifact)))
     }
 
     fun createProbeToLookIfProcessIsRunning(isSteadyStateHypothesis: Boolean, artifact: EnrichedArtifact): Probe {
