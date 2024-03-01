@@ -1,18 +1,23 @@
 package dqualizer.dqexec.loadtest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import dqualizer.dqexec.backmapping.K6BackMapping
+import dqualizer.dqexec.backmapping.K6BackMappingProducer
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.loadtest.mapper.k6.ScriptMapper
 import dqualizer.dqexec.util.ProcessLogger
 import io.github.dqualizer.dqlang.types.adapter.k6.K6Configuration
-import java.io.IOException
-import java.nio.file.Path
-import java.util.logging.Logger
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
+import java.io.IOException
+import java.nio.file.Path
+import java.util.concurrent.TimeUnit
+import java.util.logging.Logger
 
 /**
  * The execution of an inoffical k6 configuration consists of 4 steps:
@@ -30,6 +35,7 @@ class ConfigRunner(
   @Value("\${dqualizer.dqexec.docker.localhost_replacement:}")
   private val alternativeTargetHost: String,
   @Value("\${dqualizer.dqexec.statsd.addr}") private val statsdAddr: String,
+  private val backMappingProducer: K6BackMappingProducer,
 ) {
   private val logger = Logger.getLogger(this.javaClass.name)
 
@@ -92,12 +98,17 @@ class ConfigRunner(
       val script = mapper.getScript(baseURL, loadTest)
       val scriptPath = paths.getScriptFilePath(testCounter)
       writer.write(script, scriptPath.toFile())
+
       logger.info("### SCRIPT $testCounter WAS CREATED ###")
       val repetition = loadTest.repetition
       var runCounter = 1
 
       // repeat one loadtest if as many times as specified in the configuration
       while (runCounter <= repetition) {
+        K6BackMapping(loadTest.backMapping).writeFile()
+
+        runBlocking { delay(TimeUnit.SECONDS.toMillis(1)) }
+
         val exitValue = runTest(scriptPath, testCounter, runCounter)
         logger.info("### LOAD TEST $testCounter-$runCounter FINISHED WITH VALUE $exitValue ###")
         runCounter++
@@ -105,6 +116,8 @@ class ConfigRunner(
       testCounter++
     }
     logger.info("### LOAD TESTING COMPLETE ###")
+
+    backMappingProducer.produce(config.rqaId)
   }
 
   /**

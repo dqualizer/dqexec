@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import io.github.dqualizer.dqlang.types.adapter.k6.K6LoadTest
 import io.github.dqualizer.dqlang.types.adapter.options.Options
 import io.github.dqualizer.dqlang.types.adapter.request.Request
-import java.util.LinkedList
-import java.util.Random
+import java.util.*
 import org.springframework.stereotype.Component
 
 /** Maps the one loadtest from the inofficial k6-configuration to k6-script */
@@ -38,6 +37,7 @@ class ScriptMapper(
     val requestScript = this.map(request)
     script.add(requestScript)
     script.add("}")
+    println(script)
     return script
   }
 
@@ -65,6 +65,7 @@ class ScriptMapper(
       requestBuilder.append(checksScript)
     }
     requestBuilder.append(sleepScript())
+
     return requestBuilder.toString()
   }
 

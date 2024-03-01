@@ -1,6 +1,10 @@
 server:
   port: 8090
 
+spring:
+  rabbitmq:
+    addresses: ${RABBITMQ_URI:-amqp://guest:guest@rabbitmq:5432}
+
 dqualizer:
   messaging:
     queues:
@@ -10,13 +14,14 @@ dqualizer:
         name: rqaConfigurationProducer
       k6:
         name: k6
+        back-mapping: k6-back-mapping
     exchanges:
       loadtest: translator-loadtest
       k6: loadtest-k6
 
   dqexec:
     statsd:
-      addr: ${K6_STATSD_ADDR:localhost:8125}
+      addr: ${K6_STATSD_ADDR:-localhost:8125}
 
     output:
       logs: logging

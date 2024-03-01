@@ -4,7 +4,6 @@ import dqualizer.dqexec.input.LoadTestingConstantsLoader
 import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.k6.K6Configuration
 import io.github.dqualizer.dqlang.types.adapter.k6.K6LoadTest
-import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
 import io.github.dqualizer.dqlang.types.rqa.definition.enums.LoadProfile
 import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.Stimulus
@@ -17,6 +16,7 @@ class K6Adapter(
   private val endpointAdapter: EndpointAdapter,
   private val stimulusAdapter: StimulusAdapter,
   private val loadtestConstants: LoadTestConstants,
+  private val backMapping: K6BackMapping,
 ) {
   /**
    * Adapt the loadtest configuration. It consists of 3 steps:
@@ -28,21 +28,27 @@ class K6Adapter(
    * @return An adapted loadtest configuration for k6
    */
   fun adapt(loadTestConfig: LoadTestConfiguration): K6Configuration {
+    loadTestConfig.environment
     val name = loadTestConfig.context
     val baseURL = loadTestConfig.baseURL
-    val loadTestArtifacts: Set<LoadTestArtifact> = loadTestConfig.loadTestArtifacts
     val k6LoadTests = LinkedHashSet<K6LoadTest>()
-    for (loadTest in loadTestArtifacts) {
-      val stimulus = loadTest.stimulus
+    for (artifact in loadTestConfig.loadTestArtifacts) {
+      val stimulus = artifact.stimulus
       val repetition = calculateRepetition(stimulus)
       val options = stimulusAdapter.adaptStimulus(stimulus)
-      val endpoint = loadTest.endpoint
-      val responseMeasure = loadTest.responseMeasure
+      val endpoint = artifact.endpoint
+      val responseMeasure = artifact.responseMeasure
       val request = endpointAdapter.adaptEndpoint(endpoint, responseMeasure)
-      val k6LoadTest = K6LoadTest(repetition, options, request)
+      val k6LoadTest =
+        K6LoadTest(
+          repetition,
+          options,
+          request,
+          K6BackMapping.generateConfig(loadTestConfig.rqaId, loadTestConfig.domainId, artifact),
+        )
       k6LoadTests.add(k6LoadTest)
     }
-    return K6Configuration(name, baseURL, k6LoadTests)
+    return K6Configuration(loadTestConfig.rqaId, name, baseURL, k6LoadTests)
   }
 
   /**

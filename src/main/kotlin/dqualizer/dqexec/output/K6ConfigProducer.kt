@@ -25,7 +25,7 @@ class K6ConfigProducer(
    * @return String (only for RabbitMQ)
    */
   fun produce(k6Config: K6Configuration): String {
-    logger.info("Producing k6 configuration\n" + k6Config.toString())
+    logger.info("Producing k6 configuration\n$k6Config")
     val message = messageConverter.toMessage(k6Config, MessageProperties().apply {})
     template.convertAndSend(
       k6QueueRoutingKey,
