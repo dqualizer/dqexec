@@ -4,6 +4,7 @@ import dqualizer.dqexec.loadtest.ConfigRunner
 // import dqualizer.dqexec.output.K6ConfigProducer
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
 import org.springframework.amqp.rabbit.annotation.RabbitListener
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
 import java.util.logging.Logger
@@ -17,6 +18,8 @@ import java.util.logging.Logger
 class K6AdaptationService(
    private val adapter: K6Adapter,
    private val k6ConfigRunner: ConfigRunner,
+   @Value("\${dqualizer.dqexec.loadTesting_enabled:true}")
+   private val loadTestingEnabled: Boolean
 ) {
     private val log = Logger.getLogger(this.javaClass.name)
 
@@ -29,13 +32,13 @@ class K6AdaptationService(
     @RabbitListener(queues = ["\${dqualizer.messaging.queues.loadTestConfigurationQueue.name}"])
     private fun receive(@Payload loadTestConfig: LoadTestConfiguration) {
 
-//        if (startupConfig.isUserAuthenticated()){
+        if (loadTestingEnabled){
             log.info("Received loadtest configuration\n$loadTestConfig")
             start(loadTestConfig)
-//        }
-//        else{
-//            log.info("Missing dqexec authentication: received load test configuration could not be processed.")
-//        }
+        }
+        else{
+            log.info("Load testing was disabled in application.yaml: received load test configuration was not processed.")
+        }
     }
 
     private fun start(loadTestConfig: LoadTestConfiguration  ) {

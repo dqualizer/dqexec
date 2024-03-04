@@ -42,3 +42,6 @@ dqualizer:
           organization: ${K6_INFLUXDB_ORGANIZATION:my-org}
           bucket: ${K6_INFLUXDB_BUCKET:my-bucket}
           token: ${K6_INFLUXDB_TOKEN:specialToken000}
+
+    loadTesting_enabled: true
+    resilienceTesting_enabled: true
