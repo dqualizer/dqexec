@@ -21,6 +21,7 @@ import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 /**
  * Adapts a resilience test configuration to CTK tests
  * */
+// TODO split up logic into multiple classes
 @Component
 class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 {
@@ -46,8 +47,8 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
             if (enrichedResilienceTestDefinition.stimulus is UnavailabilityStimulus){
                 val secrets = createTopLevelSecrets()
                 val steadyStateHypothesis = createSteadyStateHypothesisForUnaivalabilityStimulus(enrichedResilienceTestDefinition.artifact)
-                val method = listOf(createActionToKillProcess(enrichedResilienceTestDefinition.artifact),
-                        createProbeToMonitorRecoveryTimeOfProcess(enrichedResilienceTestDefinition.artifact))
+                val method = listOf(createActionToKillProcess(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                        createProbeToMonitorRecoveryTimeOfProcess(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus))
                 val rollbacks = listOf(createActionToStartProcess(enrichedResilienceTestDefinition.artifact))
                 val extension = createExtensionHoldingResponesMeasureValues(enrichedResilienceTestDefinition.responseMeasure)
 
@@ -160,7 +161,6 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 
     fun createProbeToLookIfProcessIsRunning(isSteadyStateHypothesis: Boolean, artifact: EnrichedArtifact): Probe {
         val probeName = artifact.processId + " must be running"
-        // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
         val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId) + ("log_result_in_influx_db" to true)
         val probeProvider = Provider("python", "processMonitoring", "check_process_exists",argumentsForFunction)
 
@@ -172,21 +172,19 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
     }
 
 
-    private fun createActionToKillProcess(artifact: EnrichedArtifact): Action {
+    private fun createActionToKillProcess(artifact: EnrichedArtifact, stimulus: ResilienceStimulus): Action {
         val actionName = "kill process " + artifact.processId
-        // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
         val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId)
         val actionProvider = Provider("python", "processKilling", "kill_process_by_name", argumentsForFunction)
-
-        return Action(actionName, actionProvider)
+        // for stimulus.experimentDurationSeconds see createProbeToMonitorRecoveryTimeOfProcess
+        val pauses = Pauses(stimulus.pauseBeforeTriggeringSeconds,0)
+        return Action(actionName, actionProvider, pauses)
     }
 
-    private fun createProbeToMonitorRecoveryTimeOfProcess(artifact: EnrichedArtifact): Probe {
+    private fun createProbeToMonitorRecoveryTimeOfProcess(artifact: EnrichedArtifact, stimulus: ResilienceStimulus): Probe {
         val probeName = "measure duration until process " + artifact.processId + " is eventually available again"
-        // TODO in the longterm these infos should be provided by DAM / filled into enrichedConfig
-        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId) +  ("monitoring_duration_sec" to 10) +  ("checking_interval_sec" to 0)
+        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId) +  ("monitoring_duration_sec" to stimulus.experimentDurationSeconds) +  ("checking_interval_sec" to 0)
         val provider = Provider("python", "processMonitoring", "get_duration_until_process_started", argumentsForFunction)
-
         return Probe(probeName, provider)
     }
 
