@@ -44,6 +44,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
             val repetitions = 1
             lateinit var ctkChaosExperiment: CtkChaosExperiment
 
+            // TODO pull out variables from enrichedResilienceTestDefinition
             if (enrichedResilienceTestDefinition.stimulus is UnavailabilityStimulus){
                 val secrets = createTopLevelSecrets()
                 val steadyStateHypothesis = createSteadyStateHypothesisForUnaivalabilityStimulus(enrichedResilienceTestDefinition.artifact)
@@ -61,9 +62,9 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 
             else if (enrichedResilienceTestDefinition.stimulus is LateResponsesStimulus){
                 // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
-                val method = listOf(createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact),
-                        createActionToConfigureAssaults(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
-                        createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact))
+                val method = listOf(createActionToConfigureAssaults(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                        createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                        createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus))
                 val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
                 ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method, repetitions)
                 ctkChaosExperiment.rollbacks = rollbacks
@@ -71,9 +72,10 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 
             else if (enrichedResilienceTestDefinition.stimulus is FailedRequestsStimulus){
                 // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
-                val method = listOf(createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact),
-                        createActionToConfigureAssaults(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
-                        createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact))
+                val method = listOf(createActionToConfigureAssaults(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                        createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                        createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                       )
                 val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
                 ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method, repetitions)
                 ctkChaosExperiment.rollbacks = rollbacks
@@ -189,12 +191,13 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
     }
 
 
-    private fun createActionToEnableChaosMonkeyForSpringBoot(artifact: EnrichedArtifact): Action{
+    private fun createActionToEnableChaosMonkeyForSpringBoot(artifact: EnrichedArtifact, stimulus: ResilienceStimulus): Action{
         val actionName = "enable_chaosmonkey"
         val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}")
         val provider = Provider("python", "chaosspring.actions", "enable_chaosmonkey", argumentsForFunction)
+        val pauses = Pauses(stimulus.pauseBeforeTriggeringSeconds, stimulus.experimentDurationSeconds)
 
-        return Action(actionName, provider)
+        return Action(actionName, provider, pauses)
     }
 
     private fun createActionToConfigureAssaults(artifact: EnrichedArtifact, stimulus: ResilienceStimulus): Action{
@@ -247,7 +250,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
     }
 
     // Also if the assaultConfiguration already adds a watched service, also the corresponding watcher needs to be enabled for the failure injection to work for the watchedCustomService
-    private fun createActionToChangeWatcherConfiguration(artifact: EnrichedArtifact):Action{
+    private fun createActionToChangeWatcherConfiguration(artifact: EnrichedArtifact, stimulus: ResilienceStimulus):Action{
         val actionName = "configure_watchers"
         val watchersConfiguration = object {
             var controller: String = "false"
@@ -277,9 +280,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 
         val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}", "watchers_configuration" to watchersConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_watchers_configuration", argumentsForFunction)
-        // TODO hardcoded value should be configurable via DAM or RQA-Def in dqAnalyzer
-        val pauses = Pauses(0,120)
-        return Action(actionName, provider, pauses )
+        return Action(actionName, provider)
     }
 
     private fun createActionToDisableChaosMonkeyForSpringBoot(artifact: EnrichedArtifact): Action {
