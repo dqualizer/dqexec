@@ -23,21 +23,21 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
    * @param responseMeasure Information for response measures
    * @return An inoffical k6 Request object
    */
-  fun adaptEndpoint(
-    endpoint: RESTEndpoint,
-    responseMeasure: ResponseMeasures,
-  ): Request {
+  fun adaptEndpoint(endpoint: RESTEndpoint, responseMeasure: ResponseMeasures): Request {
     val field = endpoint.route
     val path = markPathVariables(field)
     val type = endpoint.methods.first().name()
+
     val components = endpoint.components
     val pathVariables = components[EndpointComponentType.PathVariable]!!
     val queryParams = components[EndpointComponentType.QueryParameter]!!
     val params = components[EndpointComponentType.Header]!!
     val payload = components[EndpointComponentType.RequestBody]!!
+
     val duration: Int = this.getDuration(responseMeasure)
     val statusCodes = getStatusCodes(endpoint)
     val checks = Checks(statusCodes, duration)
+
     return Request(type, path, convertSet(pathVariables), convertSet(queryParams), convertSet(params), convertSet(payload), checks)
   }
 
@@ -61,6 +61,7 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
     val pattern = Pattern.compile("\\{.*?}")
     val matcher = pattern.matcher(field)
     val variables: MutableList<String> = LinkedList()
+
     while (matcher.find()) {
       val foundVariable = matcher.group()
       variables.add(foundVariable)
@@ -78,6 +79,7 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
    */
   private fun getDuration(responseMeasure: ResponseMeasures): Int {
     val responseTime = loadtestConstants.responseTime
+
     return when (val responseTimeValue = responseMeasure.responseTime) {
       ResponseTime.SATISFIED -> responseTime.satisfied
       ResponseTime.TOLERATED -> responseTime.tolerated

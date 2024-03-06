@@ -39,6 +39,7 @@ class StimulusAdapter(
     val accuracy = stimulus.accuracy!!
     var scenario: K6Scenario
     var scenarios: Scenarios
+
     when (loadProfile) {
       is LoadPeak -> {
         scenario = getLoadPeakScenario(loadProfile)
@@ -53,9 +54,7 @@ class StimulusAdapter(
         scenarios = Scenarios(scenario)
       }
       else -> {
-        throw UnknownStimulusException(
-          "Received unsupported stimulus type: ${stimulus::class.java.name}",
-        )
+        throw UnknownStimulusException("Received unsupported stimulus type: ${stimulus::class.java.name}")
       }
     }
     return Options(scenarios)
@@ -121,13 +120,8 @@ class StimulusAdapter(
    * @param exponent How fast should the amount of users increase
    * @return An ordered set of stages
    */
-  private fun getPeakStages(
-    startTarget: Int,
-    endTarget: Int,
-    exponent: Int,
-    testDurationString: String,
-    numberOfStages: Int,
-  ): LinkedHashSet<Stage> {
+  private fun getPeakStages(startTarget: Int, endTarget: Int, exponent: Int, testDurationString: String,
+                            numberOfStages: Int): LinkedHashSet<Stage> {
     val stages = LinkedHashSet<Stage>()
     val stageDurationString: String = computeStageDurationString(testDurationString, numberOfStages)
     val loadCurve =
@@ -137,8 +131,10 @@ class StimulusAdapter(
         endTarget.toDouble(),
         numberOfStages.toDouble(),
       )
+
     val firstStage = Stage("0s", startTarget)
     stages.add(firstStage)
+
     for (i in 0 until numberOfStages) {
       val endTimeOfStage = i + 1
       val currentStage =
@@ -148,28 +144,29 @@ class StimulusAdapter(
         )
       stages.add(currentStage)
     }
+
     val lastStage = Stage(stageDurationString, 0)
     stages.add(lastStage)
     return stages
   }
 
-  private fun computeStageDurationString(
-    testDurationString: String,
-    numberOfStages: Int,
-  ): String {
+  private fun computeStageDurationString(testDurationString: String, numberOfStages: Int, ): String {
     val testDuration = convertToTimeString(testDurationString)
     val testDurationSeconds = testDuration.seconds
     val testDurationNanos = testDuration.nano
+
     val stageDurationSeconds = testDurationSeconds / numberOfStages
     val stageDurationNanos = (testDurationNanos / numberOfStages).toLong()
     val stageDuration = Duration.ofSeconds(stageDurationSeconds).plusNanos(stageDurationNanos)
+
     return convertToTimeString(stageDuration)
   }
 
   /**
    * Create a k6 'scenario' object for the load_profile 'CONSTANT_LOAD'
    *
-   * @param stimulus Stimulus for the loadtest
+   * @param constantLoad Configured load profile
+   * @param accuracy Accuracy of the load test
    * @return A k6 'scenario' object with constant virtual users
    */
   fun getConstantLoadScenario(constantLoad: ConstantLoad, accuracy: Int): K6Scenario {

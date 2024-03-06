@@ -14,6 +14,7 @@ class LoadTestingConstantsLoader(
   private val objectMapper: ObjectMapper,
   @Value("classpath:constant/constants.json") private val loadTestingConstants: Resource,
 ) {
+
   @Bean
   fun loadTestConstants(): LoadTestConstants {
     try {

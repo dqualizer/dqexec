@@ -20,19 +20,20 @@ class K6AdaptationService(
   private val log = Logger.getLogger(this.javaClass.name)
 
   // TODO: extract and make generic for different load types
-
   /**
    * Import the loadtest configuration and start the adaptation process
    *
    * @param loadTestConfig Imported loadtest configuration
    */
   @RabbitListener(queues = ["\${dqualizer.messaging.queues.loadtest.name}"])
-  private fun receive(
-    @Payload loadTestConfig: LoadTestConfiguration,
-  ) {
+  private fun receive(@Payload loadTestConfig: LoadTestConfiguration, ) {
     start(loadTestConfig)
   }
 
+  /**
+   * Adapts the load test configuration to a  k6 configuration.
+   * Afterward the configuration will be exported via RabbitMQ
+   */
   private fun start(loadTestConfig: LoadTestConfiguration) {
     log.info("LOAD TEST CONFIGURATION RECEIVED: \n$loadTestConfig")
     val k6Config = adapter.adapt(loadTestConfig)

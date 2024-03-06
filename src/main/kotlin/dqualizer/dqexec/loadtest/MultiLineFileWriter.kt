@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 /** Writes a k6-script */
 @Component
 class MultiLineFileWriter {
+
   /**
    * Write a k6-script
    *
@@ -16,10 +17,7 @@ class MultiLineFileWriter {
    * @throws IOException
    */
   @Throws(IOException::class)
-  fun write(
-    lines: List<String>,
-    outputFile: File,
-  ) {
+  fun write(lines: List<String>, outputFile: File, ) {
     // Create the file and parent directories
     outputFile.parentFile.mkdirs()
     outputFile.createNewFile()

@@ -33,7 +33,7 @@ class ConfigRunner(
   private val alternativeTargetHost: String,
   @Value("\${dqualizer.dqexec.influx.host:localhost}") private val influxHost: String,
 ) {
-  private val logger = Logger.getLogger(this.javaClass.name)
+  private val log = Logger.getLogger(this.javaClass.name)
 
   /**
    * Import the k6 configuration and start the configuration runner
@@ -41,9 +41,7 @@ class ConfigRunner(
    * @param config An inofficial k6 configuration
    */
   @RabbitListener(queues = ["\${dqualizer.messaging.queues.k6.name}"])
-  fun receive(
-    @Payload config: K6Configuration,
-  ) {
+  fun receive(@Payload config: K6Configuration) {
     start(config)
   }
 
@@ -53,11 +51,11 @@ class ConfigRunner(
    * @param config Received inofficial k6-configuration
    */
   private fun start(config: K6Configuration) {
-    logger.info("### K6 CONFIGURATION RECEIVED ###")
+    log.info("### K6 CONFIGURATION RECEIVED ###")
     try {
       this.run(config)
     } catch (e: Exception) {
-      logger.severe("### K6 LOAD TESTING FAILED ###")
+      log.severe("### K6 LOAD TESTING FAILED ###")
       e.printStackTrace()
       throw RunnerFailedException(e.message!!)
     }
@@ -72,7 +70,7 @@ class ConfigRunner(
    */
   @Throws(IOException::class, InterruptedException::class)
   private fun run(config: K6Configuration) {
-    logger.info("Trying to run configuration: " + ObjectMapper().writeValueAsString(config))
+    log.info("Trying to run configuration: " + ObjectMapper().writeValueAsString(config))
 
     var baseURL = config.baseURL!!
     val localhostMatcher = "localhost|127\\.0\\.0\\.1".toRegex()
@@ -80,7 +78,7 @@ class ConfigRunner(
     // alternative host
     if (alternativeTargetHost.isNotBlank() && localhostMatcher.containsMatchIn(baseURL)) {
       baseURL = baseURL.replace(localhostMatcher, alternativeTargetHost)
-      logger.info(
+      log.info(
         "Alternative host was provided (\$dqualizer.dqexec.docker.localhost_replacement): Replacing 'localhost' or '127.0.0.1' in ${config.baseURL} with $alternativeTargetHost. Result: $baseURL",
       )
     }
@@ -92,58 +90,55 @@ class ConfigRunner(
     for (loadTest in loadTests) {
       val script = mapper.getScript(baseURL, loadTest)
       val scriptPath = paths.getScriptFilePath(testCounter)
+
       writer.write(script, scriptPath.toFile())
-      logger.info("### SCRIPT $testCounter WAS CREATED ###")
+      log.info("### SCRIPT $testCounter WAS CREATED ###")
+
       val repetition = loadTest.repetition!!
       var runCounter = 1
 
       // repeat one loadtest if as many times as specified in the configuration
       while (runCounter <= repetition) {
         val exitValue = runTest(scriptPath, testCounter, runCounter)
-        logger.info("### LOAD TEST $testCounter-$runCounter FINISHED WITH VALUE $exitValue ###")
+
+        log.info("### LOAD TEST $testCounter-$runCounter FINISHED WITH VALUE $exitValue ###")
         runCounter++
       }
       testCounter++
     }
-    logger.info("### LOAD TESTING COMPLETE ###")
+    log.info("### LOAD TESTING COMPLETE ###")
   }
 
   /**
-   * Run one k6-script, write the k6 console logs to text files and export the k6 result metrics to
-   * influxDB
+   * Run one k6-script, write the k6 console logs to text files and export the k6 result metrics to influxDB
    *
    * @param scriptPath Location of the created k6-script
    * @param testCounter Current loadtest number
    * @param runCounter Current repetition number
-   * @return Exitcode of the k6 process
+   * @return Exit code of the k6 process
    * @throws IOException
    * @throws InterruptedException
    */
   @Throws(IOException::class, InterruptedException::class)
-  private fun runTest(
-    scriptPath: Path,
-    testCounter: Int,
-    runCounter: Int,
-  ): Int {
+  private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
     val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
 
-    val envp =
-      arrayOf(
+    val env = arrayOf(
         "K6_INFLUXDB_ORGANIZATION=${k6ExecutionConfiguration.influxdbOrganization}",
         "K6_INFLUXDB_BUCKET=${k6ExecutionConfiguration.influxdbBucket}",
         "K6_INFLUXDB_TOKEN=${k6ExecutionConfiguration.influxdbToken}",
       )
 
-    logger.info(
+    log.info(
       """
             ### RUN COMMAND: $command ###
             With Environment:
-            ${envp.joinToString("\n")}
+            ${env.joinToString("\n")}
       """
         .trimIndent(),
     )
 
-    val process = Runtime.getRuntime().exec(command, envp)
+    val process = Runtime.getRuntime().exec(command, env)
     val loggingPath = paths.getLogFilePath(testCounter, runCounter)
     processLogger.log(process, loggingPath)
     return process.exitValue()

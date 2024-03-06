@@ -1,4 +1,4 @@
-package dqualizer.dqexec.adapter
+package dqualizer.dqexec.config
 
 import dqualizer.dqexec.config.ResourcePaths
 import org.springframework.beans.factory.annotation.Qualifier
@@ -17,10 +17,7 @@ class ThymeleafTemplateEngineFactory(
   private val resourcePaths: ResourcePaths,
 ) {
   @Cacheable("templateEngines")
-  fun getEngine(
-    templateMode: TemplateMode,
-    prefix: String = "",
-  ): SpringTemplateEngine {
+  fun getEngine(templateMode: TemplateMode, prefix: String = ""): SpringTemplateEngine {
     val templateResolver = SpringResourceTemplateResolver()
     templateResolver.setApplicationContext(applicationContext)
     templateResolver.prefix = prefix

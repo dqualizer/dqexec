@@ -13,36 +13,36 @@ class PathVariablesMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
     val pathVariablesBuilder = StringBuilder()
     val pathVariables = request.pathVariables!!
     val reference = pathVariables.values.first()
+
     if (reference.isEmpty()) {
       return String.format("%sconst path_variables = {}%s", K6Mapper.newLine, K6Mapper.newLine)
     }
     val pathVariablesString = resourcePaths.readResourceFile(reference)
 
-
-    val pathVariablesScript =
-      String.format(
+    val pathVariablesScript = String.format(
         "%sconst path_variables = %s",
         System.lineSeparator(),
-        pathVariablesString,
-      )
+        pathVariablesString
+    )
     pathVariablesBuilder.append(pathVariablesScript)
+
     try {
       val node = ObjectMapper().readTree(pathVariablesString)
       val variables = node.fieldNames()
       while (variables.hasNext()) {
         val variable = variables.next()
-        val particularPathVariablesScript =
-          String.format(
+        val particularPathVariablesScript = String.format(
             "%sconst %s_array = path_variables['%s'];",
             System.lineSeparator(),
             variable,
-            variable,
-          )
+            variable
+        )
         pathVariablesBuilder.append(particularPathVariablesScript)
       }
     } catch (e: JsonProcessingException) {
       e.printStackTrace()
     }
+
     return pathVariablesBuilder.toString()
   }
 }

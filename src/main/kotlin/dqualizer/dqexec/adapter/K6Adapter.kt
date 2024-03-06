@@ -30,13 +30,16 @@ class K6Adapter(
     val baseURL = loadTestConfig.baseURL
     val loadTestArtifacts: Set<LoadTestArtifact> = loadTestConfig.loadTestArtifacts!!
     val k6LoadTests = LinkedHashSet<K6LoadTest>()
+
     for (loadTest in loadTestArtifacts) {
       val stimulus = loadTest.stimulus!!
       val repetition = calculateRepetition(stimulus)
       val options = stimulusAdapter.adaptStimulus(stimulus)
+
       val endpoint = loadTest.httpEndpoint!!
       val responseMeasure = loadTest.responseMeasure!!
       val request = endpointAdapter.adaptEndpoint(endpoint, responseMeasure)
+
       val k6LoadTest = K6LoadTest(repetition, options, request)
       k6LoadTests.add(k6LoadTest)
     }
@@ -50,7 +53,7 @@ class K6Adapter(
    * @return The amount of repetitions
    */
   private fun calculateRepetition(stimulus: Stimulus): Int {
-    // TODO Differentiate workload types
+    // TODO Differentiate workload types, currently we do not check the exact workload type
     val loadProfile = stimulus.workload!!.loadProfile!!
     if (loadProfile is ConstantLoad) return 1
 

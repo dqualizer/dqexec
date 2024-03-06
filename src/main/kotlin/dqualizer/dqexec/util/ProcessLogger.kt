@@ -22,11 +22,7 @@ class ProcessLogger {
   private val logger = Logger.getGlobal()
 
   @Throws(IOException::class, InterruptedException::class)
-  fun log(
-    process: Process,
-    logFileBasePath: Path,
-    wait: Boolean = true,
-  ) {
+  fun log(process: Process, logFileBasePath: Path, wait: Boolean = true) {
     // create and connect log files to process
     linkOutputStreamToFile(logFileBasePath, "log", process.inputStream)
     linkOutputStreamToFile(logFileBasePath, "err", process.errorStream)
@@ -41,11 +37,7 @@ class ProcessLogger {
     }
   }
 
-  private fun linkOutputStreamToFile(
-    logFileBasePath: Path,
-    fileExtension: String,
-    inputStream: InputStream,
-  ) {
+  private fun linkOutputStreamToFile(logFileBasePath: Path, fileExtension: String, inputStream: InputStream) {
     CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
       val targetFile = File("$logFileBasePath.$fileExtension")
       targetFile.parentFile.mkdirs()

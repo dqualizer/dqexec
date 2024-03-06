@@ -23,10 +23,7 @@ class ResourcePaths(
     return scripts.resolve("createdScript$scriptID.js")
   }
 
-  fun getLogFilePath(
-    testID: Int,
-    runID: Int,
-  ): Path {
+  fun getLogFilePath(testID: Int, runID: Int, ): Path {
     return logging.resolve("test$testID-run$runID")
   }
 }

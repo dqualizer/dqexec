@@ -7,7 +7,7 @@ import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMoni
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
 
-private const val INSPECT_IT_OCELOT_VERSION = "2.6.1"
+private const val INSPECT_IT_OCELOT_VERSION = "2.6.4"
 
 private const val INSPECTIT_OCELOT_JAR = "inspectit-ocelot-agent-$INSPECT_IT_OCELOT_VERSION.jar"
 

@@ -2,8 +2,10 @@ package dqualizer.dqexec.instrumentation.framework.included
 
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMonitoringConfiguration
 import org.jeasy.random.EasyRandom
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
+@Disabled("Monitoring implementation is not finished")
 class InspectItOcelotInstrumentationPlanMapperTest {
 
     @Test

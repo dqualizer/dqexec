@@ -34,38 +34,11 @@ import rocks.inspectit.ocelot.config.model.metrics.definition.ViewDefinitionSett
 class InspectItOcelotInstrumentationPlanMapper {
 
     fun map(instrumentation: ServiceMonitoringConfiguration, contextID: String): InspectItOcelotInstrumentationPlan {
-
-      // TODO Remove hard coded
-      val resourceLoader: ResourceLoader = DefaultResourceLoader()
-      val resource: Resource = resourceLoader.getResource("classpath:exampleconfig.yaml")
-      val content = String(resource.contentAsByteArray)
-
-      val yamlMapper = ObjectMapper(YAMLFactory())
-      yamlMapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
-
-//        var configMap = yamlMapper.readValue<Map<String, MutableMap<String,Any>>>(content).toMutableMap()
-
-//        configMap["inspectit"]?.remove("instrumentation")
-//        configMap["inspectit"]?.remove("metrics")
-//        configMap["inspectit"]?.remove("tracing")
-//        configMap["inspectit"]?.remove("logging")
-
-
-
-        //val jsonMapper = ObjectMapper()
-        //ignore null values
-        //jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
-        //val json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(configMap)
-
-        //return InspectItOcelotInstrumentationPlan(instrumentation, json)
-
-
-
       val metrics = generateMetrics(instrumentation)
 
       val instrumentationSettings = InstrumentationSettings().apply {
           this.scopes = getScopes(instrumentation)
-          this.actions = getActions(instrumentation, contextID)
+          this.actions = getActions(instrumentation)
           this.rules = getRules(instrumentation, metrics, scopes, actions, contextID)
       }
       val config = InspectitConfig().apply {
@@ -83,7 +56,6 @@ class InspectItOcelotInstrumentationPlanMapper {
         val definitions = instrumentation.instruments.associate {
             val type = it.measurementType
             val instrumentType = it.instrumentType
-
 
             val definitionNameTemplate = getMetricNameTemplateFromType(type)
 
@@ -158,11 +130,9 @@ class InspectItOcelotInstrumentationPlanMapper {
         }
     }
 
-    private fun getMetricFromType(settings: MetricsSettings, type: MeasurementType): MetricDefinitionSettings {
-        val name = getMetricNameTemplateFromType(type).format("")
-
-        return settings.definitions.computeIfAbsent(name) {
-            throw IllegalArgumentException("Metric with name $name not found")
+    private fun getMetricFromType(settings: MetricsSettings, metricName: String): MetricDefinitionSettings {
+        return settings.definitions.computeIfAbsent(metricName) {
+            throw IllegalArgumentException("Metric with name $metricName not found")
         }
     }
 
@@ -212,19 +182,14 @@ class InspectItOcelotInstrumentationPlanMapper {
     }
 
     //how to instrument (e.g. java code how to measure)
-    private fun getActions(
-        instrumentation: ServiceMonitoringConfiguration,
-        contextID: String
-    ): Map<String, GenericActionSettings> {
+    private fun getActions(instrumentation: ServiceMonitoringConfiguration): Map<String, GenericActionSettings> {
         val actions = mutableMapOf<String, GenericActionSettings>()
 
-//        actions["a_get_context_name"] = GenericActionSettings().apply {
-//            this.value = contextID
-//        }
-      // There is already an Ocelot Default Action for this: a_timing_nanos
+        // There is already an Ocelot Default Action for this: a_timing_nanos
 //        actions["a_timestamp_ms"] = GenericActionSettings().apply {
 //            this.value = "Long.valueOf(System.currentTimeMillis())"
 //        }
+      // TODO add more actions
 
         instrumentation.instruments.forEach {
             it.measurementName
@@ -256,15 +221,14 @@ class InspectItOcelotInstrumentationPlanMapper {
            val exitContext = "elapsed_time"
 
             val scope = "s_" + location.methodName
-            val metric = getMetricFromType(metrics, it.measurementType)
 
             val metricName = getMetricNameTemplateFromType(it.measurementType).format("")
+            val metric = getMetricFromType(metrics, metricName) // Do we need this?
+
             val metricRecordingSettings = MetricRecordingSettings().apply {
                 this.metric = metricName
                 this.value = exitContext
-                this.dataTags = mapOf(
-                    Pair("class", "value")
-                )
+                //this.dataTags = mapOf(Pair("class", "value")) // TODO Extract meaningful data tags, if possible?
                 this.constantTags = mapOf(
                     Pair("context", contextID),
                     Pair("component", it.targetComponentId),
@@ -310,15 +274,6 @@ class InspectItOcelotInstrumentationPlanMapper {
 
         return rules.toMap()
     }
-
-//    private fun getRules(
-//        instrumentation: ServiceMonitoringConfiguration,
-//        metrics: MetricsSettings,
-//        scopes: Map<String, InstrumentationScopeSettings>,
-//        actions: Map<String, GenericActionSettings>
-//    ): Map<String, InstrumentationRuleSettings> {
-//        return mapOf()
-//    }
 
 
     private val yamlMapper =

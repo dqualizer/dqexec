@@ -18,6 +18,7 @@ class ScriptMapper(
   private val checksMapper: ChecksMapper,
   private val pathVariablesMapper: PathVariablesMapper,
 ) : K6Mapper {
+
   /**
    * Map one loadtest to a k6-script
    *
@@ -27,17 +28,16 @@ class ScriptMapper(
    * @throws JsonProcessingException
    */
   @Throws(JsonProcessingException::class)
-  fun getScript(
-    baseURL: String,
-    loadTest: K6LoadTest,
-  ): List<String> {
+  fun getScript(baseURL: String, loadTest: K6LoadTest): List<String> {
     val script: MutableList<String> = LinkedList()
     val options = loadTest.options!!
     script.add(startScript(baseURL, options))
+
     val request = loadTest.request!!
     val requestScript = this.map(request)
     script.add(requestScript)
     script.add("}")
+
     return script
   }
 
@@ -45,6 +45,7 @@ class ScriptMapper(
     val requestBuilder = StringBuilder()
     val paramsScript = paramsMapper.map(request)
     requestBuilder.append(paramsScript)
+
     val payload = request.payload!!
     val queryParams = request.queryParams!!
     val pathVariables = request.pathVariables!!
@@ -61,13 +62,16 @@ class ScriptMapper(
       val pathVariablesScript = pathVariablesMapper.map(request)
       requestBuilder.append(pathVariablesScript)
     }
+
     val httpScript = httpMapper.map(request)
     requestBuilder.append(httpScript)
     requestBuilder.append(trackDataPerURLScript())
+
     if (request.checks != null) {
       val checksScript = checksMapper.map(request)
       requestBuilder.append(checksScript)
     }
+
     requestBuilder.append(sleepScript())
     return requestBuilder.toString()
   }
@@ -81,12 +85,10 @@ class ScriptMapper(
    * @throws JsonProcessingException
    */
   @Throws(JsonProcessingException::class)
-  private fun startScript(
-    baseURL: String,
-    options: Options,
-  ): String {
+  private fun startScript(baseURL: String, options: Options): String {
     val optionsString = K6Mapper.objectMapper.writeValueAsString(options)
     val trackDataPerURL = trackDataPerURLInitScript()
+
     return """
             import http from 'k6/http';
             import {URLSearchParams} from 'https://jslib.k6.io/url/1.0.0/index.js';

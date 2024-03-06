@@ -16,9 +16,7 @@ import org.springframework.context.annotation.Configuration
 class TranslatorMQConfig {
     @Bean
     @Qualifier("loadtest")
-    fun loadTestExchange(
-        @Value("\${dqualizer.messaging.exchanges.loadtest.name}") loadtestExchange: String?
-    ): TopicExchange {
+    fun loadTestExchange(@Value("\${dqualizer.messaging.exchanges.loadtest.name}") loadtestExchange: String?): TopicExchange {
         return TopicExchange(loadtestExchange)
     }
 

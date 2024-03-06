@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dqlangVersion = "3.0.9"
+val dqlangVersion = "3.0.10"
 
 plugins {
   id("org.springframework.boot") version "3.2.1"
@@ -94,7 +94,7 @@ dependencies {
   implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.4")
   implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
 
-  implementation(files("inspectit-ocelot-config-SNAPSHOT.jar"))
+  implementation(files("inspectit-ocelot-config-2.6.4.jar"))
   implementation("io.opentelemetry:opentelemetry-api:1.35.0")
 
   implementation("io.micrometer:micrometer-tracing-bridge-brave:1.0.3")

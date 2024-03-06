@@ -10,26 +10,27 @@ class ChecksMapper : K6Mapper {
     val checksBuilder = StringBuilder()
     val checks = request.checks!!
     val duration = checks.duration!!
-    val durationScript =
-      String.format(
+    val durationScript = String.format(
         "\t'Duration < %d': x => x.timings && x.timings.duration < %d,%n",
         duration,
-        duration,
-      )
+        duration
+    )
     checksBuilder.append(durationScript)
     val type = request.type
     val statusCodes = checks.statusCodes!!
     val statusBuilder = StringBuilder()
+
     for (status in statusCodes) {
       val statusBooleanScript = String.format("x.status == %d || ", status)
       statusBuilder.append(statusBooleanScript)
     }
-    val statusScript =
-      String.format(
+
+    val statusScript = String.format(
         "\t'%s status was expected': x => x.status && (%sfalse),%n",
         type,
-        statusBuilder,
-      )
+        statusBuilder
+    )
+
     checksBuilder.append(statusScript)
     return String.format("check(response, {%n%s});%n", checksBuilder)
   }

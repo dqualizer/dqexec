@@ -48,16 +48,19 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
     val payload = request.payload!!
     val queryParams = request.queryParams!!
     var extraParams = ""
-    if (!payload.isEmpty() || !queryParams.isEmpty()) {
+
+    if (payload.isNotEmpty() || queryParams.isNotEmpty()) {
       extraParams =
-        if (!payload.isEmpty() && !queryParams.isEmpty()) {
+        if (payload.isNotEmpty() && queryParams.isNotEmpty()) {
           httpBuilder.append(randomQueryParamScript())
           httpBuilder.append(randomPayloadScript())
           " + `?\${urlSearchParams.toString()}`, JSON.stringify(payload)"
-        } else if (!payload.isEmpty()) {
+        }
+        else if (payload.isNotEmpty()) {
           httpBuilder.append(randomPayloadScript())
           ", JSON.stringify(payload)"
-        } else {
+        }
+        else {
           httpBuilder.append(randomQueryParamScript())
           " + `?\${urlSearchParams.toString()}`"
         }

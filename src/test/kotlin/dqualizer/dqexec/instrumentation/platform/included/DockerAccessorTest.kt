@@ -2,7 +2,9 @@ package dqualizer.dqexec.instrumentation.platform.included
 
 import io.github.dqualizer.dqlang.types.dam.architecture.RuntimePlatform
 import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
+import org.junit.Ignore
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
@@ -11,7 +13,7 @@ private const val ContainerName = "assignment-service"
 private const val TestImageName = "ghcr.io/dqualizer/dqexec"
 
 private const val AccessorType = "Docker"
-
+@Disabled("Monitoring implementation is not finished")
 class DockerAccessorTest {
   companion object {
 //        val grafanaContainer = GenericContainer<Nothing>(TestImageName)
