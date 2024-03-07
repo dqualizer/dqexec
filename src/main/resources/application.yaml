@@ -1,19 +1,32 @@
 server:
   port: 8090
 
+spring:
+  rabbitmq:
+    listener:
+      simple:
+        default-requeue-rejected: false
 
 dqualizer:
   messaging:
     queues:
+      rqa:
+        name: rqa
+        durable: false
       loadtest:
         name: loadtest
-      rqaConfigurationProducerQueue:
-        name: rqaConfigurationProducer
+        durable: false
       k6:
         name: k6
+        durable: false
+
     exchanges:
-      loadtest: translator-loadtest
-      k6: loadtest-k6
+      loadtest:
+        name: translator-loadtest
+        exchangeType: TOPIC
+      k6:
+        name: loadtest-k6
+        exchangeType: TOPIC
 
   dqexec:
     influx:
@@ -25,3 +38,7 @@ dqualizer:
           organization: ${K6_INFLUXDB_ORGANIZATION:my-org}
           bucket: ${K6_INFLUXDB_BUCKET:my-bucket}
           token: ${K6_INFLUXDB_TOKEN:specialToken000}
+    output:
+      logs: logging
+      loadtest_configurations: loadtest_configurations
+#logging.level.root: debug
