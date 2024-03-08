@@ -243,7 +243,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
         }
 
 
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}", "assaults_configuration" to assaultsConfiguration)
+        val argumentsForFunction = mapOf("base_url" to "${artifact!!.baseUrl}", "assaults_configuration" to assaultsConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
 
         return Action(actionName, provider)
@@ -269,8 +269,11 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 
         // check on the member name entered in the DAM which type of Beans should be watched in the experiment
         // this assumes that e.g. Spring Repository Beans contain "Repo" in their class name to work
+        // as long as we have a customWatchedService set (bad naming, can also be method or other bean), all watchers could be activated without an effect
+        // but do not do this to be conservative as possible with chaos injection
         when {
-            "controller" in artifact.packageMember.lowercase() -> watchersConfiguration.controller = "true"
+            "controller" in artifact.packageMember.lowercase() -> {watchersConfiguration.controller = "true"
+                                                                    watchersConfiguration.restController = "true"}
             "service" in artifact.packageMember.lowercase() -> watchersConfiguration.service = "true"
             "restController" in artifact.packageMember.lowercase() -> watchersConfiguration.restController = "true"
             "repo" in artifact.packageMember.lowercase() -> watchersConfiguration.repository = "true"
