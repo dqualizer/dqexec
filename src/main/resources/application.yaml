@@ -43,5 +43,6 @@ dqualizer:
           bucket: ${K6_INFLUXDB_BUCKET:my-bucket}
           token: ${K6_INFLUXDB_TOKEN:specialToken000}
 
+    # Do gradle clean, if these variables do not get considered during startUp
     loadTesting_enabled: true
     resilienceTesting_enabled: true
