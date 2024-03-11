@@ -209,8 +209,8 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
             assaultsConfiguration = object {
                 val level: Int = 1
                 val deterministic: String = "True"
-                val latencyRangeStart: Int = 2000
-                val latencyRangeEnd: Int = 2000
+                val latencyRangeStart: Int = 70
+                val latencyRangeEnd: Int = 100
                 val latencyActive: String = "True"
                 val exceptionsActive: String = "False"
                 val killApplicationActive: String = "False"
@@ -220,7 +220,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
             }
         } else if (stimulus is FailedRequestsStimulus){
             assaultsConfiguration = object {
-                val level: Int = 1
+                val level: Int = 2
                 val deterministic: String = "True"
                 val latencyActive: String = "False"
                 val exceptionsActive: String = "True"
