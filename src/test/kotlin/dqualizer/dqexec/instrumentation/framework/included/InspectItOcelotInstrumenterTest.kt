@@ -64,7 +64,7 @@ class InspectItOcelotInstrumenterTest {
 
         platformAccessors.setup(serviceDescription, runtimePlatform)
 
-        instrumenter.instrument(serviceDescription, monitoringConfiguration, platformAccessors)
+        instrumenter.instrument("IAmTheContextId", serviceDescription, monitoringConfiguration, platformAccessors)
 
         Assertions.assertThat(instrumenter).isNotNull
     }

@@ -6,8 +6,8 @@ plugins {
     kotlin("jvm") version "1.9.0"
     kotlin("plugin.spring") version "1.9.0"
 
-    id("org.springframework.boot") version "3.2.1"
-    id("io.spring.dependency-management") version "1.1.0"
+    id("org.springframework.boot") version "3.2.3"
+    id("io.spring.dependency-management") version "1.1.4"
 
     id("net.researchgate.release") version "3.0.2"
     id("maven-publish")
@@ -79,12 +79,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.data:spring-data-mongodb")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-    implementation("org.mapstruct:mapstruct:1.5.3.Final")
-    implementation("org.springframework.vault:spring-vault-core:3.0.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    implementation("org.springframework.vault:spring-vault-core:3.1.1")
     implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
 
     implementation("com.github.docker-java:docker-java:3.3.4") {
@@ -93,22 +93,21 @@ dependencies {
 
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.3")
 
     implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
 
-    implementation("io.github.oshai:kotlin-logging:6.0.1")
+    implementation("io.github.oshai:kotlin-logging:6.0.3")
 
     implementation("io.opentelemetry:opentelemetry-api:1.34.1")
 
 
-//    implementation("io.github.dqualizer:dqlang:$dqlang_version")
-    implementation(project(":dqlang"))
+    implementation("io.github.dqualizer:dqlang:3.0.0-merge_dam-SNAPSHOT")
+//    implementation(project(":dqlang"))
 
-    runtimeOnly("com.h2database:h2:2.2.220")
     annotationProcessor("org.projectlombok:lombok")
 
-    testImplementation("org.mockito:mockito-core:5.4.0")
+    testImplementation("org.mockito:mockito-core:5.10.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.amqp:spring-rabbit-test")
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
@@ -136,4 +135,9 @@ tasks.withType<Test> {
 // Disable generation of "-plain" jar by the Spring Boot plugin
 tasks.getByName<Jar>("jar") {
     enabled = false
+}
+
+//allows to use parameter names in reflection (needed for mongoDB repositories)
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-parameters")
 }

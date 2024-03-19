@@ -1,11 +1,14 @@
 package dqualizer.dqexec.instrumentation.framework.included
 
-import dqualizer.dqexec.instrumentation.framework.RuntimeServiceInstrumenter
+import dqualizer.dqexec.instrumentation.framework.IRuntimeServiceInstrumenter
 import dqualizer.dqexec.instrumentation.platform.RuntimePlatformAccessor
+import io.github.dqualizer.dqlang.types.dam.DomainArchitectureMapping
 import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMonitoringConfiguration
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Component
+import java.nio.file.Files
+import java.nio.file.Path
 
 private const val INSPECT_IT_OCELOT_VERSION = "2.6.1"
 
@@ -17,16 +20,30 @@ private const val INSPECTIT_OCELOT_JAR = "inspectit-ocelot-agent-$INSPECT_IT_OCE
 @Component
 class InspectItOcelotInstrumenter(
     val instrumentationMapper: InspectItOcelotInstrumentationPlanMapper
-) : RuntimeServiceInstrumenter() {
+) : IRuntimeServiceInstrumenter {
+
+    val supportedNames = listOf("inspectit", "ocelot", "inspectit_ocelot", "InspectIT Ocelot")
+        .map { it.lowercase() }.toSet() //case insensitivity
 
     private val log = KotlinLogging.logger { }
 
-    override fun executeInstrumentationPlan(
+
+    override fun instrument(
+        dam: DomainArchitectureMapping,
         targetService: ServiceDescription,
         serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
         platformAccessor: RuntimePlatformAccessor
     ) {
-        val instrumentationPlan = instrumentationMapper.map(serviceMonitoringConfiguration, "")
+        val instrumentationPlan = instrumentationMapper.map(serviceMonitoringConfiguration, dam)
+
+
+        val output = Files.writeString(
+            Path.of("plan.yaml"),
+            instrumentationPlan.inspectItConfiguration,
+            Charsets.UTF_8
+        )
+
+
 
         platformAccessor.connect()
 
@@ -67,12 +84,12 @@ class InspectItOcelotInstrumenter(
 
         log.debug { "Response: $agentResponse" }
 
-        if(!agentResponse.contains("Agent successfully attached!")) {
+        if (!agentResponse.contains("Agent successfully attached!")) {
             throw RuntimeException("Agent could not be started")
         }
     }
 
-    override fun revertInstrumentationPlan(
+    override fun deinstrument(
         targetService: ServiceDescription,
         serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
         platformAccessor: RuntimePlatformAccessor
@@ -81,6 +98,7 @@ class InspectItOcelotInstrumenter(
     }
 
     override fun supports(delimiter: String): Boolean {
-        return listOf("inspectit", "ocelot", "inspectit_ocelot").contains(delimiter.lowercase())
+
+        return supportedNames.contains(delimiter.lowercase())
     }
 }

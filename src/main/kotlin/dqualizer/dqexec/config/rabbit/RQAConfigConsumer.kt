@@ -26,6 +26,7 @@ class RQAConfigConsumer(
 
 
         } catch (e: Exception) {
+            log.error { e }
             throw RuntimeException(e)
         }
     }
