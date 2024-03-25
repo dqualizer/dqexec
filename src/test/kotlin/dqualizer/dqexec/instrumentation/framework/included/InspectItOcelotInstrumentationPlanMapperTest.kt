@@ -1,10 +1,10 @@
 package dqualizer.dqexec.instrumentation.framework.included
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.PropertyNamingStrategies
-import com.fasterxml.jackson.databind.PropertyNamingStrategy
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import io.github.dqualizer.dqlang.types.dam.DomainArchitectureMapping
+import io.github.dqualizer.dqlang.types.dam.architecture.SoftwareSystem
+import io.github.dqualizer.dqlang.types.dam.domainstory.DomainStory
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMonitoringConfiguration
+import io.github.dqualizer.dqlang.types.rqa.definition.enums.Environment
 import org.jeasy.random.EasyRandom
 import org.junit.jupiter.api.Test
 
@@ -20,8 +20,11 @@ class InspectItOcelotInstrumentationPlanMapperTest {
 //        val objectMapper = ObjectMapper(YAMLFactory())
 //        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
         val mapper = InspectItOcelotInstrumentationPlanMapper()
-        val instrumentationPlan = mapper.map(serviceMonitoringConfiguration, "dummy")
+        val dst = DomainStory(emptyList(), emptyList(), emptyList())
+        val system = SoftwareSystem("Dummy", Environment.TEST, emptyList(), emptyList())
+        val dam = DomainArchitectureMapping(system, dst)
 
+        val instrumentationPlan = mapper.map(serviceMonitoringConfiguration, dam)
         println(instrumentationPlan.inspectItConfiguration)
 
     }

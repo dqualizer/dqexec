@@ -3,12 +3,12 @@ package dqualizer.dqexec.instrumentation.framework.included
 import dqualizer.dqexec.instrumentation.framework.RuntimeServiceInstrumenters
 import dqualizer.dqexec.instrumentation.platform.RuntimePlatformAccessors
 import dqualizer.dqexec.instrumentation.platform.included.DockerContainerAccessor
-import io.github.dqualizer.dqlang.types.dam.architecture.InstrumentationFramework
-import io.github.dqualizer.dqlang.types.dam.architecture.ProgrammingFramework
-import io.github.dqualizer.dqlang.types.dam.architecture.RuntimePlatform
-import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
+import io.github.dqualizer.dqlang.types.dam.DomainArchitectureMapping
+import io.github.dqualizer.dqlang.types.dam.architecture.*
 import io.github.dqualizer.dqlang.types.dam.architecture.apischema.APISchema
+import io.github.dqualizer.dqlang.types.dam.domainstory.DomainStory
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMonitoringConfiguration
+import io.github.dqualizer.dqlang.types.rqa.definition.enums.Environment
 import org.assertj.core.api.Assertions
 import org.jeasy.random.EasyRandom
 import org.jeasy.random.EasyRandomParameters
@@ -64,7 +64,11 @@ class InspectItOcelotInstrumenterTest {
 
         platformAccessors.setup(serviceDescription, runtimePlatform)
 
-        instrumenter.instrument("IAmTheContextId", serviceDescription, monitoringConfiguration, platformAccessors)
+        val dst = DomainStory(emptyList(), emptyList(), emptyList())
+        val system = SoftwareSystem("Dummy", Environment.TEST, emptyList(), emptyList())
+        val dam = DomainArchitectureMapping(system, dst)
+
+        instrumenter.instrument(dam, serviceDescription, monitoringConfiguration, platformAccessors)
 
         Assertions.assertThat(instrumenter).isNotNull
     }

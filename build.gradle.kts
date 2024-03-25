@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dqlang_version = "1.0.5-SNAPSHOT"//"0.3.2-Insturmentation_Definition-SNAPSHOT"
+val dqlangVersion = "3.1.0-SNAPSHOT"
 
 plugins {
     kotlin("jvm") version "1.9.0"
@@ -71,6 +71,11 @@ repositories {
     mavenLocal()
     maven { url = uri("https://repo.spring.io/milestone") }
     maven { url = uri("https://jitpack.io") }
+    maven {
+        name = "gpr"
+        url = uri("https://maven.pkg.github.com/dqualizer/dqlang")
+        credentials(PasswordCredentials::class)
+    }
 }
 
 extra["testcontainersVersion"] = "1.17.6"
@@ -91,18 +96,23 @@ dependencies {
         exclude(group = "org.slf4j")
     }
 
+    implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.4")
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.3")
 
-    implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
+    implementation(files("inspectit-ocelot-config-2.6.4.jar"))
+//    implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
 
     implementation("io.github.oshai:kotlin-logging:6.0.3")
 
     implementation("io.opentelemetry:opentelemetry-api:1.34.1")
 
 
-    implementation("io.github.dqualizer:dqlang:3.0.0-merge_dam-SNAPSHOT")
+    implementation("io.github.dqualizer:dqlang:${dqlangVersion}")
 //    implementation(project(":dqlang"))
 
     annotationProcessor("org.projectlombok:lombok")

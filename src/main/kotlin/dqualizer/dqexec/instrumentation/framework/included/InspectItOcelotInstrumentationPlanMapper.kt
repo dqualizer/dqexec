@@ -365,7 +365,7 @@ class InspectItOcelotInstrumentationPlanMapper {
             //asynchronous: measure start of start and end of end Method -> 2 rules
             val mapping = activityToCallMappings.first { it.isAsync() }
 
-            val start = dam.softwareSystem.findArchitectureEntityOfType<CodeComponent>(mapping.architectureElementId)
+            val start = dam.softwareSystem.findArchitectureEntityOfType<CodeComponent>(mapping.architectureElementId!!)
             val end = dam.softwareSystem.findArchitectureEntityOfType<CodeComponent>(mapping.end!!)
 
             val random_uuid = UUID.randomUUID().toString()

@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.stereotype.Service
 
 @Service
-@EnableMongoRepositories(basePackageClasses = [DAMMongoRepository::class])
+//@EnableMongoRepositories(basePackageClasses = [DAMMongoRepository::class])
 class Monitoring(
     private val damRepository: DAMMongoRepository,
     private val platformAccessors: RuntimePlatformAccessors,
