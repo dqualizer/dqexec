@@ -5,14 +5,14 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+
 jobs:
   build_and_test:
     name: Build, Test and Publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3          
+        uses: actions/checkout@v3
       - name: Configure Git
         run: |
           git config --global committer.email "noreply@github.com"
@@ -34,16 +34,18 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: |
-            --init-script gradle/init.gradle
-            build      
+            -PgprUsername=${{ github.repository_owner }}
+            -PgprPassword=${{ secrets.GITHUB_TOKEN }}
+            build  
 
       - name: Prepare Release
         if : github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: gradle/gradle-build-action@v2
         with:
           arguments: |
-            --init-script gradle/init.gradle
             release
+            -PgprUsername=${{ github.repository_owner }}
+            -PgprPassword=${{ secrets.GITHUB_TOKEN }}
             -Prelease.useAutomaticVersion=true
 
       - name: Distribute to GitHub Package Registry
@@ -51,5 +53,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: |
-            --init-script gradle/init.gradle
             publish
+            -PgprUsername=${{ github.repository_owner }}
+            -PgprPassword=${{ secrets.GITHUB_TOKEN }}
