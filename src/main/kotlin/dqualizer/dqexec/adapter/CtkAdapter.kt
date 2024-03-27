@@ -16,7 +16,6 @@ import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.L
 import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.ResilienceStimulus
 import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.UnavailabilityStimulus
 import org.springframework.stereotype.Component
-import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 /**
  * Adapts a resilience test configuration to CTK tests
@@ -40,7 +39,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
         val ctkChaosExperiments = LinkedHashSet<CtkChaosExperiment>()
         for (enrichedResilienceTestDefinition in resilienceTestConfig.enrichedResilienceTestDefinitions) {
 
-            // TODO consider accuracy defined in resilienceTestConfig for multiple repetitions
+            // TODO remove repitions
             val repetitions = 1
             lateinit var ctkChaosExperiment: CtkChaosExperiment
 
@@ -62,7 +61,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 
             else if (enrichedResilienceTestDefinition.stimulus is LateResponsesStimulus){
                 // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
-                val method = listOf(createActionToConfigureAssaults(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                val method = listOf(createActionToConfigureAssaultsForLateResponseStimulus(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus as LateResponsesStimulus),
                         createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
                         createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus))
                 val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
@@ -72,7 +71,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
 
             else if (enrichedResilienceTestDefinition.stimulus is FailedRequestsStimulus){
                 // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
-                val method = listOf(createActionToConfigureAssaults(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                val method = listOf(createActionToConfigureAssaultsForFailedRequestStimulus(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus as FailedRequestsStimulus),
                         createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
                         createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
                        )
@@ -200,48 +199,51 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
         return Action(actionName, provider, pauses)
     }
 
-    private fun createActionToConfigureAssaults(artifact: EnrichedArtifact, stimulus: ResilienceStimulus): Action{
+    private fun createActionToConfigureAssaultsForLateResponseStimulus(artifact: EnrichedArtifact, stimulus: LateResponsesStimulus): Action{
+        val actionName = "configure_assaults"
+        val assaultsConfiguration = object {
+            val level: Int = stimulus.injectionFrequency
+            val deterministic: String = "True"
+            val latencyRangeStart: Int = stimulus.minDelayMilliseconds
+            val latencyRangeEnd: Int = stimulus.maxDelayMilliseconds
+            val latencyActive: String = "True"
+            val exceptionsActive: String = "False"
+            val killApplicationActive: String = "False"
+            val restartApplicationActive: String = "False"
+            // this can also inhabit beans other than services, e.g. a repo-class or method see https://codecentric.github.io/chaos-monkey-spring-boot/latest/
+            val watchedCustomServices:List<String> = listOf(artifact.packageMember)
+            }
+
+        val argumentsForFunction = mapOf("base_url" to "${artifact!!.baseUrl}", "assaults_configuration" to assaultsConfiguration)
+        val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
+
+        return Action(actionName, provider)
+    }
+
+    private fun createActionToConfigureAssaultsForFailedRequestStimulus(artifact: EnrichedArtifact, stimulus: FailedRequestsStimulus): Action{
         val actionName = "configure_assaults"
 
-        lateinit var assaultsConfiguration: Any
-        if (stimulus is LateResponsesStimulus){
-            // TODO move latency values or whole config to DAM or DqAnalyzer Input, should be translated to stimulus
-            assaultsConfiguration = object {
-                val level: Int = 1
-                val deterministic: String = "True"
-                val latencyRangeStart: Int = 70
-                val latencyRangeEnd: Int = 100
-                val latencyActive: String = "True"
-                val exceptionsActive: String = "False"
-                val killApplicationActive: String = "False"
-                val restartApplicationActive: String = "False"
-                // this can also inhabit beans other than services, e.g. a repo-class or method see https://codecentric.github.io/chaos-monkey-spring-boot/latest/
-                val watchedCustomServices:List<String> = listOf(artifact.packageMember)
-            }
-        } else if (stimulus is FailedRequestsStimulus){
-            assaultsConfiguration = object {
-                val level: Int = 2
-                val deterministic: String = "True"
-                val latencyActive: String = "False"
-                val exceptionsActive: String = "True"
-                // Runtime Exception which Chaos Monkey for Spring Boot defines per default for explicit knowledge, would be set by CMSB even if not defined here
-                val exception = mapOf(
-                        "type" to "java.lang.RuntimeException",
-                        "method" to "<init>",
-                        "arguments" to listOf(
-                                mapOf(
-                                        "type" to "java.lang.String",
-                                        "value" to "Chaos Monkey - RuntimeException"
-                                )
-                        )
-                )
-                val killApplicationActive: String = "False"
-                val restartApplicationActive: String = "False"
-                // this can also inhabit beans other than services, e.g. a repo-class or method see https://codecentric.github.io/chaos-monkey-spring-boot/latest/
-                val watchedCustomServices:List<String> = listOf(artifact.packageMember)
-            }
+        val assaultsConfiguration = object {
+            val level: Int = stimulus.injectionFrequency
+            val deterministic: String = "True"
+            val latencyActive: String = "False"
+            val exceptionsActive: String = "True"
+            // Runtime Exception which Chaos Monkey for Spring Boot defines per default for explicit knowledge, would be set by CMSB even if not defined here
+            val exception = mapOf(
+                    "type" to "java.lang.RuntimeException",
+                    "method" to "<init>",
+                    "arguments" to listOf(
+                            mapOf(
+                                    "type" to "java.lang.String",
+                                    "value" to "Chaos Monkey - RuntimeException"
+                            )
+                    )
+            )
+            val killApplicationActive: String = "False"
+            val restartApplicationActive: String = "False"
+            // this can also inhabit beans other than services, e.g. a repo-class or method see https://codecentric.github.io/chaos-monkey-spring-boot/latest/
+            val watchedCustomServices:List<String> = listOf(artifact.packageMember)
         }
-
 
         val argumentsForFunction = mapOf("base_url" to "${artifact!!.baseUrl}", "assaults_configuration" to assaultsConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
