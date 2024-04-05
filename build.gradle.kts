@@ -68,7 +68,6 @@ configurations {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven { url = uri("https://repo.spring.io/milestone") }
     maven { url = uri("https://jitpack.io") }
     maven {
@@ -95,6 +94,7 @@ dependencies {
     implementation("com.github.docker-java:docker-java:3.3.4") {
         exclude(group = "org.slf4j")
     }
+    implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.4")
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
