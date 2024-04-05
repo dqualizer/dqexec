@@ -38,6 +38,9 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
         val dockerClientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
             .withProperties(Properties().apply { putAll(platformDescription.settings) })
             .withDockerHost("tcp://localhost:2375")
+//            TODO: Uncomment the following lines to enable TLS verification
+//            .withDockerTlsVerify(true)
+//            .withDockerCertPath("/home/user/.docker")
             .apply {
                 if (platformDescription.uri != null)
                     withDockerHost(platformDescription.uri!!.host)

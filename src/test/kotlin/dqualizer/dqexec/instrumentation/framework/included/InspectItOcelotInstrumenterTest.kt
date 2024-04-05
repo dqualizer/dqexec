@@ -8,17 +8,28 @@ import io.github.dqualizer.dqlang.types.dam.architecture.*
 import io.github.dqualizer.dqlang.types.dam.architecture.apischema.APISchema
 import io.github.dqualizer.dqlang.types.dam.domainstory.DomainStory
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMonitoringConfiguration
+import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.instrumentation.InstrumentLocation
 import io.github.dqualizer.dqlang.types.rqa.definition.enums.Environment
 import org.assertj.core.api.Assertions
 import org.jeasy.random.EasyRandom
 import org.jeasy.random.EasyRandomParameters
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.Network
+import org.testcontainers.containers.RabbitMQContainer
 import java.lang.module.ModuleDescriptor.Version
+import java.lang.reflect.Field
 import java.net.URI
 import java.util.*
+
+private const val TestImageName = "ghcr.io/dqualizer/dqexec"
+
+var containerName = ""
 
 @SpringBootTest(
     classes = [
@@ -31,6 +42,32 @@ import java.util.*
 @ActiveProfiles("test")
 class InspectItOcelotInstrumenterTest {
 
+    companion object {
+
+        @JvmStatic
+        @BeforeAll
+        fun setUp() {
+            val network = Network.newNetwork();
+
+            val rabbit = RabbitMQContainer("rabbitmq:management-alpine")
+            rabbit.portBindings = listOf("5672:5672", "15672:15672")
+            rabbit.start()
+
+            Thread.sleep(4000) //ensure rabbit startup
+
+            val mongoDBContainer = MongoDBContainer("mongo:7")
+            mongoDBContainer.portBindings = listOf("27017:27017")
+            mongoDBContainer.start()
+
+            val dqexecContainer = GenericContainer<Nothing>(TestImageName)
+                .apply {
+                    withEnv("spring.rabbitmq.host", rabbit.containerName.substring(1))
+                    start()
+                }
+            containerName = dqexecContainer.containerName.substring(1)
+        }
+    }
+
     @Autowired
     lateinit var instrumenterService: RuntimeServiceInstrumenters
 
@@ -38,15 +75,19 @@ class InspectItOcelotInstrumenterTest {
     lateinit var platformAccessorService: RuntimePlatformAccessors
 
     @Test
-    fun testCanInstallocelotAgent() {
-        val random = EasyRandom(EasyRandomParameters().excludeType { type -> type == Version::class.java })
+    fun testCanInstallOcelotAgent() {
+        val random = EasyRandom(EasyRandomParameters()
+            .excludeType { type -> type == Version::class.java }
+            .randomize({ field: Field -> field.name.equals("location") }) {
+                InstrumentLocation("derp.java", "derp.nonexisting.com#IAmAMethodName")
+            })
 
         val instrumenter = instrumenterService.getRuntimeServiceInstrumenter("ocelot")
         val platformAccessors = platformAccessorService.getPlatformAccessor("docker")
 
         val serviceDescription = ServiceDescription(
-            "assignment-service",
-            "assignment-service",
+            containerName,
+            containerName,
             URI("http://localhost:8080"),
             random.nextObject(ProgrammingFramework::class.java),
             "java",

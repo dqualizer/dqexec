@@ -15,11 +15,11 @@ private const val AccessorType = "Docker"
 
 class DockerAccessorTest {
     companion object {
-//        val grafanaContainer = GenericContainer<Nothing>(TestImageName)
-//            .apply {
-//                withCreateContainerCmdModifier { cmd -> cmd.withName(ContainerName) }
-//                start()
-//            }
+        val dqexecContainer = GenericContainer<Nothing>(TestImageName)
+            .apply {
+                withCreateContainerCmdModifier { cmd -> cmd.withName(ContainerName) }
+                start()
+            }
     }
 
     @Test

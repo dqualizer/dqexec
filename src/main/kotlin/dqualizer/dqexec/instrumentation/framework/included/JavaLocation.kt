@@ -3,9 +3,17 @@ package dqualizer.dqexec.instrumentation.framework.included
 import org.apache.commons.lang3.StringUtils
 import java.util.*
 
-public data class JavaLocation(val classIdentifier: String, val methodName: String, val methodParameters: Optional<String>) {
+data class JavaLocation(
+    val classIdentifier: String,
+    val methodName: Optional<String>,
+    val methodParameters: Optional<String>
+) {
     companion object {
         fun fromString(location: String): JavaLocation {
+            if (!location.contains("#")) {
+                return JavaLocation(location, Optional.empty(), Optional.empty())
+            }
+
             val (classIdentifier, methodSignature) = location.split("#", limit = 2)
 
             if (StringUtils.isAllBlank(classIdentifier))
@@ -22,7 +30,7 @@ public data class JavaLocation(val classIdentifier: String, val methodName: Stri
                     Pair(methodSignature, Optional.empty())
                 }
 
-            return JavaLocation(classIdentifier, methodName, methodArguments)
+            return JavaLocation(classIdentifier, Optional.of(methodName), methodArguments)
         }
     }
 }

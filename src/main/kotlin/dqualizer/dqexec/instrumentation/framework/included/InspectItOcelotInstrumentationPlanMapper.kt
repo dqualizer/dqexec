@@ -44,9 +44,8 @@ import java.util.*
 class InspectItOcelotInstrumentationPlanMapper {
 
     private val yamlMapper =
-        ObjectMapper(YAMLFactory()).apply {
+        ObjectMapper().apply {
             setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
-
         }
 
     fun toYamlString(config: InspectitConfig): String {
@@ -207,9 +206,13 @@ class InspectItOcelotInstrumentationPlanMapper {
                 this.matcherMode = MatcherMode.ENDS_WITH_IGNORE_CASE
             }
 
+            if (location.methodName.isEmpty) {
+                throw IllegalArgumentException("Method name is empty in location: $loc (regarding instrument ${instrument.instrumentName})")
+            }
+
             //create Method Matcher
             val methodMatcher = MethodMatcherSettings().apply {
-                this.name = location.methodName
+                this.name = location.methodName.get()
                 this.matcherMode = MatcherMode.EQUALS_FULLY_IGNORE_CASE
             }
 
@@ -236,7 +239,7 @@ class InspectItOcelotInstrumentationPlanMapper {
                     }
 
                     val endMethodMatcher = MethodMatcherSettings().apply {
-                        this.name = endLocation.methodName
+                        this.name = endLocation.methodName.get()
                         this.matcherMode = MatcherMode.EQUALS_FULLY_IGNORE_CASE
                     }
 

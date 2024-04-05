@@ -77,8 +77,14 @@ class InspectItOcelotInstrumenter(
 
         log.info { "Starting agent" }
         val config = instrumentationPlan.inspectItConfiguration
+
+        //write config to file (in container)
+        platformAccessor.executeInServiceContainer("echo $config > /tmp/inspectit-config.json")
+
         val cmd = """
-            java -jar /tmp/$INSPECTIT_OCELOT_JAR $targetProcessId '$config'
+            export INSPECTIT_CONFIG_FILE_BASED_ENABLED=true && \
+            export INSPECTIT_CONFIG_FILE_BASED_PATH=/tmp/inspectit-config.json && \
+            java -jar /tmp/$INSPECTIT_OCELOT_JAR $targetProcessId            
         """.trimIndent()
         val agentResponse = platformAccessor.executeInServiceContainer(cmd)
 

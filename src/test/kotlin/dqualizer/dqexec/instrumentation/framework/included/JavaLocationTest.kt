@@ -8,7 +8,7 @@ class JavaLocationTest {
     fun canProcessCorrectInputWithoutParameters() {
         val loc = JavaLocation.fromString("derp.nonexisting.com#IAmAMethodName")
         assertEquals("derp.nonexisting.com", loc.classIdentifier)
-        assertEquals("IAmAMethodName", loc.methodName)
+        assertEquals("IAmAMethodName", loc.methodName.get())
         assertEquals(false, loc.methodParameters.isPresent)
     }
 
@@ -16,7 +16,8 @@ class JavaLocationTest {
     fun canProcessCorrectInputWithParameters() {
         val loc = JavaLocation.fromString("derp.nonexisting.com#IAmAMethodName(String, Integer, float)")
         assertEquals("derp.nonexisting.com", loc.classIdentifier)
-        assertEquals("IAmAMethodName", loc.methodName)
+        assertEquals(true , loc.methodName.isPresent)
+        assertEquals("IAmAMethodName", loc.methodName.get())
         assertEquals(true, loc.methodParameters.isPresent)
         assertEquals("(String, Integer, float)", loc.methodParameters.get())
     }

@@ -95,8 +95,6 @@ dependencies {
     implementation("com.github.docker-java:docker-java:3.3.4") {
         exclude(group = "org.slf4j")
     }
-
-    implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.4")
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
@@ -123,6 +121,13 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
     testImplementation("org.testcontainers:rabbitmq:1.18.0")
     testImplementation("org.jeasy:easy-random-core:5.0.0")
+    testImplementation("com.github.fridujo:rabbitmq-mock:1.2.0")
+
+    //testcontainers
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:rabbitmq")
+    testImplementation("org.testcontainers:mongodb")
 }
 
 dependencyManagement {
