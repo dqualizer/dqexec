@@ -1,5 +1,6 @@
 package dqualizer.dqexec.adapter
 
+import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.loadtest.ConfigRunner
 // import dqualizer.dqexec.output.K6ConfigProducer
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
@@ -19,7 +20,8 @@ class K6AdaptationService(
    private val adapter: K6Adapter,
    private val k6ConfigRunner: ConfigRunner,
    @Value("\${dqualizer.dqexec.loadTesting_enabled:true}")
-   private val loadTestingEnabled: Boolean
+   private val loadTestingEnabled: Boolean,
+   private val startupConfig: StartupConfig
 ) {
     private val log = Logger.getLogger(this.javaClass.name)
 
@@ -33,12 +35,18 @@ class K6AdaptationService(
     private fun receive(@Payload loadTestConfig: LoadTestConfiguration) {
 
         if (loadTestingEnabled){
-            log.info("Received loadtest configuration\n$loadTestConfig")
-            start(loadTestConfig)
+            if (startupConfig.isUserAuthenticated()){
+                log.info("Received loadtest configuration\n$loadTestConfig")
+                start(loadTestConfig)
+            }
+            else{
+                log.info("Missing dqexec authentication: received load test configuration could not be processed.")
+            }
         }
         else{
             log.info("Load testing was disabled in application.yaml: received load test configuration was not processed.")
         }
+
     }
 
     private fun start(loadTestConfig: LoadTestConfiguration  ) {

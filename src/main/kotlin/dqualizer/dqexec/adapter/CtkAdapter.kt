@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.exception.UnknownTermException
 import io.github.dqualizer.dqlang.types.adapter.constants.resilienceTesting.ResilienceTestConstants
+import dqualizer.dqexec.config.StartupConfig
 import io.github.dqualizer.dqlang.types.adapter.ctk.*
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.ResilienceTestConfiguration
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Component
  * */
 // TODO split up logic into multiple classes
 @Component
-class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
+class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants, private val startupConfig: StartupConfig)
 {
     // $ pointers are used to reference the secretes defined in the top-level of the experiment definition
     val authenticationParameters = mapOf("db_username" to "\${db_username}", "db_password" to "\${db_password}", "username" to "\${username}", "password" to "\${password}")
@@ -137,11 +138,10 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
      * Creates a Secrets object which defines authentication secrets which are used by experiment probes and actions
      */
     private fun createTopLevelSecrets(): Secrets {
-        // hardcoded secrets to enable authentication in python scripts against per default configured credentials in mySql
-        val dbUsername = "aDBUser"
-        val dbPassword = "aDBPw"
-        val username = "demoUser"
-        val password = "demo"
+        val dbUsername = startupConfig.getDbUsername()
+        val dbPassword = startupConfig.getDbPassword()
+        val username = startupConfig.getUsername()
+        val password = startupConfig.getPassword()
         val authenticationSecret = AuthenticationSecret(username, password, dbUsername, dbPassword)
         return Secrets(authenticationSecret)
     }

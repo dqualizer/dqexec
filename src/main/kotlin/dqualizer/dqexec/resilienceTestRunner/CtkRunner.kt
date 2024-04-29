@@ -3,6 +3,7 @@ package dqualizer.dqexec.resilienceTestRunner
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import dqualizer.dqexec.config.ResourcePaths
+import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.util.ProcessLogger
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
@@ -23,7 +24,9 @@ import kotlin.io.path.exists
 @Service
 class CtkRunner(
         private val processLogger: ProcessLogger,
-        private val paths: ResourcePaths) {
+        private val paths: ResourcePaths,
+        private val startupConfig: StartupConfig
+) {
     private val logger = Logger.getLogger(this.javaClass.name)
 
 
@@ -145,11 +148,10 @@ class CtkRunner(
 
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
-        // hardcoded secrets to enable authentication in python scripts against per default configured credentials in mySql
-        headers.set("dbUsername", "aDBUser")
-        headers.set("dbPassword", "aDBPw")
-        headers.set("username", "demoUser")
-        headers.set("password", "demo")
+        headers.set("dbUsername", startupConfig.getDbUsername())
+        headers.set("dbPassword", startupConfig.getDbPassword())
+        headers.set("username", startupConfig.getUsername())
+        headers.set("password", startupConfig.getPassword())
 
         val httpEntity = HttpEntity(experimentJson, headers)
 
