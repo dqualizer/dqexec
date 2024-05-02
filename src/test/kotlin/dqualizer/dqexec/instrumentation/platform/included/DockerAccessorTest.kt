@@ -30,6 +30,7 @@ class DockerAccessorTest {
 
         val accessor = DockerContainerAccessor()
 
+        println(accessor)
         accessor.setup(serviceDescription, RuntimePlatform("1", AccessorType, null))
         accessor.connect()
     }

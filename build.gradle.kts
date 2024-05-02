@@ -13,6 +13,8 @@ plugins {
     id("maven-publish")
     id("idea")
     id("eclipse")
+
+    id("com.adarshr.test-logger") version "4.0.0"
 }
 
 idea { //allows downloading sources and javadoc for IntelliJ with gradle cleanIdea idea
@@ -59,7 +61,6 @@ publishing {
     }
 }
 
-
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
@@ -78,6 +79,10 @@ repositories {
 }
 
 extra["testcontainersVersion"] = "1.17.6"
+
+testlogger {
+    showStackTraces = false
+}
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
