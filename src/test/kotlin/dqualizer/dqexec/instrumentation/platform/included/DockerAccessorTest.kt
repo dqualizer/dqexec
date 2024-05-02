@@ -24,13 +24,11 @@ class DockerAccessorTest {
 
     @Test
     fun canConnectToContainer() {
-
         val serviceDescription = mock(ServiceDescription::class.java)
         Mockito.`when`(serviceDescription.getDeploymentName()).thenReturn(ContainerName)
 
         val accessor = DockerContainerAccessor()
 
-        println(accessor)
         accessor.setup(serviceDescription, RuntimePlatform("1", AccessorType, null))
         accessor.connect()
     }
