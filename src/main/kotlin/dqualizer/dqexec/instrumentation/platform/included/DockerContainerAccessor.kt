@@ -11,6 +11,7 @@ import io.github.dqualizer.dqlang.types.dam.architecture.RuntimePlatform
 import io.github.dqualizer.dqlang.types.dam.architecture.ServiceDescription
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
+import java.net.URI
 import java.util.*
 
 
@@ -43,10 +44,11 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
             }
             .build()
         println("docker host: ${dockerClientConfig.dockerHost}")
+        println("ssl config: ${dockerClientConfig.sslConfig}")
         val httpDockerClientConfig = ApacheDockerHttpClient.Builder()
-            .dockerHost(dockerClientConfig.dockerHost)
+            .dockerHost(URI("tcp://192.168.106.2:2376"))
 
-//            .sslConfig(dockerClientConfig.sslConfig)
+            .sslConfig(dockerClientConfig.sslConfig)
 //            .maxConnections(100)
 //            .connectionTimeout(Duration.ofSeconds(30))
 //            .responseTimeout(Duration.ofSeconds(45))
