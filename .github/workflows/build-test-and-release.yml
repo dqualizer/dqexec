@@ -41,11 +41,11 @@ jobs:
         shell: bash
         run: |
           cat /etc/docker/daemon.json | jq '. | .+{"tls": false, "hosts": ["fd://", "tcp://127.0.0.1:2375"]}' | sudo tee /etc/docker/daemon.json
-          sudo sed -i 's;-H fd://;;g' /lib/systemd/system/docker.service
+          sudo sed -i 's; -H fd://;;g' /lib/systemd/system/docker.service
           
           cat /lib/systemd/system/docker.service
           
-          systemctl daemon-reload
+          sudo systemctl daemon-reload
           sudo systemctl restart docker
 
       - name: Check docker
