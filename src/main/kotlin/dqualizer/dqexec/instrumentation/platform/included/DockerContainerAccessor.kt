@@ -46,7 +46,7 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
         println("docker host: ${dockerClientConfig.dockerHost}")
         println("ssl config: ${dockerClientConfig.sslConfig}")
         val httpDockerClientConfig = ApacheDockerHttpClient.Builder()
-            .dockerHost(dockerClientConfig.dockerHost)
+            .dockerHost(URI("tcp://localhost:2375"))
 
 //            .sslConfig(dockerClientConfig.sslConfig)
 //            .maxConnections(100)

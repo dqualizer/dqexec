@@ -1,0 +1,11 @@
+{
+  "tls": false,
+  "hosts":  [
+    "fd://",
+    "tcp://127.0.0.1:2375"
+  ],
+  "exec-opts": [
+    "native.cgroupdriver=cgroupfs"
+  ],
+  "cgroup-parent": "/actions_job"
+}
