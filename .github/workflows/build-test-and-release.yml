@@ -46,6 +46,7 @@ jobs:
       - name: Check docker
         shell: bash
         run: |
+          docker info
           docker -H tcp://localhost:2375 ps
 
       - name: Set up Java 17
