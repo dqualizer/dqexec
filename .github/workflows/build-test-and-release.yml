@@ -41,12 +41,13 @@ jobs:
         shell: bash
         run: |
           cat /etc/docker/daemon.json | jq '. | .+{"tls": false, "hosts": ["tcp:127.0.0.1:2375"]}' | sudo tee /etc/docker/daemon.json
+          cat /etc/systemd/system/docker.service.d
 
-      - name: Check docker
-        shell: bash
-        run: |
-          sudo systemctl restart docker
-          docker -H tcp://localhost:2375 ps
+#      - name: Check docker
+#        shell: bash
+#        run: |
+#          sudo systemctl restart docker
+#          docker -H tcp://localhost:2375 ps
 
       - name: Set up Java 17
         uses: actions/setup-java@v2
