@@ -42,11 +42,11 @@ jobs:
         run: |
           cat /etc/docker/daemon.json | jq '. | .+{"tls": false}' | sudo tee /etc/docker/daemon.json
 
-#      - name: Check docker
-#        shell: bash
-#        run: |
-#          sudo systemctl restart docker
-#          docker -H tcp://localhost:2375 ps
+      - name: Check docker
+        shell: bash
+        run: |
+#         sudo systemctl restart docker
+          docker -H tcp://localhost:2375 ps
 
       - name: Set up Java 17
         uses: actions/setup-java@v2
