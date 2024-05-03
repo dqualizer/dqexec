@@ -28,23 +28,11 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Set up Docker
-#        uses: crazy-max/ghaction-setup-docker@v3
-#        with:
-#          daemon-config: |
-#            {
-#              "tls": false
-#            }
-#          set-host: true
-
       - name: Edit the docker daemon
         shell: bash
         run: |
           cat /etc/docker/daemon.json | jq '. | .+{"tls": false, "hosts": ["fd://", "tcp://127.0.0.1:2375"]}' | sudo tee /etc/docker/daemon.json
           sudo sed -i 's; -H fd://;;g' /lib/systemd/system/docker.service
-          
-          cat /lib/systemd/system/docker.service
-          
           sudo systemctl daemon-reload
           sudo systemctl restart docker
 
