@@ -41,8 +41,7 @@ jobs:
         shell: bash
         run: |
           cat /etc/docker/daemon.json | jq '. | .+{"tls": false, "hosts": ["tcp:127.0.0.1:2375"]}' | sudo tee /etc/docker/daemon.json
-          cat /etc/docker/daemon.json
-          sudo systemctl restart docker
+#          sudo systemctl restart docker
 
       - name: Check docker
         shell: bash
