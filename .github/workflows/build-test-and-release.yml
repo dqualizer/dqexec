@@ -46,7 +46,6 @@ jobs:
       - name: Check docker
         shell: bash
         run: |
-#         sudo systemctl restart docker
           docker -H tcp://localhost:2375 ps
 
       - name: Set up Java 17
