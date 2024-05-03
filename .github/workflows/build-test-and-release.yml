@@ -43,7 +43,7 @@ jobs:
           cat /etc/docker/daemon.json | jq '. | .+{"tls": false, "hosts": ["fd://", "tcp://127.0.0.1:2375"]}' | sudo tee /etc/docker/daemon.json
           systemctl status docker.service
           cat /lib/systemd/system/docker.service
-           sed -i '' 's;ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock;ExecStart=/usr/bin/dockerd --containerd=/run/containerd/containerd.sock;g' /lib/systemd/system/docker.service
+          sudo sed -i '' 's;ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock;ExecStart=/usr/bin/dockerd --containerd=/run/containerd/containerd.sock;g' /lib/systemd/system/docker.service
           
           cat /lib/systemd/system/docker.service
           
