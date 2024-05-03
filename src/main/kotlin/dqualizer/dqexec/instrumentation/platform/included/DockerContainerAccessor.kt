@@ -50,8 +50,6 @@ class DockerContainerAccessor : RuntimePlatformAccessor {
             .responseTimeout(Duration.ofSeconds(45))
             .build()
 
-
-
         dockerClient = DockerClientImpl.getInstance(dockerClientConfig, httpDockerClientConfig)
     }
 
