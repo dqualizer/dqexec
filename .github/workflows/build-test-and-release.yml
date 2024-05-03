@@ -39,7 +39,7 @@ jobs:
 
       - name: Check docker
         run: |
-          docker version -f '{{.Server.Tls}}'
+          docker version -f '{{.Server}}'
           echo $DOCKER_HOST
 
       - name: Set up Java 17
