@@ -56,12 +56,12 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build with Gradle
-        run: ./gradlew PgprUsername=${{ github.repository_owner }} PgprPassword=${{ secrets.GITHUB_TOKEN }} build
+        run: ./gradlew -PgprUsername=${{ github.repository_owner }} -PgprPassword=${{ secrets.GITHUB_TOKEN }} build
 
       - name: Prepare Release
         if : github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: ./gradlew PgprUsername=${{ github.repository_owner }} PgprPassword=${{ secrets.GITHUB_TOKEN }} -Prelease.useAutomaticVersion=true release
+        run: ./gradlew -PgprUsername=${{ github.repository_owner }} -PgprPassword=${{ secrets.GITHUB_TOKEN }} -Prelease.useAutomaticVersion=true release
 
       - name: Distribute to GitHub Package Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: ./gradlew PgprUsername=${{ github.repository_owner }} PgprPassword=${{ secrets.GITHUB_TOKEN }} publish
+        run: ./gradlew -PgprUsername=${{ github.repository_owner }} -PgprPassword=${{ secrets.GITHUB_TOKEN }} publish
