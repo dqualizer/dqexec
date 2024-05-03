@@ -33,7 +33,9 @@ jobs:
         with:
           daemon-config: |
             {
-              "hosts":  [
+              "tls": false,
+              "hosts": [
+                "npipe://",
                 "tcp://127.0.0.1:2375"
               ]
             }
