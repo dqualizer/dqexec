@@ -33,7 +33,10 @@ jobs:
         with:
           daemon-config: |
             {
-              "tls": false
+              "tls": false,
+              "hosts": [
+                "tcp://0.0.0.0:2375"
+              ]
             }
 
       - name: Set up Java 17
