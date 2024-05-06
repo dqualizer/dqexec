@@ -33,8 +33,8 @@ eclipse {
 
 group = "dqualizer"
 
-java.sourceCompatibility = JavaVersion.VERSION_19
-java.targetCompatibility = JavaVersion.VERSION_19
+java.sourceCompatibility = JavaVersion.VERSION_21
+java.targetCompatibility = JavaVersion.VERSION_21
 
 release {
     //no config needed, see https://github.com/researchgate/gradle-release for options
@@ -145,7 +145,7 @@ dependencyManagement {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "19"
+        jvmTarget = "21"
     }
 }
 
