@@ -3,11 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val dqlangVersion = "3.1.0-SNAPSHOT"
 
 plugins {
-    kotlin("jvm") version "1.9.0"
-    kotlin("plugin.spring") version "1.9.0"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
 
     id("org.springframework.boot") version "3.2.3"
-    id("io.spring.dependency-management") version "1.1.4"
+    id("io.spring.dependency-management") version "1.1.5"
 
     id("net.researchgate.release") version "3.0.2"
     id("maven-publish")
@@ -33,8 +33,8 @@ eclipse {
 
 group = "dqualizer"
 
-java.sourceCompatibility = JavaVersion.VERSION_17
-java.targetCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_19
+java.targetCompatibility = JavaVersion.VERSION_19
 
 release {
     //no config needed, see https://github.com/researchgate/gradle-release for options
@@ -78,7 +78,7 @@ repositories {
     }
 }
 
-extra["testcontainersVersion"] = "1.17.6"
+extra["testcontainersVersion"] = "1.19.7"
 
 testlogger {
     showStackTraces = false
@@ -89,9 +89,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     implementation("org.springframework.vault:spring-vault-core:3.1.1")
     implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
@@ -99,20 +99,20 @@ dependencies {
     implementation("com.github.docker-java:docker-java:3.3.6") {
         exclude(group = "org.slf4j")
     }
-    implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.4")
+    implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.6")
     implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
 
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.3")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0")
 
     implementation(files("inspectit-ocelot-config-2.6.4.jar"))
 //    implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
 
-    implementation("io.github.oshai:kotlin-logging:6.0.3")
+    implementation("io.github.oshai:kotlin-logging:6.0.9")
 
-    implementation("io.opentelemetry:opentelemetry-api:1.34.1")
+    implementation("io.opentelemetry:opentelemetry-api:1.37.0")
 
 
     implementation("io.github.dqualizer:dqlang:${dqlangVersion}")
@@ -120,17 +120,18 @@ dependencies {
 
     annotationProcessor("org.projectlombok:lombok")
 
-    testImplementation("org.mockito:mockito-core:5.10.0")
+    testImplementation("org.mockito:mockito-core:5.11.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.amqp:spring-rabbit-test")
-    testImplementation("org.testcontainers:junit-jupiter:1.17.6")
-    testImplementation("org.testcontainers:rabbitmq:1.18.0")
+    testImplementation("org.testcontainers:junit-jupiter:${property("testcontainersVersion")}")
+    testImplementation("org.testcontainers:rabbitmq:${property("testcontainersVersion")}")
     testImplementation("org.jeasy:easy-random-core:5.0.0")
     testImplementation("com.github.fridujo:rabbitmq-mock:1.2.0")
 
     //testcontainers
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.testcontainers:rabbitmq")
     testImplementation("org.testcontainers:mongodb")
 }
@@ -144,7 +145,7 @@ dependencyManagement {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+        jvmTarget = "19"
     }
 }
 
