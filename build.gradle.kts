@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dqlangVersion = "3.1.0-SNAPSHOT"
+val dqlangVersion = "3.1.5-SNAPSHOT"
 
 plugins {
     kotlin("jvm") version "1.9.23"
@@ -33,8 +33,8 @@ eclipse {
 
 group = "dqualizer"
 
-java.sourceCompatibility = JavaVersion.VERSION_21
-java.targetCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_17
+java.targetCompatibility = JavaVersion.VERSION_17
 
 release {
     //no config needed, see https://github.com/researchgate/gradle-release for options
@@ -145,7 +145,7 @@ dependencyManagement {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "21"
+        jvmTarget = "17"
     }
 }
 
