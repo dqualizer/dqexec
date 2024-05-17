@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.util.EnvironmentChecker
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -17,7 +18,9 @@ import java.util.logging.Logger
  *
  */
 @Service
-class CtkRunner() {
+class CtkRunner(@Value("\${dqualizer.dqexec.resilienceExecutionApi.host}") private val resilienceExecutionApiHost: String,
+        @Value("\${{dqualizer.dqexec.resilienceExecutionApi.port}}") private val resilienceExecutionApiPort: String)
+{
     private val logger = Logger.getLogger(this.javaClass.name)
 
 
@@ -52,23 +55,22 @@ class CtkRunner() {
 
             logger.info("### CHAOS EXPERIMENT $testCounter WAS CREATED ###")
 
-            val exitValue = requestExperimentExecutionOnHost(experimentJsonPayload, testCounter)
+            val exitValue = requestExperimentExecutionOnHost(experimentJsonPayload)
             logger.info(" CHAOS EXPERIMENT $testCounter FINISHED WITH VALUE $exitValue ###")
         }
         logger.info("### RESILIENCE TESTING COMPLETE ###")
     }
 
     @Throws(IOException::class, InterruptedException::class)
-    private fun requestExperimentExecutionOnHost(experimentJson: String, testCounter: Int): Int {
+    private fun requestExperimentExecutionOnHost(experimentJson: String): Int {
 
         val restTemplate = RestTemplate()
         var url = ""
-        // TODO make Url/Port configurable
         if (EnvironmentChecker.isRunningInDocker){
-            url = "http://host.docker.internal:3323/execute_experiment"
+            url = "http://host.docker.internal:$resilienceExecutionApiPort/execute_experiment"
         }
         else{
-            url = "http://localhost:3323/execute_experiment"
+            url = "http://$resilienceExecutionApiHost:$resilienceExecutionApiPort/execute_experiment"
         }
 
         val headers = HttpHeaders()
