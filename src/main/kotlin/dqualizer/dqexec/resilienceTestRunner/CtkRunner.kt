@@ -19,7 +19,7 @@ import java.util.logging.Logger
  */
 @Service
 class CtkRunner(@Value("\${dqualizer.dqexec.resilienceExecutionApi.host}") private val resilienceExecutionApiHost: String,
-        @Value("\${{dqualizer.dqexec.resilienceExecutionApi.port}}") private val resilienceExecutionApiPort: String)
+        @Value("\${dqualizer.dqexec.resilienceExecutionApi.port}") private val resilienceExecutionApiPort: String)
 {
     private val logger = Logger.getLogger(this.javaClass.name)
 
