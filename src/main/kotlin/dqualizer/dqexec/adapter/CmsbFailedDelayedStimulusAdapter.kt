@@ -16,7 +16,7 @@ class CmsbFailedDelayedStimulusAdapter {
     fun createExperimentForLateResponsesStimulus(enrichedResilienceTestDefinition: EnrichedResilienceTestDefinition): CtkChaosExperiment {
         // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
         val method = listOf(createActionToConfigureAssaultsForLateResponseStimulus(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus as LateResponsesStimulus),
-                createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact),
                 createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus))
         val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
         val ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, method)
@@ -28,7 +28,7 @@ class CmsbFailedDelayedStimulusAdapter {
     fun createExperimentForFailedRequestsStimulus(enrichedResilienceTestDefinition: EnrichedResilienceTestDefinition): CtkChaosExperiment {
         // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
         val method = listOf(createActionToConfigureAssaultsForFailedRequestStimulus(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus as FailedRequestsStimulus),
-                createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+                createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact),
                 createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
         )
         val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
@@ -100,7 +100,7 @@ class CmsbFailedDelayedStimulusAdapter {
     }
 
     // Also if the assaultConfiguration already adds a watched service, also the corresponding watcher needs to be enabled for the failure injection to work for the watchedCustomService
-    private fun createActionToChangeWatcherConfiguration(artifact: EnrichedArtifact, stimulus: ResilienceStimulus): Action {
+    private fun createActionToChangeWatcherConfiguration(artifact: EnrichedArtifact): Action {
         val actionName = "configure_watchers"
         val watchersConfiguration = object {
             var controller: String = "false"
@@ -111,7 +111,7 @@ class CmsbFailedDelayedStimulusAdapter {
             val restTemplate: String = "false"
             val webClient: String = "false"
             val actuatorHealth: String = "false"
-            // TODO maybe it also works when member name entered in the DAM is just put into "beans" List?
+            //  maybe this also works when member name entered in the DAM is just put into "beans" List?
             val beans: List<String> = emptyList()
             val beanClasses: List<String> = emptyList()
             val excludeClasses: List<String> = emptyList()
