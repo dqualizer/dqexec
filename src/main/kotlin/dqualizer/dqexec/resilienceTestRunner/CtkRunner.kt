@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.exception.RunnerFailedException
+import dqualizer.dqexec.util.EnvironmentChecker
 import dqualizer.dqexec.util.ProcessLogger
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkConfiguration
 import org.springframework.http.HttpEntity
@@ -136,10 +137,9 @@ class CtkRunner(
     fun requestExperimentExecutionOnHost(experimentJson: String, testCounter: Int, runCounter: Int): Int {
 
         val restTemplate = RestTemplate()
-        val isRunningInDocker = Path("/proc/1/cgroup").exists()
         var url = ""
         // TODO make Url/Port configurable
-        if (isRunningInDocker){
+        if (EnvironmentChecker.isRunningInDocker){
             url = "http://host.docker.internal:3323/execute_experiment"
         }
         else{

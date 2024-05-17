@@ -2,6 +2,7 @@ package dqualizer.dqexec.input
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.exception.InvalidConstantsSchemaException
+import dqualizer.dqexec.util.EnvironmentChecker
 import io.github.dqualizer.dqlang.types.adapter.constants.loadTesting.LoadTestConstants
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -22,8 +23,7 @@ class LoadTestingConstantsLoader(
     @Bean
     fun loadTestConstants(): LoadTestConstants {
         try {
-            val isRunningInDocker = Path("/proc/1/cgroup").exists()
-            if (isRunningInDocker){
+            if (EnvironmentChecker.isRunningInDocker){
                 val constantsPath = Path("/app/input_ressources/load_testing_constants.json")
                 return objectMapper.readValue(Files.readString(constantsPath), LoadTestConstants::class.java)
             }

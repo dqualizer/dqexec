@@ -1,5 +1,6 @@
 package dqualizer.dqexec.config
 
+import dqualizer.dqexec.util.EnvironmentChecker
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
 import java.io.File
@@ -12,14 +13,15 @@ import kotlin.io.path.exists
  * Configuration for local file paths
  */
 @Configuration
-class ResourcePaths {
+class ResourcePaths () {
     val scripts: Path = Path.of("scripts")
     val logging: Path = Path.of("logging")
     val experiments: Path = Path.of("generated_experiments")
 
+
     fun readResourceFile(resourcePath: String): String {
-        val isRunningInDocker = Path("/proc/1/cgroup").exists()
-        if (isRunningInDocker){
+
+        if (EnvironmentChecker.isRunningInDocker){
             val ressourcePath = Path("/app/input_ressources/$resourcePath")
             return Files.readString(ressourcePath)
         }
