@@ -111,7 +111,6 @@ class CmsbFailedDelayedStimulusAdapter {
             val restTemplate: String = "false"
             val webClient: String = "false"
             val actuatorHealth: String = "false"
-            //  maybe this also works when member name entered in the DAM is just put into "beans" List?
             val beans: List<String> = emptyList()
             val beanClasses: List<String> = emptyList()
             val excludeClasses: List<String> = emptyList()
