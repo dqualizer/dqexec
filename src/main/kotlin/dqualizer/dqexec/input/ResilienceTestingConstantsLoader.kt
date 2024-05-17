@@ -2,6 +2,7 @@ package dqualizer.dqexec.input
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.exception.InvalidConstantsSchemaException
+import dqualizer.dqexec.util.EnvironmentChecker
 import io.github.dqualizer.dqlang.types.adapter.constants.resilienceTesting.ResilienceTestConstants
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -22,8 +23,7 @@ class ResilienceTestingConstantsLoader(
     @Bean
     fun createResilienceTestConstants(): ResilienceTestConstants {
         try {
-            val isRunningInDocker = Path("/proc/1/cgroup").exists()
-            if (isRunningInDocker){
+            if (EnvironmentChecker.isRunningInDocker){
                 val constantsPath = Path("/app/input_ressources/resilience_testing_constants.json")
                 return objectMapper.readValue(Files.readString(constantsPath), ResilienceTestConstants::class.java)
             }
