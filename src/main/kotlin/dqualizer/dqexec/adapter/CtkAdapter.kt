@@ -54,7 +54,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
                         createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
                         createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus))
                 val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
-                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method)
+                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, method)
                 ctkChaosExperiment.rollbacks = rollbacks
             }
 
@@ -65,7 +65,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants)
                         createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
                        )
                 val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
-                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method)
+                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, method)
                 ctkChaosExperiment.rollbacks = rollbacks
             }
 
