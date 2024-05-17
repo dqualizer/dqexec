@@ -53,7 +53,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants, p
                 val rollbacks = listOf(createActionToStartProcess(enrichedResilienceTestDefinition.artifact))
                 val extension = createExtensionHoldingResponesMeasureValues(enrichedResilienceTestDefinition.responseMeasure)
 
-                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method, repetitions)
+                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, method)
                 ctkChaosExperiment.secrets = secrets
                 ctkChaosExperiment.steadyStateHypothesis = steadyStateHypothesis
                 ctkChaosExperiment.rollbacks = rollbacks
