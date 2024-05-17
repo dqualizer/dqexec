@@ -28,20 +28,9 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants, p
     // $ pointers are used to reference the secretes defined in the top-level of the experiment definition
     val authenticationParameters = mapOf("db_username" to "\${db_username}", "db_password" to "\${db_password}", "username" to "\${username}", "password" to "\${password}")
 
-    /**
-     * Adapt the loadtest configuration. It consists of 3 steps:
-     * 1. Adapt global test configuration
-     * 2. Adapt the stimulus for every loadtest
-     * 3. Adapt the endpoints for every loadtest
-     * @param resilienceTestConfig The received dqlang load test configuration
-     * @return An adapted loadtest configuration for k6
-     */
     fun adapt(resilienceTestConfig: ResilienceTestConfiguration): CtkConfiguration {
         val ctkChaosExperiments = LinkedHashSet<CtkChaosExperiment>()
         for (enrichedResilienceTestDefinition in resilienceTestConfig.enrichedResilienceTestDefinitions) {
-
-            // TODO remove repitions
-            val repetitions = 1
             lateinit var ctkChaosExperiment: CtkChaosExperiment
 
             // TODO pull out variables from enrichedResilienceTestDefinition
@@ -66,7 +55,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants, p
                         createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
                         createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus))
                 val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
-                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method, repetitions)
+                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method)
                 ctkChaosExperiment.rollbacks = rollbacks
             }
 
@@ -77,7 +66,7 @@ class CtkAdapter(private val resilienceTestConstants: ResilienceTestConstants, p
                         createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
                        )
                 val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
-                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method, repetitions)
+                ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.description, enrichedResilienceTestDefinition.description, method)
                 ctkChaosExperiment.rollbacks = rollbacks
             }
 
