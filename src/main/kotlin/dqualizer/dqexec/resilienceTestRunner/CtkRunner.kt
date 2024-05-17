@@ -66,14 +66,9 @@ class CtkRunner(
             val experimentJsonPayload = objectMapper.writeValueAsString(chaosExperiment)
 
             logger.info("### CHAOS EXPERIMENT $testCounter WAS CREATED ###")
-            var runCounter = 1
 
-            while (runCounter <= chaosExperiment.repetitions){
-                val exitValue = requestExperimentExecutionOnHost(experimentJsonPayload, testCounter, runCounter)
-                logger.info(" CHAOS EXPERIMENT $testCounter-$runCounter FINISHED WITH VALUE $exitValue ###")
-                runCounter++
-            }
-            testCounter++
+            val exitValue = requestExperimentExecutionOnHost(experimentJsonPayload, testCounter)
+            logger.info(" CHAOS EXPERIMENT $testCounter FINISHED WITH VALUE $exitValue ###")
         }
         logger.info("### RESILIENCE TESTING COMPLETE ###")
     }
@@ -131,7 +126,7 @@ class CtkRunner(
 
     // TODO make private again later
     @Throws(IOException::class, InterruptedException::class)
-    fun requestExperimentExecutionOnHost(experimentJson: String, testCounter: Int, runCounter: Int): Int {
+    fun requestExperimentExecutionOnHost(experimentJson: String, testCounter: Int): Int {
 
         val restTemplate = RestTemplate()
         var url = ""
