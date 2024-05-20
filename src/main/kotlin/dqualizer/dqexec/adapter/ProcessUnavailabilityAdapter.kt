@@ -24,8 +24,11 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
                 createProbeToMonitorRecoveryTimeOfProcess(enrichedResilienceTestDefinition.enrichedProcessArtifact, enrichedResilienceTestDefinition.stimulus))
         val rollbacks = listOf(createActionToStartProcess(enrichedResilienceTestDefinition.enrichedProcessArtifact))
         val extensions = listOf(createExtensionHoldingResponesMeasureValues(enrichedResilienceTestDefinition.responseMeasure))
+        val runtime = Runtime()
+        // in this experiment we only want to rollback, if the steady-state-method deviates after method execution
+        runtime.rollbacksStrategy = Strategy("deviated")
 
-        return CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, secrets, steadyStateHypothesis, method, rollbacks, extensions)
+        return CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, secrets, steadyStateHypothesis, method, rollbacks, extensions, runtime)
     }
 
     /**
