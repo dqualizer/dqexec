@@ -93,8 +93,8 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
 
     private fun createActionToStartProcess(artifact: EnrichedProcessArtifact): Action {
         val actionName = "start process " + (artifact.processId)
-        val argumentsForFunction =  authenticationParameters + ("path" to artifact.processPath) + ("log_result_in_influx_db" to true)
-        val actionProvider = Provider("python", "processStarting", "start_process_by_path", argumentsForFunction)
+        val argumentsForFunction =  authenticationParameters + ("path" to artifact.processPath)
+        val actionProvider = Provider("python", "processStarting", "start_Jvm_process_by_path", argumentsForFunction)
 
         return Action(actionName, actionProvider)
     }
