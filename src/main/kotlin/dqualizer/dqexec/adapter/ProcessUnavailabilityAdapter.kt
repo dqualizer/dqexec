@@ -92,7 +92,7 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
     }
 
     private fun createActionToStartProcess(artifact: EnrichedProcessArtifact): Action {
-        val actionName = "start process " + (artifact.processId)
+        val actionName = "start process " + (artifact.processName)
         val argumentsForFunction =  authenticationParameters + ("path" to artifact.processPath)
         val actionProvider = Provider("python", "processStarting", "start_jvm_process_by_path", argumentsForFunction)
 
@@ -105,8 +105,8 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
     }
 
     fun createProbeToLookIfProcessIsRunning(isSteadyStateHypothesis: Boolean, artifact: EnrichedProcessArtifact): Probe {
-        val probeName = artifact.processId + " must be running"
-        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId) + ("log_result_in_influx_db" to true)
+        val probeName = artifact.processName + " must be running"
+        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processName) + ("log_result_in_influx_db" to true)
         val probeProvider = Provider("python", "processMonitoring", "check_process_exists",argumentsForFunction)
 
         if (isSteadyStateHypothesis){
@@ -118,8 +118,8 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
 
 
     private fun createActionToKillProcess(artifact: EnrichedProcessArtifact, stimulus: ResilienceStimulus): Action {
-        val actionName = "kill process " + artifact.processId
-        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId)
+        val actionName = "kill process " + artifact.processName
+        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processName)
         val actionProvider = Provider("python", "processKilling", "kill_process_by_name", argumentsForFunction)
         // for stimulus.experimentDurationSeconds see createProbeToMonitorRecoveryTimeOfProcess
         val pauses = Pauses(stimulus.pauseBeforeTriggeringSeconds,0)
@@ -127,8 +127,8 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
     }
 
     private fun createProbeToMonitorRecoveryTimeOfProcess(artifact: EnrichedProcessArtifact, stimulus: ResilienceStimulus): Probe {
-        val probeName = "measure duration until process " + artifact.processId + " is eventually available again"
-        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId) +  ("monitoring_duration_sec" to stimulus.experimentDurationSeconds) +  ("checking_interval_sec" to 0)
+        val probeName = "measure duration until process " + artifact.processName + " is eventually available again"
+        val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processName) +  ("monitoring_duration_sec" to stimulus.experimentDurationSeconds) +  ("checking_interval_sec" to 0)
         val provider = Provider("python", "processMonitoring", "get_duration_until_process_started", argumentsForFunction)
         return Probe(probeName, provider)
     }
