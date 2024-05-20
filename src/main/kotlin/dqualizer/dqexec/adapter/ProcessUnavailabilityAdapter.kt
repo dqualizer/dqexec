@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.exception.UnknownTermException
 import io.github.dqualizer.dqlang.types.adapter.constants.resilienceTesting.ResilienceTestConstants
 import io.github.dqualizer.dqlang.types.adapter.ctk.*
-import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedArtifact
+import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedProcessArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedResilienceTestDefinition
 import io.github.dqualizer.dqlang.types.rqa.definition.enums.Satisfaction
 import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.ResilienceResponseMeasures
@@ -19,19 +19,13 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
     val authenticationParameters = mapOf("db_username" to "\${db_username}", "db_password" to "\${db_password}", "username" to "\${username}", "password" to "\${password}")
     fun createExperimentForUnavailabilityStimulus(enrichedResilienceTestDefinition: EnrichedResilienceTestDefinition): CtkChaosExperiment {
         val secrets = createTopLevelSecrets()
-        val steadyStateHypothesis = createSteadyStateHypothesisForUnaivalabilityStimulus(enrichedResilienceTestDefinition.artifact)
-        val method = listOf(createActionToKillProcess(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
-                createProbeToMonitorRecoveryTimeOfProcess(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus))
-        val rollbacks = listOf(createActionToStartProcess(enrichedResilienceTestDefinition.artifact))
-        val extension = createExtensionHoldingResponesMeasureValues(enrichedResilienceTestDefinition.responseMeasure)
+        val steadyStateHypothesis = createSteadyStateHypothesisForUnaivalabilityStimulus(enrichedResilienceTestDefinition.enrichedProcessArtifact)
+        val method = listOf(createActionToKillProcess(enrichedResilienceTestDefinition.enrichedProcessArtifact, enrichedResilienceTestDefinition.stimulus),
+                createProbeToMonitorRecoveryTimeOfProcess(enrichedResilienceTestDefinition.enrichedProcessArtifact, enrichedResilienceTestDefinition.stimulus))
+        val rollbacks = listOf(createActionToStartProcess(enrichedResilienceTestDefinition.enrichedProcessArtifact))
+        val extensions = listOf(createExtensionHoldingResponesMeasureValues(enrichedResilienceTestDefinition.responseMeasure))
 
-        val ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, method)
-        ctkChaosExperiment.secrets = secrets
-        ctkChaosExperiment.steadyStateHypothesis = steadyStateHypothesis
-        ctkChaosExperiment.rollbacks = rollbacks
-        ctkChaosExperiment.extensions = listOf(extension)
-
-        return ctkChaosExperiment
+        return CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, secrets, steadyStateHypothesis, method, rollbacks, extensions)
     }
 
     /**
@@ -94,7 +88,7 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
         return Secrets(authenticationSecret)
     }
 
-    private fun createActionToStartProcess(artifact: EnrichedArtifact): Action {
+    private fun createActionToStartProcess(artifact: EnrichedProcessArtifact): Action {
         val actionName = "start process " + (artifact.processId)
         val argumentsForFunction =  authenticationParameters + ("path" to artifact.processPath) + ("log_result_in_influx_db" to true)
         val actionProvider = Provider("python", "processStarting", "start_process_by_path", argumentsForFunction)
@@ -103,11 +97,11 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
     }
 
 
-    fun createSteadyStateHypothesisForUnaivalabilityStimulus(artifact: EnrichedArtifact): SteadyStateHypothesis {
+    fun createSteadyStateHypothesisForUnaivalabilityStimulus(artifact: EnrichedProcessArtifact): SteadyStateHypothesis {
         return SteadyStateHypothesis("Application is running", listOf(createProbeToLookIfProcessIsRunning(true, artifact)))
     }
 
-    fun createProbeToLookIfProcessIsRunning(isSteadyStateHypothesis: Boolean, artifact: EnrichedArtifact): Probe {
+    fun createProbeToLookIfProcessIsRunning(isSteadyStateHypothesis: Boolean, artifact: EnrichedProcessArtifact): Probe {
         val probeName = artifact.processId + " must be running"
         val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId) + ("log_result_in_influx_db" to true)
         val probeProvider = Provider("python", "processMonitoring", "check_process_exists",argumentsForFunction)
@@ -120,7 +114,7 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
     }
 
 
-    private fun createActionToKillProcess(artifact: EnrichedArtifact, stimulus: ResilienceStimulus): Action {
+    private fun createActionToKillProcess(artifact: EnrichedProcessArtifact, stimulus: ResilienceStimulus): Action {
         val actionName = "kill process " + artifact.processId
         val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId)
         val actionProvider = Provider("python", "processKilling", "kill_process_by_name", argumentsForFunction)
@@ -129,7 +123,7 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
         return Action(actionName, actionProvider, pauses)
     }
 
-    private fun createProbeToMonitorRecoveryTimeOfProcess(artifact: EnrichedArtifact, stimulus: ResilienceStimulus): Probe {
+    private fun createProbeToMonitorRecoveryTimeOfProcess(artifact: EnrichedProcessArtifact, stimulus: ResilienceStimulus): Probe {
         val probeName = "measure duration until process " + artifact.processId + " is eventually available again"
         val argumentsForFunction =  authenticationParameters + ("process_name" to artifact.processId) +  ("monitoring_duration_sec" to stimulus.experimentDurationSeconds) +  ("checking_interval_sec" to 0)
         val provider = Provider("python", "processMonitoring", "get_duration_until_process_started", argumentsForFunction)

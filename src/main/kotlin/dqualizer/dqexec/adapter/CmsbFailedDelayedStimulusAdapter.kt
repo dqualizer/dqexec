@@ -4,7 +4,7 @@ import io.github.dqualizer.dqlang.types.adapter.ctk.Action
 import io.github.dqualizer.dqlang.types.adapter.ctk.CtkChaosExperiment
 import io.github.dqualizer.dqlang.types.adapter.ctk.Pauses
 import io.github.dqualizer.dqlang.types.adapter.ctk.Provider
-import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedArtifact
+import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedCmsbArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.EnrichedResilienceTestDefinition
 import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.FailedRequestsStimulus
 import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.LateResponsesStimulus
@@ -14,40 +14,37 @@ import org.springframework.stereotype.Component
 @Component
 class CmsbFailedDelayedStimulusAdapter {
     fun createExperimentForLateResponsesStimulus(enrichedResilienceTestDefinition: EnrichedResilienceTestDefinition): CtkChaosExperiment {
-        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
-        val method = listOf(createActionToConfigureAssaultsForLateResponseStimulus(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus as LateResponsesStimulus),
-                createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact),
-                createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus))
-        val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
-        val ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, method)
-        ctkChaosExperiment.rollbacks = rollbacks
+        val method = listOf(createActionToConfigureAssaultsForLateResponseStimulus(enrichedResilienceTestDefinition.enrichedCmsbArtifact, enrichedResilienceTestDefinition.stimulus as LateResponsesStimulus),
+                createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.enrichedCmsbArtifact),
+                createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.enrichedCmsbArtifact, enrichedResilienceTestDefinition.stimulus))
+        val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.enrichedCmsbArtifact))
 
-        return ctkChaosExperiment
+        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
+        return CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, null, null, method, rollbacks, null)
     }
 
     fun createExperimentForFailedRequestsStimulus(enrichedResilienceTestDefinition: EnrichedResilienceTestDefinition): CtkChaosExperiment {
-        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
-        val method = listOf(createActionToConfigureAssaultsForFailedRequestStimulus(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus as FailedRequestsStimulus),
-                createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.artifact),
-                createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact, enrichedResilienceTestDefinition.stimulus),
+        val method = listOf(
+                createActionToConfigureAssaultsForFailedRequestStimulus(enrichedResilienceTestDefinition.enrichedCmsbArtifact, enrichedResilienceTestDefinition.stimulus as FailedRequestsStimulus),
+                createActionToChangeWatcherConfiguration(enrichedResilienceTestDefinition.enrichedCmsbArtifact),
+                createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.enrichedCmsbArtifact, enrichedResilienceTestDefinition.stimulus),
         )
-        val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.artifact))
-        val ctkChaosExperiment = CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, method)
-        ctkChaosExperiment.rollbacks = rollbacks
+        val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.enrichedCmsbArtifact))
 
-        return ctkChaosExperiment
+        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
+        return CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, null, null, method, rollbacks, null)
     }
 
-    private fun createActionToEnableChaosMonkeyForSpringBoot(artifact: EnrichedArtifact, stimulus: ResilienceStimulus): Action {
+    private fun createActionToEnableChaosMonkeyForSpringBoot(artifact: EnrichedCmsbArtifact, stimulus: ResilienceStimulus): Action {
         val actionName = "enable_chaosmonkey"
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}")
+        val argumentsForFunction = mapOf("base_url" to artifact.baseUrl)
         val provider = Provider("python", "chaosspring.actions", "enable_chaosmonkey", argumentsForFunction)
         val pauses = Pauses(stimulus.pauseBeforeTriggeringSeconds, stimulus.experimentDurationSeconds)
 
         return Action(actionName, provider, pauses)
     }
 
-    private fun createActionToConfigureAssaultsForLateResponseStimulus(artifact: EnrichedArtifact, stimulus: LateResponsesStimulus): Action {
+    private fun createActionToConfigureAssaultsForLateResponseStimulus(artifact: EnrichedCmsbArtifact, stimulus: LateResponsesStimulus): Action {
         val actionName = "configure_assaults"
         val assaultsConfiguration = object {
             val level: Int = stimulus.injectionFrequency
@@ -62,13 +59,13 @@ class CmsbFailedDelayedStimulusAdapter {
             val watchedCustomServices:List<String> = listOf(artifact.packageMember)
         }
 
-        val argumentsForFunction = mapOf("base_url" to "${artifact!!.baseUrl}", "assaults_configuration" to assaultsConfiguration)
+        val argumentsForFunction = mapOf("base_url" to artifact.baseUrl, "assaults_configuration" to assaultsConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
 
         return Action(actionName, provider)
     }
 
-    private fun createActionToConfigureAssaultsForFailedRequestStimulus(artifact: EnrichedArtifact, stimulus: FailedRequestsStimulus): Action {
+    private fun createActionToConfigureAssaultsForFailedRequestStimulus(artifact: EnrichedCmsbArtifact, stimulus: FailedRequestsStimulus): Action {
         val actionName = "configure_assaults"
 
         val assaultsConfiguration = object {
@@ -93,14 +90,14 @@ class CmsbFailedDelayedStimulusAdapter {
             val watchedCustomServices:List<String> = listOf(artifact.packageMember)
         }
 
-        val argumentsForFunction = mapOf("base_url" to "${artifact!!.baseUrl}", "assaults_configuration" to assaultsConfiguration)
+        val argumentsForFunction = mapOf("base_url" to artifact.baseUrl, "assaults_configuration" to assaultsConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
 
         return Action(actionName, provider)
     }
 
     // Also if the assaultConfiguration already adds a watched service, also the corresponding watcher needs to be enabled for the failure injection to work for the watchedCustomService
-    private fun createActionToChangeWatcherConfiguration(artifact: EnrichedArtifact): Action {
+    private fun createActionToChangeWatcherConfiguration(artifact: EnrichedCmsbArtifact): Action {
         val actionName = "configure_watchers"
         val watchersConfiguration = object {
             var controller: String = "false"
@@ -130,14 +127,14 @@ class CmsbFailedDelayedStimulusAdapter {
             "component" in artifact.packageMember.lowercase() -> watchersConfiguration.component = "true"
         }
 
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}", "watchers_configuration" to watchersConfiguration)
+        val argumentsForFunction = mapOf("base_url" to artifact.baseUrl, "watchers_configuration" to watchersConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_watchers_configuration", argumentsForFunction)
         return Action(actionName, provider)
     }
 
-    private fun createActionToDisableChaosMonkeyForSpringBoot(artifact: EnrichedArtifact): Action {
+    private fun createActionToDisableChaosMonkeyForSpringBoot(artifact: EnrichedCmsbArtifact): Action {
         val actionName = "disable_chaosmonkey"
-        val argumentsForFunction = mapOf("base_url" to "${artifact.baseUrl}")
+        val argumentsForFunction = mapOf("base_url" to artifact.baseUrl)
         val provider = Provider("python", "chaosspring.actions", "disable_chaosmonkey", argumentsForFunction)
 
         return Action(actionName, provider)
