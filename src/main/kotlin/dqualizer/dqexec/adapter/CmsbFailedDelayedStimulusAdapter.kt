@@ -19,8 +19,8 @@ class CmsbFailedDelayedStimulusAdapter {
                 createActionToEnableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.enrichedCmsbArtifact, enrichedResilienceTestDefinition.stimulus))
         val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.enrichedCmsbArtifact))
 
-        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
-        return CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, null, null, method, rollbacks, null)
+        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet, we use ctk default runtime configurations
+        return CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, null, null, method, rollbacks, null, null)
     }
 
     fun createExperimentForFailedRequestsStimulus(enrichedResilienceTestDefinition: EnrichedResilienceTestDefinition): CtkChaosExperiment {
@@ -31,8 +31,8 @@ class CmsbFailedDelayedStimulusAdapter {
         )
         val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(enrichedResilienceTestDefinition.enrichedCmsbArtifact))
 
-        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet
-        return CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, null, null, method, rollbacks, null)
+        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet, we use ctk default runtime configurations
+        return CtkChaosExperiment(enrichedResilienceTestDefinition.name, enrichedResilienceTestDefinition.description, null, null, method, rollbacks, null, null)
     }
 
     private fun createActionToEnableChaosMonkeyForSpringBoot(artifact: EnrichedCmsbArtifact, stimulus: ResilienceStimulus): Action {
