@@ -1,9 +1,6 @@
 package dqualizer.dqexec.adapter
 
-
-
 import io.github.dqualizer.dqlang.types.adapter.ctk.*
-import dqualizer.dqexec.config.StartupConfig
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.ResilienceTestConfiguration
 import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.FailedRequestsStimulus
 import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.LateResponsesStimulus
@@ -14,10 +11,8 @@ import org.springframework.stereotype.Component
  * Adapts a resilience test configuration to CTK tests
  * */
 @Component
-class CtkAdapter(private val startupConfig: StartupConfig, private val processUnavailabilityAdapter: ProcessUnavailabilityAdapter, private val cmsbFailedDelayedStimulusAdapter: CmsbFailedDelayedStimulusAdapter)
+class CtkAdapter(private val processUnavailabilityAdapter: ProcessUnavailabilityAdapter, private val cmsbFailedDelayedStimulusAdapter: CmsbFailedDelayedStimulusAdapter)
 {
-
-
     fun adapt(resilienceTestConfig: ResilienceTestConfiguration): CtkConfiguration {
         val ctkChaosExperiments = LinkedHashSet<CtkChaosExperiment>()
         for (enrichedResilienceTestDefinition in resilienceTestConfig.enrichedResilienceTestDefinitions) {
@@ -38,13 +33,4 @@ class CtkAdapter(private val startupConfig: StartupConfig, private val processUn
         }
         return CtkConfiguration(resilienceTestConfig.context, ctkChaosExperiments)
     }
-
-
-
-
-
-
-
-
-
 }

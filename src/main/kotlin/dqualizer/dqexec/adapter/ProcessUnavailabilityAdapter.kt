@@ -2,6 +2,7 @@ package dqualizer.dqexec.adapter
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import dqualizer.dqexec.config.StartupConfig
 import dqualizer.dqexec.exception.UnknownTermException
 import io.github.dqualizer.dqlang.types.adapter.constants.resilienceTesting.ResilienceTestConstants
 import io.github.dqualizer.dqlang.types.adapter.ctk.*
@@ -13,7 +14,7 @@ import io.github.dqualizer.dqlang.types.rqa.definition.resiliencetest.stimulus.R
 import org.springframework.stereotype.Component
 
 @Component
-class ProcessUnavailabilityAdapter(private val resilienceTestConstants: ResilienceTestConstants) {
+class ProcessUnavailabilityAdapter(private val startupConfig: StartupConfig, private val resilienceTestConstants: ResilienceTestConstants) {
 
     // $ pointers are used to reference the secretes defined in the top-level of the experiment definition
     val authenticationParameters = mapOf("db_username" to "\${db_username}", "db_password" to "\${db_password}", "username" to "\${username}", "password" to "\${password}")
@@ -83,10 +84,10 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
      */
     private fun createTopLevelSecrets(): Secrets {
         // hardcoded secrets to enable authentication in python scripts against per default configured credentials in mySql
-        val dbUsername = "aDBUser"
-        val dbPassword = "aDBPw"
-        val username = "demoUser"
-        val password = "demo"
+        val dbUsername = startupConfig.getDbUsername()
+        val dbPassword = startupConfig.getDbPassword()
+        val username = startupConfig.getUsername()
+        val password = startupConfig.getPassword()
         val authenticationSecret = AuthenticationSecret(username, password, dbUsername, dbPassword)
         return Secrets(authenticationSecret)
     }
