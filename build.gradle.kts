@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val dqlangVersion = "3.1.5-SNAPSHOT"
+val dqlangVersion = "3.1.7-SNAPSHOT"
 
 plugins {
     kotlin("jvm") version "1.9.23"

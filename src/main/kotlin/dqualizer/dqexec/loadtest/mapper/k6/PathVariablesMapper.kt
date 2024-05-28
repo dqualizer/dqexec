@@ -12,9 +12,9 @@ class PathVariablesMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
   override fun map(request: Request): String {
     val pathVariablesBuilder = StringBuilder()
     val pathVariables = request.pathVariables!!
-    val reference = pathVariables.values.first()
+    val reference = pathVariables.values.firstOrNull()
 
-    if (reference.isEmpty()) {
+    if (reference.isNullOrEmpty()) {
       return String.format("%sconst path_variables = {}%s", K6Mapper.newLine, K6Mapper.newLine)
     }
     val pathVariablesString = resourcePaths.readResourceFile(reference)

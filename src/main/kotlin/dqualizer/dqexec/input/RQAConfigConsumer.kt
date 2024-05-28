@@ -23,7 +23,6 @@ class RQAConfigConsumer(
         log.debug { "${"Received an RQA Configuration: {}"} $rqaConfiguration" }
 
         try {
-            // TODO is this real async ???
             if(rqaConfiguration.loadConfiguration.loadTestArtifacts!!.isNotEmpty()) {
                 log.debug { "Applying load tests" }
                 Thread({ applyLoadTest(rqaConfiguration) }, "Load-Test-Thread").start()

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component
 class ParamsMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
   override fun map(request: Request): String {
     val params: Map<String, String> = request.params!!
-    val path = params.values.first()
+    val path = params.values.firstOrNull()
 
-    if (path.isEmpty()) {
+    if (path.isNullOrEmpty()) {
       return String.format("%sconst params = {}%s", K6Mapper.newLine, K6Mapper.newLine)
     }
 

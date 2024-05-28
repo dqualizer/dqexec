@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component
 class PayloadMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
   override fun map(request: Request): String {
     val payload = request.payload!!
-    val reference = payload.values.first()
+    val reference = payload.values.firstOrNull()
 
-    if (reference.isEmpty()) {
+    if (reference.isNullOrEmpty()) {
       return String.format("%sconst payloadData = {}%s", K6Mapper.newLine, K6Mapper.newLine)
     }
 

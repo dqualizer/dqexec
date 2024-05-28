@@ -25,25 +25,23 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
   fun adaptEndpoint(endpoint: RESTEndpoint, responseMeasure: ResponseMeasures): Request {
     val field = endpoint.route
     val path = markPathVariables(field)
-    val type = endpoint.methods.first().name()
+    val type = endpoint.methods.first().name
 
     val parameter = endpoint.parameter
-    val pathVariables = parameter.first { it.equals(EndpointParameterType.PathVariable) }
-    val queryParams = parameter.first { it.equals(EndpointParameterType.QueryParameter) }
-    val params = parameter.first { it.equals(EndpointParameterType.Header) }
-    val payload = parameter.first { it.equals(EndpointParameterType.RequestBody) }
+    val pathVariables = parameter.firstOrNull { it.equals(EndpointParameterType.PathVariable) }
+    val queryParams = parameter.firstOrNull { it.equals(EndpointParameterType.QueryParameter) }
+    val params = parameter.firstOrNull { it.equals(EndpointParameterType.Header) }
+    val payload = parameter.firstOrNull { it.equals(EndpointParameterType.RequestBody) }
 
     val duration: Int = this.getDuration(responseMeasure)
     val statusCodes = getStatusCodes(endpoint)
     val checks = Checks(statusCodes, duration)
 
-    return Request(type, path, convertSet(pathVariables), convertSet(queryParams), convertSet(params), convertSet(payload), checks)
+    return Request(type, path, convertToMap(pathVariables), convertToMap(queryParams), convertToMap(params), convertToMap(payload), checks)
   }
 
-  /**
-   * Temporary helper function to convert inconvenient data type
-   */
-  private fun convertSet(parameter: EndpointParameter): Map<String,String> {
+  private fun convertToMap(parameter: EndpointParameter?): Map<String,String> {
+    if(parameter == null) return emptyMap()
     return mapOf(parameter.type.toString() to parameter.data!!)
   }
 

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component
 class QueryParamsMapper(private val paths: ResourcePaths) : K6Mapper {
   override fun map(request: Request): String {
     val queryParams = request.queryParams!!
-    val reference = queryParams.values.first()
+    val reference = queryParams.values.firstOrNull()
 
-    if (reference.isEmpty()) {
+    if (reference.isNullOrEmpty()) {
       return """
             const queryParams = {}
             const searchParams = {}
