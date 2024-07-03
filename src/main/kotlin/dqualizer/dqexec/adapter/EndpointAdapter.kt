@@ -37,11 +37,19 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
     val statusCodes = getStatusCodes(endpoint)
     val checks = Checks(statusCodes, duration)
 
-    return Request(type, path, convertToMap(pathVariables), convertToMap(queryParams), convertToMap(params), convertToMap(payload), checks)
+    return Request(
+      type,
+      path,
+      convertToMap(pathVariables),
+      convertToMap(queryParams),
+      convertToMap(params),
+      convertToMap(payload),
+      checks
+    )
   }
 
-  private fun convertToMap(parameter: EndpointParameter?): Map<String,String> {
-    if(parameter == null) return emptyMap()
+  private fun convertToMap(parameter: EndpointParameter?): Map<String, String> {
+    if (parameter == null) return emptyMap()
     return mapOf(parameter.type.toString() to parameter.data!!)
   }
 

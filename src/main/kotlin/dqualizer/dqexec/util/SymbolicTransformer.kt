@@ -12,10 +12,12 @@ class SymbolicTransformer(private val loadTestConstants: LoadTestConstants) {
 
   fun calculateValue(symbolicValue: SymbolicValue): Number {
     return when (symbolicValue) {
-        is SymbolicIntValue ->
-          calculateIntValue(symbolicValue)
-        is SymbolicDoubleValue ->
-          calculateDoubleValue(symbolicValue)
+      is SymbolicIntValue ->
+        calculateIntValue(symbolicValue)
+
+      is SymbolicDoubleValue ->
+        calculateDoubleValue(symbolicValue)
+
       else ->
         throw RuntimeException(symbolicValue.javaClass.name)
     }

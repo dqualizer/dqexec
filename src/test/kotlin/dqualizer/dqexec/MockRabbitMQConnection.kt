@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class MockRabbitMQConnection {
-    @Bean
-    fun connectionFactory(): ConnectionFactory {
-        return CachingConnectionFactory(MockConnectionFactory())
-    }
+  @Bean
+  fun connectionFactory(): ConnectionFactory {
+    return CachingConnectionFactory(MockConnectionFactory())
+  }
 }

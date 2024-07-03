@@ -4,6 +4,6 @@ import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.ServiceMoni
 
 
 data class InspectItOcelotInstrumentationPlan(
-    val instrumentationDefinition: ServiceMonitoringConfiguration,
-    val inspectItConfiguration: String,
-    )
+  val instrumentationDefinition: ServiceMonitoringConfiguration,
+  val inspectItConfiguration: String,
+)

@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class DqexecApplication
 
 fun main(args: Array<String>) {
-    runApplication<DqexecApplication>(*args)
+  runApplication<DqexecApplication>(*args)
 }

@@ -39,14 +39,17 @@ class StimulusAdapter(
         scenario = getLoadPeakScenario(loadProfile)
         scenarios = Scenarios(scenario)
       }
+
       is LoadIncrease -> {
         scenario = getLoadIncreaseScenario(loadProfile)
         scenarios = Scenarios(scenario)
       }
+
       is ConstantLoad -> {
         scenario = getConstantLoadScenario(loadProfile, accuracy)
         scenarios = Scenarios(scenario)
       }
+
       else -> {
         throw UnknownTermException(stimulus::class.java.name)
       }
@@ -67,7 +70,8 @@ class StimulusAdapter(
 
     val adaptedHighestLoad = symbolicTransformer.calculateTimeUnit(highestLoad, TimeUnitType.LOAD).toInt()
     val adaptedDuration = symbolicTransformer.calculateTimeUnit(timeToHighestLoad, TimeUnitType.LOAD).toString()
-    val adaptedConstantDuration = symbolicTransformer.calculateTimeUnit(constantDuration, TimeUnitType.DURATION).toString()
+    val adaptedConstantDuration =
+      symbolicTransformer.calculateTimeUnit(constantDuration, TimeUnitType.DURATION).toString()
     val coolDownDuration = loadTestConstants.technicalConstants.coolDownDuration.toString()
 
     val stage1 = Stage(adaptedDuration, adaptedHighestLoad)
@@ -114,8 +118,10 @@ class StimulusAdapter(
    * @param exponent How fast should the amount of users increase
    * @return An ordered set of stages
    */
-  private fun getPeakStages(startTarget: Int, endTarget: Int, exponent: Int, testDurationString: String,
-                            numberOfStages: Int): LinkedHashSet<Stage> {
+  private fun getPeakStages(
+    startTarget: Int, endTarget: Int, exponent: Int, testDurationString: String,
+    numberOfStages: Int
+  ): LinkedHashSet<Stage> {
     val stages = LinkedHashSet<Stage>()
     val stageDurationString: String = computeStageDurationString(testDurationString, numberOfStages)
     val loadCurve =
@@ -144,7 +150,7 @@ class StimulusAdapter(
     return stages
   }
 
-  private fun computeStageDurationString(testDurationString: String, numberOfStages: Int, ): String {
+  private fun computeStageDurationString(testDurationString: String, numberOfStages: Int): String {
     val testDuration = convertToTimeString(testDurationString)
     val testDurationSeconds = testDuration.seconds
     val testDurationNanos = testDuration.nano

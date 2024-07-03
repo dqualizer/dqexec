@@ -7,11 +7,11 @@ import dqualizer.dqexec.exception.RunnerFailedException
 import dqualizer.dqexec.loadtest.mapper.k6.ScriptMapper
 import dqualizer.dqexec.util.ProcessLogger
 import io.github.dqualizer.dqlang.types.adapter.k6.K6Configuration
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 import java.io.IOException
 import java.nio.file.Path
 import java.util.logging.Logger
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Service
 
 /**
  * The execution of an inoffical k6 configuration consists of 4 steps:
@@ -29,7 +29,7 @@ class K6Runner(
   private val k6ExecutionConfiguration: K6ExecutorConfiguration,
   @Value("\${dqualizer.dqexec.docker.localhost_replacement:}")
   private val alternativeTargetHost: String,
-  @Value("\${dqualizer.dqexec.influx.host:localhost}") private val influxHost: String,
+  @Value("\${dqualizer.dqexec.influx.url:http://localhost:8086}") private val influxUrl: String,
 ) {
   private val log = Logger.getLogger(this.javaClass.name)
 
@@ -119,13 +119,13 @@ class K6Runner(
    */
   @Throws(IOException::class, InterruptedException::class)
   private fun runTest(scriptPath: Path, testCounter: Int, runCounter: Int): Int {
-    val command = "k6 run $scriptPath --out xk6-influxdb=http://$influxHost:8086"
+    val command = "k6 run $scriptPath --out xk6-influxdb=$influxUrl"
 
     val env = arrayOf(
-        "K6_INFLUXDB_ORGANIZATION=${k6ExecutionConfiguration.influxdbOrganization}",
-        "K6_INFLUXDB_BUCKET=${k6ExecutionConfiguration.influxdbBucket}",
-        "K6_INFLUXDB_TOKEN=${k6ExecutionConfiguration.influxdbToken}",
-      )
+      "K6_INFLUXDB_ORGANIZATION=${k6ExecutionConfiguration.influxdbOrganization}",
+      "K6_INFLUXDB_BUCKET=${k6ExecutionConfiguration.influxdbBucket}",
+      "K6_INFLUXDB_TOKEN=${k6ExecutionConfiguration.influxdbToken}",
+    )
 
     log.info(
       """

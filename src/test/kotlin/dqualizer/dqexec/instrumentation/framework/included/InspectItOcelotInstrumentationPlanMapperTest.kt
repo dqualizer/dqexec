@@ -14,23 +14,23 @@ import java.lang.reflect.Field
 class InspectItOcelotInstrumentationPlanMapperTest {
 
 
-    @Test
-    fun tryLoading() {
-        val easyRandom =
-            EasyRandom(EasyRandomParameters().randomize({ field: Field -> field.name.equals("location") }) {
-                   InstrumentLocation("derp.java",  "derp.nonexisting.com#IAmAMethodName")
-            })
-        val serviceMonitoringConfiguration = easyRandom.nextObject(ServiceMonitoringConfiguration::class.java)
+  @Test
+  fun tryLoading() {
+    val easyRandom =
+      EasyRandom(EasyRandomParameters().randomize({ field: Field -> field.name.equals("location") }) {
+        InstrumentLocation("derp.java", "derp.nonexisting.com#IAmAMethodName")
+      })
+    val serviceMonitoringConfiguration = easyRandom.nextObject(ServiceMonitoringConfiguration::class.java)
 //
 //        val objectMapper = ObjectMapper(YAMLFactory())
 //        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
-        val mapper = InspectItOcelotInstrumentationPlanMapper()
-        val dst = DomainStory(emptyList(), emptyList(), emptyList())
-        val system = SoftwareSystem("Dummy", Environment.TEST, emptyList(), emptyList())
-        val dam = DomainArchitectureMapping(system, dst)
+    val mapper = InspectItOcelotInstrumentationPlanMapper()
+    val dst = DomainStory(emptyList(), emptyList(), emptyList())
+    val system = SoftwareSystem("Dummy", Environment.TEST, emptyList(), emptyList())
+    val dam = DomainArchitectureMapping(system, dst)
 
-        val instrumentationPlan = mapper.map(serviceMonitoringConfiguration, dam)
-        println(instrumentationPlan.inspectItConfiguration)
+    val instrumentationPlan = mapper.map(serviceMonitoringConfiguration, dam)
+    println(instrumentationPlan.inspectItConfiguration)
 
-    }
+  }
 }

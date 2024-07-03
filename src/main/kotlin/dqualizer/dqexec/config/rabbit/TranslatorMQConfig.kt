@@ -14,23 +14,23 @@ import org.springframework.context.annotation.Configuration
  */
 @Configuration
 class TranslatorMQConfig {
-    @Bean
-    @Qualifier("loadtest")
-    fun loadTestExchange(
-        @Value("\${dqualizer.rabbitmq.exchanges.loadtest}") loadtestExchange: String?
-    ): TopicExchange {
-        return TopicExchange(loadtestExchange)
-    }
+  @Bean
+  @Qualifier("loadtest")
+  fun loadTestExchange(
+    @Value("\${dqualizer.rabbitmq.exchanges.loadtest}") loadtestExchange: String?
+  ): TopicExchange {
+    return TopicExchange(loadtestExchange)
+  }
 
-    @Bean
-    @Qualifier("loadtest")
-    fun loadTestQueue(@Value("\${dqualizer.rabbitmq.queues.loadtest}") loadtestQueue: String?): Queue {
-        return Queue(loadtestQueue, false)
-    }
+  @Bean
+  @Qualifier("loadtest")
+  fun loadTestQueue(@Value("\${dqualizer.rabbitmq.queues.loadtest}") loadtestQueue: String?): Queue {
+    return Queue(loadtestQueue, false)
+  }
 
-    @Bean
-    @Qualifier("loadtest")
-    fun loadTestBinding(loadTestQueue: Queue?, loadTestExchange: TopicExchange?): Binding {
-        return BindingBuilder.bind(loadTestQueue).to(loadTestExchange).with("GET")
-    }
+  @Bean
+  @Qualifier("loadtest")
+  fun loadTestBinding(loadTestQueue: Queue?, loadTestExchange: TopicExchange?): Binding {
+    return BindingBuilder.bind(loadTestQueue).to(loadTestExchange).with("GET")
+  }
 }

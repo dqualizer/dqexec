@@ -1,7 +1,7 @@
 ---
 inspectit:
-#  self-monitoring:
-#    action-tracing: ALL_WITHOUT_DEFAULT
+  #  self-monitoring:
+  #    action-tracing: ALL_WITHOUT_DEFAULT
   logging:
     debug: false
   tracing:
@@ -30,7 +30,7 @@ inspectit:
               'measurement_name': true
           '[value_inspection/hist]':
             aggregation: HISTOGRAM
-            bucket-boundaries: [1,2,4,8,16]
+            bucket-boundaries: [ 1,2,4,8,16 ]
             tags:
               'context': true
               'component': true

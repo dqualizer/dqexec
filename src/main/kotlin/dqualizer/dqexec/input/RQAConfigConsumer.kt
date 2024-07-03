@@ -12,45 +12,45 @@ import org.springframework.messaging.handler.annotation.Payload
 
 @Configuration
 class RQAConfigConsumer(
-    private val monitoring: Monitoring,
-    private val adaptationService: K6AdaptationService
+  private val monitoring: Monitoring,
+  private val adaptationService: K6AdaptationService
 ) {
 
-    private val log = KotlinLogging.logger {}
+  private val log = KotlinLogging.logger {}
 
-    @RabbitListener(queues = ["\${dqualizer.messaging.queues.rqaDefinitionReceiverQueue.name}"])
-    fun receive(@Payload rqaConfiguration: RQAConfiguration, @Headers headers: MessageHeaders) {
-        log.debug { "${"Received an RQA Configuration: {}"} $rqaConfiguration" }
+  @RabbitListener(queues = ["\${dqualizer.messaging.queues.rqaDefinitionReceiverQueue.name}"])
+  fun receive(@Payload rqaConfiguration: RQAConfiguration, @Headers headers: MessageHeaders) {
+    log.debug { "${"Received an RQA Configuration: {}"} $rqaConfiguration" }
 
-        try {
-            if(rqaConfiguration.loadConfiguration.loadTestArtifacts!!.isNotEmpty()) {
-                log.debug { "Applying load tests" }
-                Thread({ applyLoadTest(rqaConfiguration) }, "Load-Test-Thread").start()
-            }
+    try {
+      if (rqaConfiguration.loadConfiguration.loadTestArtifacts!!.isNotEmpty()) {
+        log.debug { "Applying load tests" }
+        Thread({ applyLoadTest(rqaConfiguration) }, "Load-Test-Thread").start()
+      }
 
-            if(rqaConfiguration.monitoringConfiguration.serviceMonitoringConfigurations.isNotEmpty()) {
-                log.debug { "Applying monitoring" }
-                Thread({ applyMonitoring(rqaConfiguration) }, "Monitoring-Thread").start()
-            }
-            // TODO Resilience testing
-        } catch (e: Exception) {
-            log.error { "Applying RQA failed: $e" }
-            throw RuntimeException(e)
-        }
+      if (rqaConfiguration.monitoringConfiguration.serviceMonitoringConfigurations.isNotEmpty()) {
+        log.debug { "Applying monitoring" }
+        Thread({ applyMonitoring(rqaConfiguration) }, "Monitoring-Thread").start()
+      }
+      // TODO Resilience testing
+    } catch (e: Exception) {
+      log.error { "Applying RQA failed: $e" }
+      throw RuntimeException(e)
     }
+  }
 
-    private fun applyLoadTest(rqaConfiguration: RQAConfiguration) {
-        // TODO Condition to choose load testing tool
-        adaptationService.adaptToK6(rqaConfiguration.loadConfiguration)
+  private fun applyLoadTest(rqaConfiguration: RQAConfiguration) {
+    // TODO Condition to choose load testing tool
+    adaptationService.adaptToK6(rqaConfiguration.loadConfiguration)
 
-        //adaptationService.adaptToGatling(rqaConfiguration.loadConfiguration)
-    }
+    //adaptationService.adaptToGatling(rqaConfiguration.loadConfiguration)
+  }
 
-    private fun applyMonitoring(rqaConfiguration: RQAConfiguration) {
-        monitoring.apply(rqaConfiguration.monitoringConfiguration, rqaConfiguration.context)
-    }
+  private fun applyMonitoring(rqaConfiguration: RQAConfiguration) {
+    monitoring.apply(rqaConfiguration.monitoringConfiguration, rqaConfiguration.context)
+  }
 
-    private fun applyResilienceTest(rqaConfiguration: RQAConfiguration) {
-        // TODO
-    }
+  private fun applyResilienceTest(rqaConfiguration: RQAConfiguration) {
+    // TODO
+  }
 }

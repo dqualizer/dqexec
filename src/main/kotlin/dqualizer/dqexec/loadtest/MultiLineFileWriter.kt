@@ -1,9 +1,9 @@
 package dqualizer.dqexec.loadtest
 
+import org.springframework.stereotype.Component
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import org.springframework.stereotype.Component
 
 /** Writes a k6-script */
 @Component
@@ -17,7 +17,7 @@ class MultiLineFileWriter {
    * @throws IOException
    */
   @Throws(IOException::class)
-  fun write(lines: List<String>, outputFile: File, ) {
+  fun write(lines: List<String>, outputFile: File) {
     // Create the file and parent directories
     outputFile.parentFile.mkdirs()
     outputFile.createNewFile()

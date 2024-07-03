@@ -1,7 +1,6 @@
 server:
   port: 8090
 
-
 dqualizer:
   rabbitmq:
     queues:
@@ -14,7 +13,7 @@ dqualizer:
   messaging:
     queues:
       rqaDefinitionReceiverQueue:
-        name: 'rqaConfiguration'
+        name: "rqaConfiguration"
 
   dqexec:
     influx:
@@ -26,11 +25,3 @@ dqualizer:
           organization: ${K6_INFLUXDB_ORGANIZATION:my-org}
           bucket: ${K6_INFLUXDB_BUCKET:my-bucket}
           token: ${K6_INFLUXDB_TOKEN:specialToken000}
-
-spring:
-  data:
-    mongodb:
-      host: 127.0.0.1
-      port: 27017
-      database: dqualizer
-

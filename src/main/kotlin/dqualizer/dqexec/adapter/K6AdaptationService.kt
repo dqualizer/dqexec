@@ -2,8 +2,6 @@ package dqualizer.dqexec.adapter
 
 import dqualizer.dqexec.loadtest.K6Runner
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
-import org.springframework.amqp.rabbit.annotation.RabbitListener
-import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
 import java.util.logging.Logger
 

@@ -10,16 +10,16 @@ import org.springframework.stereotype.Service
 @Service
 interface IRuntimeServiceInstrumenter : Plugin<String> {
 
-    fun instrument(
-        dam: DomainArchitectureMapping,
-        targetService: ServiceDescription,
-        serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
-        platformAccessor: RuntimePlatformAccessor
-    )
+  fun instrument(
+    dam: DomainArchitectureMapping,
+    targetService: ServiceDescription,
+    serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
+    platformAccessor: RuntimePlatformAccessor
+  )
 
-    fun deinstrument(
-        targetService: ServiceDescription,
-        serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
-        platformAccessor: RuntimePlatformAccessor
-    )
+  fun deinstrument(
+    targetService: ServiceDescription,
+    serviceMonitoringConfiguration: ServiceMonitoringConfiguration,
+    platformAccessor: RuntimePlatformAccessor
+  )
 }

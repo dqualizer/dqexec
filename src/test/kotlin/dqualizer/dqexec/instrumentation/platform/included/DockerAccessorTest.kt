@@ -14,48 +14,48 @@ private const val TestImageName = "ghcr.io/dqualizer/dqexec"
 private const val AccessorType = "Docker"
 
 class DockerAccessorTest {
-    companion object {
-        val dqexecContainer = GenericContainer<Nothing>(TestImageName)
-            .apply {
-                withCreateContainerCmdModifier { cmd -> cmd.withName(ContainerName) }
-                start()
-            }
-    }
+  companion object {
+    val dqexecContainer = GenericContainer<Nothing>(TestImageName)
+      .apply {
+        withCreateContainerCmdModifier { cmd -> cmd.withName(ContainerName) }
+        start()
+      }
+  }
 
-    @Test
-    fun canConnectToContainer() {
-        val serviceDescription = mock(ServiceDescription::class.java)
-        Mockito.`when`(serviceDescription.getDeploymentName()).thenReturn(ContainerName)
+  @Test
+  fun canConnectToContainer() {
+    val serviceDescription = mock(ServiceDescription::class.java)
+    Mockito.`when`(serviceDescription.getDeploymentName()).thenReturn(ContainerName)
 
-        val accessor = DockerContainerAccessor()
+    val accessor = DockerContainerAccessor()
 
-        accessor.setup(serviceDescription, RuntimePlatform("1", AccessorType, null))
-        accessor.connect()
-    }
+    accessor.setup(serviceDescription, RuntimePlatform("1", AccessorType, null))
+    accessor.connect()
+  }
 
-    @Test
-    fun canDisconnectFromContainer() {
-        val serviceDescription = mock(ServiceDescription::class.java)
-        Mockito.`when`(serviceDescription.getDeploymentName()).thenReturn(ContainerName)
+  @Test
+  fun canDisconnectFromContainer() {
+    val serviceDescription = mock(ServiceDescription::class.java)
+    Mockito.`when`(serviceDescription.getDeploymentName()).thenReturn(ContainerName)
 
-        val accessor = DockerContainerAccessor()
-        accessor.setup(serviceDescription, RuntimePlatform("1", AccessorType, null))
-        accessor.connect()
-        accessor.disconnect()
-    }
+    val accessor = DockerContainerAccessor()
+    accessor.setup(serviceDescription, RuntimePlatform("1", AccessorType, null))
+    accessor.connect()
+    accessor.disconnect()
+  }
 
 
-    @Test
-    fun canRetrievePID() {
-        val serviceDescription = mock(ServiceDescription::class.java)
-        Mockito.`when`(serviceDescription.getDeploymentName()).thenReturn(ContainerName)
+  @Test
+  fun canRetrievePID() {
+    val serviceDescription = mock(ServiceDescription::class.java)
+    Mockito.`when`(serviceDescription.getDeploymentName()).thenReturn(ContainerName)
 
-        val accessor = DockerContainerAccessor()
-        accessor.setup(serviceDescription, RuntimePlatform("1", AccessorType, null))
+    val accessor = DockerContainerAccessor()
+    accessor.setup(serviceDescription, RuntimePlatform("1", AccessorType, null))
 
-        val targetProcessID = accessor.getTargetProcessID("java")
-        Assertions.assertNotNull(targetProcessID)
-        Assertions.assertTrue(targetProcessID > 0)
-    }
+    val targetProcessID = accessor.getTargetProcessID("java")
+    Assertions.assertNotNull(targetProcessID)
+    Assertions.assertTrue(targetProcessID > 0)
+  }
 
 }

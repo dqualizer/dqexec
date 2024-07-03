@@ -14,27 +14,27 @@ import org.springframework.context.annotation.Configuration
  */
 @Configuration
 class K6MQConfig {
-    @Bean
-    @Qualifier("k6")
-    fun k6Exchange(@Value("\${dqualizer.rabbitmq.exchanges.k6}") k6Exchange: String?): TopicExchange {
-        return TopicExchange(k6Exchange)
-    }
+  @Bean
+  @Qualifier("k6")
+  fun k6Exchange(@Value("\${dqualizer.rabbitmq.exchanges.k6}") k6Exchange: String?): TopicExchange {
+    return TopicExchange(k6Exchange)
+  }
 
-    @Bean
-    @Qualifier("k6")
-    fun k6Queue(@Value("\${dqualizer.rabbitmq.queues.k6}") k6Queue: String?): Queue {
-        return Queue(k6Queue, false)
-    }
+  @Bean
+  @Qualifier("k6")
+  fun k6Queue(@Value("\${dqualizer.rabbitmq.queues.k6}") k6Queue: String?): Queue {
+    return Queue(k6Queue, false)
+  }
 
-    @Bean
-    @Qualifier("k6")
-    fun k6POSTBinding(k6Queue: Queue?, k6Exchange: TopicExchange?): Binding {
-        return BindingBuilder.bind(k6Queue).to(k6Exchange).with("POST")
-    }
+  @Bean
+  @Qualifier("k6")
+  fun k6POSTBinding(k6Queue: Queue?, k6Exchange: TopicExchange?): Binding {
+    return BindingBuilder.bind(k6Queue).to(k6Exchange).with("POST")
+  }
 
-    @Bean
-    @Qualifier("k6")
-    fun k6GETBinding(k6Queue: Queue?, k6Exchange: TopicExchange?): Binding {
-        return BindingBuilder.bind(k6Queue).to(k6Exchange).with("GET")
-    }
+  @Bean
+  @Qualifier("k6")
+  fun k6GETBinding(k6Queue: Queue?, k6Exchange: TopicExchange?): Binding {
+    return BindingBuilder.bind(k6Queue).to(k6Exchange).with("GET")
+  }
 }

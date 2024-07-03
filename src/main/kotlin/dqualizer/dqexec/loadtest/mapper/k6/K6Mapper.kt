@@ -14,8 +14,10 @@ interface K6Mapper {
   fun map(request: Request): String
 
   companion object {
-    @JvmField val newLine = System.lineSeparator()
+    @JvmField
+    val newLine = System.lineSeparator()
 
-    @JvmField val objectMapper = ObjectMapper()
+    @JvmField
+    val objectMapper = ObjectMapper()
   }
 }

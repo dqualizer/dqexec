@@ -3,7 +3,6 @@ package dqualizer.dqexec.adapter
 import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.k6.K6Configuration
 import io.github.dqualizer.dqlang.types.adapter.k6.K6LoadTest
-import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
 import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.Stimulus
 import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.loadprofile.ConstantLoad
@@ -28,7 +27,7 @@ class K6Adapter(
   fun adapt(loadTestConfig: LoadTestConfiguration): K6Configuration {
     val name = loadTestConfig.context
     val baseURL = loadTestConfig.baseURL
-    val loadTestArtifacts: Set<LoadTestArtifact> = loadTestConfig.loadTestArtifacts!!
+    val loadTestArtifacts = loadTestConfig.loadTestArtifacts!!
     val k6LoadTests = LinkedHashSet<K6LoadTest>()
 
     for (loadTest in loadTestArtifacts) {

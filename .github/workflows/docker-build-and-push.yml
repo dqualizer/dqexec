@@ -2,12 +2,12 @@ name: Create and publish a Docker image
 
 on:
   push:
-    branches: ["**"] # run for any commit or tag push on any branch
-    tags-ignore: ["v**"] # reserve v* tags for releases
+    branches: [ "**" ] # run for any commit or tag push on any branch
+    tags-ignore: [ "v**" ] # reserve v* tags for releases
   pull_request:
-    types: [opened, ready_for_review] # only trigger when PR is opened or set on ready_for_review
+    types: [ opened, ready_for_review ] # only trigger when PR is opened or set on ready_for_review
   release:
-    types: [published] # will use tag name regardless of naming
+    types: [ published ] # will use tag name regardless of naming
 
 env:
   REGISTRY: ghcr.io

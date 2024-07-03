@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.config.ResourcePaths
 import dqualizer.dqexec.exception.UnknownRequestTypeException
 import io.github.dqualizer.dqlang.types.adapter.k6.request.Request
-import java.util.Locale
 import org.springframework.stereotype.Component
+import java.util.*
 
 /** Maps the specified request to a k6 'default function()' */
 @Component
@@ -55,12 +55,10 @@ class HttpMapper(private val resourcePaths: ResourcePaths) : K6Mapper {
           httpBuilder.append(randomQueryParamScript())
           httpBuilder.append(randomPayloadScript())
           " + `?\${urlSearchParams.toString()}`, JSON.stringify(payload)"
-        }
-        else if (payload.isNotEmpty()) {
+        } else if (payload.isNotEmpty()) {
           httpBuilder.append(randomPayloadScript())
           ", JSON.stringify(payload)"
-        }
-        else {
+        } else {
           httpBuilder.append(randomQueryParamScript())
           " + `?\${urlSearchParams.toString()}`"
         }
