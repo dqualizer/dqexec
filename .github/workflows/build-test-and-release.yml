@@ -86,7 +86,7 @@ jobs:
             user: ${{ github.repository_owner }}
             secret: GITHUB_TOKEN
         image:
-          - name: dqualizer/dqapi
+          - name: dqualizer/dqexec
 
     needs:
       - build
