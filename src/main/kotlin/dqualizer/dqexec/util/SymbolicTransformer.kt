@@ -27,18 +27,18 @@ class SymbolicTransformer(private val loadTestConstants: LoadTestConstants) {
     val longValue = value.toLong()
     return when (type) {
       TimeUnitType.LOAD -> {
-        val timeUnit: TimeUnit = loadTestConstants.symbolics.load.timeUnit
+        val timeUnit = loadTestConstants.symbolics.load.timeUnit
         // Since load uses the timeUnit in the denominator (for example user/SECONDS),
         // the value has to be divided and not multiplied
-        // Since toSeconds() always uses multiplication, the factor is extracted and after that used for division
-        val newValue = timeUnit.toSeconds(longValue).toDouble()
+        // Since toMillis() always uses multiplication, the factor is extracted and after that used for division
+        val newValue = timeUnit.toMillis(longValue).toDouble()
         val multiplicationFactor = newValue / longValue
         longValue / multiplicationFactor
       }
 
       TimeUnitType.DURATION -> {
-        val timeUnit: TimeUnit = loadTestConstants.symbolics.duration.timeUnit
-        timeUnit.toSeconds(longValue)
+        val timeUnit = loadTestConstants.symbolics.duration.timeUnit
+        timeUnit.toMillis(longValue)
       }
     }
   }
