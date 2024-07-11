@@ -28,10 +28,10 @@ class EndpointAdapter(private val loadtestConstants: LoadTestConstants) {
     val type = endpoint.methods.first().name
 
     val parameter = endpoint.parameter
-    val pathVariables = parameter.firstOrNull { it.equals(EndpointParameterType.PathVariable) }
-    val queryParams = parameter.firstOrNull { it.equals(EndpointParameterType.QueryParameter) }
-    val params = parameter.firstOrNull { it.equals(EndpointParameterType.Header) }
-    val payload = parameter.firstOrNull { it.equals(EndpointParameterType.RequestBody) }
+    val pathVariables = parameter.firstOrNull { it.type!! == EndpointParameterType.PathVariable }
+    val queryParams = parameter.firstOrNull { it.type!! == EndpointParameterType.QueryParameter }
+    val params = parameter.firstOrNull { it.type!! == EndpointParameterType.Header }
+    val payload = parameter.firstOrNull { it.type!! == EndpointParameterType.RequestBody }
 
     val duration: Int = this.getDuration(responseMeasure)
     val statusCodes = getStatusCodes(endpoint)
