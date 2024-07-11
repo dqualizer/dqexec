@@ -5,7 +5,7 @@ import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.symbolic.Symboli
 import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.symbolic.SymbolicIntValue
 import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.symbolic.SymbolicValue
 import org.springframework.stereotype.Component
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 @Component
 class SymbolicTransformer(private val loadTestConstants: LoadTestConstants) {
@@ -28,16 +28,15 @@ class SymbolicTransformer(private val loadTestConstants: LoadTestConstants) {
     return when (type) {
       TimeUnitType.LOAD -> {
         val timeUnit = loadTestConstants.symbolics.load.timeUnit
-        // Since load uses the timeUnit in the denominator (for example user/SECONDS),
-        // the value has to be divided and not multiplied
-        // Since toMillis() always uses multiplication, the factor is extracted and after that used for division
-        val newValue = timeUnit.toMillis(longValue).toDouble()
-        val multiplicationFactor = newValue / longValue
-        longValue / multiplicationFactor
+        // convert value to SECONDS
+        val convertedValue = timeUnit.convert(Duration.ofSeconds(longValue))
+        if(convertedValue <= 0) throw IllegalStateException("Too small load value")
+        else convertedValue
       }
 
       TimeUnitType.DURATION -> {
         val timeUnit = loadTestConstants.symbolics.duration.timeUnit
+        // k6 default unit is millisecond
         timeUnit.toMillis(longValue)
       }
     }
