@@ -15,12 +15,16 @@
       "integer": {
         "low": 2,
         "medium": 10,
-        "high": 30
+        "high": 30,
+        "very_high": 40.0,
+        "extremely_high": 50.0
       },
       "decimal": {
         "low": 2.0,
         "medium": 10.0,
-        "high": 30.0
+        "high": 30.0,
+        "very_high": 40.0,
+        "extremely_high": 50.0
       },
       "time_unit": "SECONDS"
     },

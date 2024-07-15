@@ -47,17 +47,21 @@ class SymbolicTransformer(private val loadTestConstants: LoadTestConstants) {
     val durationType = loadTestConstants.symbolics.duration.integer
 
     return when (val valueName = intValue.name) {
-      LoadTypes.LOW.name -> loadType.low
+      LoadTypes.LOW.type -> loadType.low
 
-      LoadTypes.MEDIUM.name -> loadType.medium
+      LoadTypes.MEDIUM.type -> loadType.medium
 
-      LoadTypes.HIGH.name -> loadType.high
+      LoadTypes.HIGH.type -> loadType.high
 
-      DurationTypes.SLOW.name -> durationType.slow
+      LoadTypes.VERY_HIGH.type -> loadType.veryHigh
 
-      DurationTypes.FAST.name -> durationType.fast
+      LoadTypes.EXTREMELY_HIGH.type -> loadType.extremelyHigh
 
-      DurationTypes.VERY_FAST.name -> durationType.veryFast
+      DurationTypes.SLOW.type -> durationType.slow
+
+      DurationTypes.FAST.type -> durationType.fast
+
+      DurationTypes.VERY_FAST.type -> durationType.veryFast
 
       else -> throw RuntimeException(valueName)
     }
@@ -68,17 +72,21 @@ class SymbolicTransformer(private val loadTestConstants: LoadTestConstants) {
     val durationType = loadTestConstants.symbolics.duration.decimal
 
     return when (val valueName = doubleValue.name) {
-      LoadTypes.LOW.name -> loadType.low
+      LoadTypes.LOW.type -> loadType.low
 
-      LoadTypes.MEDIUM.name -> loadType.medium
+      LoadTypes.MEDIUM.type -> loadType.medium
 
-      LoadTypes.HIGH.name -> loadType.high
+      LoadTypes.HIGH.type -> loadType.high
 
-      DurationTypes.SLOW.name -> durationType.slow
+      LoadTypes.VERY_HIGH.type -> loadType.veryHigh
 
-      DurationTypes.FAST.name -> durationType.fast
+      LoadTypes.EXTREMELY_HIGH.type -> loadType.extremelyHigh
 
-      DurationTypes.VERY_FAST.name -> durationType.veryFast
+      DurationTypes.SLOW.type -> durationType.slow
+
+      DurationTypes.FAST.type -> durationType.fast
+
+      DurationTypes.VERY_FAST.type -> durationType.veryFast
 
       else -> throw RuntimeException(valueName)
     }
@@ -89,15 +97,17 @@ class SymbolicTransformer(private val loadTestConstants: LoadTestConstants) {
     DURATION
   }
 
-  private enum class LoadTypes {
-    LOW,
-    MEDIUM,
-    HIGH,
+  private enum class LoadTypes(val type: String) {
+    LOW("LOW"),
+    MEDIUM("MEDIUM"),
+    HIGH("HIGH"),
+    VERY_HIGH("VERY HIGH"),
+    EXTREMELY_HIGH("EXTREMELY HIGH"),
   }
 
-  private enum class DurationTypes {
-    SLOW,
-    FAST,
-    VERY_FAST
+  private enum class DurationTypes(val type: String) {
+    SLOW("SLOW"),
+    FAST("FAST"),
+    VERY_FAST("VERY FAST")
   }
 }
