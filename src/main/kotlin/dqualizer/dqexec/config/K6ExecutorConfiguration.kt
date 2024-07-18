@@ -8,10 +8,10 @@ import org.springframework.context.annotation.Configuration
  */
 @Configuration
 data class K6ExecutorConfiguration(
-    @Value("\${dqualizer.dqexec.export.k6.influx.token}")
-    val influxdbToken: String,
-    @Value("\${dqualizer.dqexec.export.k6.influx.bucket}")
-    val influxdbBucket: String,
-    @Value("\${dqualizer.dqexec.export.k6.influx.organization}")
-    val influxdbOrganization: String
+  @Value("\${dqualizer.dqexec.export.k6.influx.token}")
+  val influxdbToken: String,
+  @Value("\${dqualizer.dqexec.export.k6.influx.bucket}")
+  val influxdbBucket: String,
+  @Value("\${dqualizer.dqexec.export.k6.influx.organization}")
+  val influxdbOrganization: String
 )

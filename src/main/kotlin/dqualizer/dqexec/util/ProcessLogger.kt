@@ -14,55 +14,55 @@ import java.util.logging.Logger
  */
 @Component
 class ProcessLogger {
-    private val logger = Logger.getGlobal()
+  private val logger = Logger.getGlobal()
 
-    @Throws(IOException::class, InterruptedException::class)
-    fun log(process: Process, logFileBasePath: Path) {
-        //create and connect log files to process
-        linkOutputStreamToFile(logFileBasePath, "log", process.inputStream)
-        linkOutputStreamToFile(logFileBasePath, "err", process.errorStream)
+  @Throws(IOException::class, InterruptedException::class)
+  fun log(process: Process, logFileBasePath: Path) {
+    //create and connect log files to process
+    linkOutputStreamToFile(logFileBasePath, "log", process.inputStream)
+    linkOutputStreamToFile(logFileBasePath, "err", process.errorStream)
 
-        logger.info("Writing log to ${logFileBasePath.normalize()}.log")
-        logger.info("Writing error log to ${logFileBasePath.normalize()}.err")
+    logger.info("Writing log to ${logFileBasePath.normalize()}.log")
+    logger.info("Writing error log to ${logFileBasePath.normalize()}.err")
 
-        waitForProcess(process)
-        val exitValue = process.exitValue()
-        if (exitValue != 0) logError(process)
+    waitForProcess(process)
+    val exitValue = process.exitValue()
+    if (exitValue != 0) logError(process)
+  }
+
+  private fun linkOutputStreamToFile(
+    logFileBasePath: Path,
+    fileExtension: String,
+    inputStream: InputStream
+  ) {
+    CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+      val targetFile = File("$logFileBasePath.$fileExtension")
+      targetFile.parentFile.mkdirs()
+      targetFile.delete()
+      targetFile.createNewFile()
+
+      val outputStream = FileOutputStream("$logFileBasePath.$fileExtension")
+      IOUtils.copy(inputStream, outputStream)
+      outputStream.close()
     }
+  }
 
-    private fun linkOutputStreamToFile(
-        logFileBasePath: Path,
-        fileExtension: String,
-        inputStream: InputStream
-    ) {
-        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
-            val targetFile = File("$logFileBasePath.$fileExtension")
-            targetFile.parentFile.mkdirs()
-            targetFile.delete()
-            targetFile.createNewFile()
+  @Throws(IOException::class)
+  private fun logError(process: Process) {
+    val errorStream = process.errorStream
+    val errorMessage = String(errorStream.readAllBytes(), StandardCharsets.UTF_8)
+    logger.warning(errorMessage)
+  }
 
-            val outputStream = FileOutputStream("$logFileBasePath.$fileExtension")
-            IOUtils.copy(inputStream, outputStream)
-            outputStream.close()
-        }
+  @Throws(InterruptedException::class)
+  private fun waitForProcess(process: Process) {
+    logger.info("Waiting for loadtest to finish...")
+    println()
+    while (process.isAlive) {
+      Thread.sleep(1000)
+      print(".")
     }
-
-    @Throws(IOException::class)
-    private fun logError(process: Process) {
-        val errorStream = process.errorStream
-        val errorMessage = String(errorStream.readAllBytes(), StandardCharsets.UTF_8)
-        logger.warning(errorMessage)
-    }
-
-    @Throws(InterruptedException::class)
-    private fun waitForProcess(process: Process) {
-        logger.info("Waiting for loadtest to finish...")
-        println()
-        while (process.isAlive) {
-            Thread.sleep(1000)
-            print(".")
-        }
-        println(".")
-        logger.info("Loadtest finished")
-    }
+    println(".")
+    logger.info("Loadtest finished")
+  }
 }

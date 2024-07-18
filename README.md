@@ -91,3 +91,8 @@ dependencies {
 
 ### Deploy to Packages
 * There is a GitHub action set up, that automatically pushes the dqExec image to [Github Container Registry](https://github.com/dqualizer/dqapi/pkgs/container/dqexec)
+
+## Development
+
+Executing the project requires to configure Gradle according to the instructions in
+the [dqlang documentation](https://github.com/dqualizer/dqlang).

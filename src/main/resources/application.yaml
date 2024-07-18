@@ -1,19 +1,19 @@
 server:
   port: 8090
 
-
 dqualizer:
-  messaging:
+  rabbitmq:
     queues:
-      loadtest:
-        name: loadtest
-      rqaConfigurationProducerQueue:
-        name: rqaConfigurationProducer
-      k6:
-        name: k6
+      loadtest: loadtest
+      k6: k6
     exchanges:
       loadtest: translator-loadtest
       k6: loadtest-k6
+
+  messaging:
+    queues:
+      rqaDefinitionReceiverQueue:
+        name: "rqaConfiguration"
 
   dqexec:
     influx:
@@ -25,3 +25,8 @@ dqualizer:
           organization: ${K6_INFLUXDB_ORGANIZATION:my-org}
           bucket: ${K6_INFLUXDB_BUCKET:my-bucket}
           token: ${K6_INFLUXDB_TOKEN:specialToken000}
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/dqualizer
