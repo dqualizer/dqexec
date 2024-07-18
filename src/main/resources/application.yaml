@@ -25,3 +25,8 @@ dqualizer:
           organization: ${K6_INFLUXDB_ORGANIZATION:my-org}
           bucket: ${K6_INFLUXDB_BUCKET:my-bucket}
           token: ${K6_INFLUXDB_TOKEN:specialToken000}
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/dqualizer
