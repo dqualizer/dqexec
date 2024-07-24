@@ -4,12 +4,12 @@ import dqualizer.dqexec.exception.UnknownTermException
 import dqualizer.dqexec.util.LoadCurveHelper
 import dqualizer.dqexec.util.SymbolicTransformer
 import dqualizer.dqexec.util.SymbolicTransformer.TimeUnitType
-import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.types.adapter.constants.loadTest.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.k6.options.*
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.Stimulus
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.loadprofile.ConstantLoad
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.loadprofile.LoadIncrease
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.loadprofile.LoadPeak
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.Stimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.loadprofile.ConstantLoad
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.loadprofile.LoadIncrease
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.loadprofile.LoadPeak
 import org.springframework.stereotype.Component
 import org.springframework.vault.support.DurationParser
 import java.time.Duration

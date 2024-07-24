@@ -1,4 +1,4 @@
-val dqlangVersion = "3.2.0"
+val dqlangVersion = "4.0.0-SNAPSHOT"
 
 plugins {
   kotlin("jvm") version "2.0.0"
@@ -96,28 +96,19 @@ dependencies {
   implementation("org.mapstruct:mapstruct:1.5.5.Final")
   implementation("org.springframework.vault:spring-vault-core:3.1.1")
   implementation("org.springframework.plugin:spring-plugin-core:3.0.0")
-
   implementation("com.github.docker-java:docker-java:3.3.6") {
     exclude(group = "org.slf4j")
   }
   implementation("com.github.docker-java:docker-java-transport-httpclient5:3.3.6")
   implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
-
   implementation("com.squareup.okhttp3:okhttp:4.12.0")
-
-
   implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0")
-
+  implementation("mysql:mysql-connector-java:+")
   implementation(files("inspectit-ocelot-config-2.6.4.jar"))
-//    implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
-
   implementation("io.github.oshai:kotlin-logging:6.0.9")
-
   implementation("io.opentelemetry:opentelemetry-api:1.37.0")
 
-
   implementation("io.github.dqualizer:dqlang:${dqlangVersion}")
-//    implementation(project(":dqlang"))
 
   annotationProcessor("org.projectlombok:lombok")
 
