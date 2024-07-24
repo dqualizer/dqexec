@@ -1,4 +1,4 @@
-package dqualizer.dqexec.adapter
+package dqualizer.dqexec.adapter.loadtest
 
 import dqualizer.dqexec.exception.UnknownTermException
 import dqualizer.dqexec.util.LoadCurveHelper

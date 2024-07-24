@@ -12,7 +12,7 @@ import org.springframework.core.io.Resource
 @Configuration
 class LoadTestingConstantsLoader(
   private val objectMapper: ObjectMapper,
-  @Value("classpath:constant/constants.json") private val loadTestingConstants: Resource,
+  @Value("classpath:constant/load_testing_constants.json") private val loadTestingConstants: Resource,
 ) {
 
   @Bean

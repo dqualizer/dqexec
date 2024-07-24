@@ -1,4 +1,4 @@
-package dqualizer.dqexec.adapter
+package dqualizer.dqexec.adapter.loadtest
 
 import io.github.dqualizer.dqlang.types.adapter.constants.loadTest.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.k6.K6Configuration
