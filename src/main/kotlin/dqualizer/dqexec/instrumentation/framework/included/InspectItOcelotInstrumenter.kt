@@ -38,23 +38,24 @@ class InspectItOcelotInstrumenter(
 
 
     val output = Files.writeString(
-      Path.of("plan.yaml"),
+      Path.of("configuration/plan.yaml"),
       instrumentationPlan.inspectItConfiguration,
       Charsets.UTF_8
     )
 
+    log.info { "InspectIT Ocelot configuration written to ${output.toAbsolutePath()}" }
 
+    //platformAccessor.connect()
 
-    platformAccessor.connect()
+    //log.info { "Connected to platform" }
 
-    log.info { "Connected to platform" }
 
 
     //TODOs:
     // - check if container has internet access, otherwise try download locally
     // - location of the jar should be configurable
 
-    log.info { "Downloading agent" }
+/*    log.info { "Downloading agent" }
     var response = platformAccessor.executeInServiceContainer(
       """
                 curl https://github.com/inspectIT/inspectit-oce/releases/download/$INSPECT_IT_OCELOT_VERSION/$INSPECTIT_OCELOT_JAR -o /tmp/$INSPECTIT_OCELOT_JAR
@@ -67,9 +68,9 @@ class InspectItOcelotInstrumenter(
                     wget https://github.com/inspectIT/inspectit-oce/releases/download/$INSPECT_IT_OCELOT_VERSION/$INSPECTIT_OCELOT_JAR -O /tmp/$INSPECTIT_OCELOT_JAR
                 """.trimIndent()
       )
-    }
+    }*/
 
-    log.debug { "Response: $response" }
+   /* log.debug { "Response: $response" }
 
     val targetProcessId = platformAccessor.getTargetProcessID("java")
     log.info { "Target process id: $targetProcessId" }
@@ -92,7 +93,7 @@ class InspectItOcelotInstrumenter(
 
     if (!agentResponse.contains("Agent successfully attached!")) {
       throw RuntimeException("Agent could not be started")
-    }
+    }*/
   }
 
   override fun deinstrument(
