@@ -8,7 +8,6 @@ import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.MonitoringC
 import org.springframework.stereotype.Service
 
 @Service
-//@EnableMongoRepositories(basePackageClasses = [DAMMongoRepository::class])
 class Monitoring(
   private val damRepository: DAMMongoRepository,
   private val platformAccessors: RuntimePlatformAccessors,

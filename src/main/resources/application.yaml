@@ -18,7 +18,13 @@ dqualizer:
   dqexec:
     influx:
       host: localhost
-    #    enabled: true #not a features yet
+      #enabled: true #not a features yet
+    mysql:
+      host: localhost
+      port: 3306
+    resilienceExecutionApi:
+      host: localhost
+      port: 3323
     export:
       k6:
         influx:

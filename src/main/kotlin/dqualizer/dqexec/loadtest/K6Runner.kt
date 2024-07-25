@@ -34,16 +34,6 @@ class K6Runner(
   private val log = Logger.getLogger(this.javaClass.name)
 
   /**
-   * Import the k6 configuration and start the configuration runner
-   *
-   * @param config An inofficial k6 configuration
-   */
-//  @RabbitListener(queues = ["\${dqualizer.messaging.queues.k6.name}"])
-//  fun receive(@Payload config: K6Configuration) {
-//    start(config)
-//  }
-
-  /**
    * Start the configuration-runner
    *
    * @param config Received inofficial k6-configuration
