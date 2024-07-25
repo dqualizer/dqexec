@@ -44,12 +44,13 @@ class InspectItOcelotInstrumentationPlanMapper {
 
   private val yamlMapper =
     ObjectMapper().apply {
-      setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
+      // setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
     }
 
   fun toYamlString(config: InspectitConfig): String {
     return yamlMapper.writeValueAsString(mapOf(Pair("inspectit", config)))
   }
+
 
   private fun InstrumentLocation.toScopeName() = "s_" + sanitizeName(this.location)
 
@@ -80,8 +81,8 @@ class InspectItOcelotInstrumentationPlanMapper {
       this.metrics = metrics
       this.logging = LoggingSettings().apply { this.isDebug = true }
       this.tracing = TracingSettings().createTraceSettings(instrumentation)
-
     }
+
     val yamlString = toYamlString(config)
     return InspectItOcelotInstrumentationPlan(instrumentation, yamlString);
   }
