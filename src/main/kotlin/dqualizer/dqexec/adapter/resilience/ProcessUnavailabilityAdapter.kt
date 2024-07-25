@@ -104,8 +104,10 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
       val actionName = "start process " + (artifact.processName)
       val argumentsForFunction =  authenticationParameters + ("path" to artifact.processPath)
       val actionProvider = Provider("python", "processStarting", "start_jvm_process_by_path", argumentsForFunction)
+      // Hardcoded pause to restart process
+      val pauses = Pauses(5, 10)
 
-      return Action(name = actionName, provider = actionProvider)
+      return Action(name = actionName, provider = actionProvider, pauses = pauses)
   }
 
 

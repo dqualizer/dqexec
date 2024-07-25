@@ -88,10 +88,12 @@ class CtkRunner(
       val response: CtkExperimentExecutorAPIResponse? = restTemplate.postForObject(url, httpEntity, CtkExperimentExecutorAPIResponse::class.java)
 
       val responseMap = objectMapper.convertValue(response, Map::class.java)
-      val statusCode = responseMap["statusCode"]
+      val statusCode = responseMap["status_code"] as Int
+      // For some reason the API response contains 0 as status code after
+      val invalidStatusCode = !(statusCode == 200 || statusCode == 0)
       val status = responseMap["status"]
       val info = responseMap["info"]
-      if (statusCode !is Int || statusCode != 200) {
+      if (invalidStatusCode) {
           throw Exception("Following non 200 or non integer exit code returned from host experimentExecutor API: $statusCode || status: $status || info: $info")
       }
 
