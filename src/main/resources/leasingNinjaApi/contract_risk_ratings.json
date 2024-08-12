@@ -1,0 +1,44 @@
+{
+  "params": [
+    [
+      [
+        "contract_number",
+        "1"
+      ],
+      [
+        "creditRating",
+        "2"
+      ]
+    ],
+    [
+      [
+        "contract_number",
+        "2"
+      ],
+      [
+        "creditRating",
+        "5"
+      ]
+    ],
+    [
+      [
+        "contract_number",
+        "3"
+      ],
+      [
+        "creditRating",
+        "10"
+      ]
+    ],
+    [
+      [
+        "contract_number",
+        "4"
+      ],
+      [
+        "creditRating",
+        "20"
+      ]
+    ]
+  ]
+}
