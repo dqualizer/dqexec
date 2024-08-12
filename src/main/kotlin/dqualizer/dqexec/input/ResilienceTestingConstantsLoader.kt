@@ -23,10 +23,6 @@ class ResilienceTestingConstantsLoader(
     @Bean
     fun createResilienceTestConstants(): ResilienceTestConstants {
         try {
-            if (EnvironmentChecker.isRunningInDocker){
-                val constantsPath = Path("/app/input_ressources/resilience_testing_constants.json")
-                return objectMapper.readValue(Files.readString(constantsPath), ResilienceTestConstants::class.java)
-            }
             val resourceText = resilienceTestingConstants.inputStream.bufferedReader().use { it.readText() }
             return objectMapper.readValue(resourceText, ResilienceTestConstants::class.java)
         } catch (e: Exception) {
