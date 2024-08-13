@@ -1,4 +1,4 @@
-val dqlangVersion = "4.0.6-SNAPSHOT"
+val dqlangVersion = "4.0.7-SNAPSHOT"
 
 plugins {
   kotlin("jvm") version "2.0.0"
