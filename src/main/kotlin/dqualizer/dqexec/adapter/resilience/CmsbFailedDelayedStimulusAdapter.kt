@@ -1,9 +1,6 @@
 package dqualizer.dqexec.adapter.resilience
 
-import io.github.dqualizer.dqlang.types.adapter.ctk.Action
-import io.github.dqualizer.dqlang.types.adapter.ctk.CtkChaosExperiment
-import io.github.dqualizer.dqlang.types.adapter.ctk.Pauses
-import io.github.dqualizer.dqlang.types.adapter.ctk.Provider
+import io.github.dqualizer.dqlang.types.adapter.ctk.*
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.CmsbArtifact
 import io.github.dqualizer.dqlang.types.rqa.configuration.resilience.ResilienceTestArtifact
 import io.github.dqualizer.dqlang.types.rqa.definition.resilience.stimulus.FailedRequestsStimulus
@@ -17,26 +14,34 @@ class CmsbFailedDelayedStimulusAdapter {
       val csmbArtifact = resilienceTestArtifact.cmsbArtifact!!
       val method = listOf(
         createActionToConfigureAssaultsForLateResponseStimulus(csmbArtifact, resilienceTestArtifact.stimulus as LateResponsesStimulus),
-        createActionToChangeWatcherConfiguration(csmbArtifact),
+        //createActionToChangeWatcherConfiguration(csmbArtifact),
         createActionToEnableChaosMonkeyForSpringBoot(csmbArtifact, resilienceTestArtifact.stimulus!!)
       )
       val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(csmbArtifact))
 
-      // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet, we use ctk default runtime configurations
-      return CtkChaosExperiment(resilienceTestArtifact.name, resilienceTestArtifact.description, null, null, method, rollbacks, emptyList(), null)
+      // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet,
+      // but we need to provide something non-None in Python
+      val hypothesis = SteadyStateHypothesis(title = "default", probes = emptyList())
+      val secrets = Secrets(AuthenticationSecret())
+
+      return CtkChaosExperiment(resilienceTestArtifact.name, resilienceTestArtifact.description, secrets, hypothesis, method, rollbacks, emptyList(), null)
     }
 
     fun createExperimentForFailedRequestsStimulus(resilienceTestArtifact: ResilienceTestArtifact): CtkChaosExperiment {
       val csmbArtifact = resilienceTestArtifact.cmsbArtifact!!
       val method = listOf(
                 createActionToConfigureAssaultsForFailedRequestStimulus(csmbArtifact, resilienceTestArtifact.stimulus as FailedRequestsStimulus),
-                createActionToChangeWatcherConfiguration(csmbArtifact),
+                //createActionToChangeWatcherConfiguration(csmbArtifact),
                 createActionToEnableChaosMonkeyForSpringBoot(csmbArtifact, resilienceTestArtifact.stimulus!!),
         )
         val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(csmbArtifact))
 
-        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet, we use ctk default runtime configurations
-        return CtkChaosExperiment(resilienceTestArtifact.name, resilienceTestArtifact.description, null, null, method, rollbacks, emptyList(), null)
+        // secrets and Steady State Hypothesis are not necessary for this kind of experiments yet,
+        // but we need to provide something non-None in Python
+        val hypothesis = SteadyStateHypothesis(title = "default", probes = emptyList())
+        val secrets = Secrets(AuthenticationSecret())
+
+        return CtkChaosExperiment(resilienceTestArtifact.name, resilienceTestArtifact.description, secrets, hypothesis, method, rollbacks, emptyList(), null)
     }
 
     private fun createActionToEnableChaosMonkeyForSpringBoot(artifact: CmsbArtifact, stimulus: ResilienceStimulus): Action {
@@ -96,10 +101,16 @@ class CmsbFailedDelayedStimulusAdapter {
 
         val argumentsForFunction = mapOf("base_url" to artifact.baseUrl, "assaults_configuration" to assaultsConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
+        // Hardcoded pause, since it can't be null
+        val pauses = Pauses(2, 5)
 
-        return Action(name = actionName, provider = provider)
+        return Action(name = actionName, provider = provider, pauses = pauses)
     }
 
+    /*
+      TODO  Do we need this method?
+            Apparently, there is no function "change_watchers_configuration" provided by CTK
+     */
     // Also if the assaultConfiguration already adds a watched service, also the corresponding watcher needs to be enabled for the failure injection to work for the watchedCustomService
     private fun createActionToChangeWatcherConfiguration(artifact: CmsbArtifact): Action {
         val actionName = "configure_watchers"
@@ -140,7 +151,9 @@ class CmsbFailedDelayedStimulusAdapter {
         val actionName = "disable_chaosmonkey"
         val argumentsForFunction = mapOf("base_url" to artifact.baseUrl)
         val provider = Provider("python", "chaosspring.actions", "disable_chaosmonkey", argumentsForFunction)
+        // Hardcoded pause, since it can't be null
+        val pauses = Pauses(2, 5)
 
-        return Action(name = actionName, provider = provider)
+        return Action(name = actionName, provider = provider, pauses = pauses)
     }
 }
