@@ -1,9 +1,9 @@
 package dqualizer.dqexec.util
 
-import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.symbolic.SymbolicDoubleValue
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.symbolic.SymbolicIntValue
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.symbolic.SymbolicValue
+import io.github.dqualizer.dqlang.types.adapter.constants.loadTest.LoadTestConstants
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.symbolic.SymbolicDoubleValue
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.symbolic.SymbolicIntValue
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.symbolic.SymbolicValue
 import org.springframework.stereotype.Component
 import java.time.Duration
 

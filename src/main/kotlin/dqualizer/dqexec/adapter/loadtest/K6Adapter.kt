@@ -1,11 +1,11 @@
-package dqualizer.dqexec.adapter
+package dqualizer.dqexec.adapter.loadtest
 
-import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.types.adapter.constants.loadTest.LoadTestConstants
 import io.github.dqualizer.dqlang.types.adapter.k6.K6Configuration
 import io.github.dqualizer.dqlang.types.adapter.k6.K6LoadTest
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.Stimulus
-import io.github.dqualizer.dqlang.types.rqa.definition.stimulus.loadprofile.ConstantLoad
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.Stimulus
+import io.github.dqualizer.dqlang.types.rqa.definition.loadtest.stimulus.loadprofile.ConstantLoad
 import org.springframework.stereotype.Component
 
 /** Adapts a loadtest configuration to an inoffical k6-configuration */
