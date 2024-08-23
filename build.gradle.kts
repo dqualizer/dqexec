@@ -108,8 +108,11 @@ dependencies {
 
   implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0")
 
-  implementation(files("inspectit-ocelot-config-2.6.4.jar"))
-//    implementation("rocks.inspectit.ocelot:inspectit-ocelot-config:SNAPSHOT")
+  /*
+    Slightly adapted inspectit-ocelot-config-2.6.5.jar for dqualizer
+    Changed: Added @JsonIgnore to the methods of InstrumentationScopeSettings
+  */
+  implementation(files("inspectit-ocelot-config-dqualizer.jar"))
 
   implementation("io.github.oshai:kotlin-logging:6.0.9")
 

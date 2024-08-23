@@ -11,6 +11,7 @@ import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.instrumenta
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.instrumentation.InstrumentLocation
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.instrumentation.InstrumentType
 import io.github.dqualizer.dqlang.types.rqa.definition.monitoring.MeasurementType
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.api.trace.SpanKind
 import okhttp3.internal.toImmutableMap
 import org.mapstruct.Mapper
@@ -31,26 +32,26 @@ import rocks.inspectit.ocelot.config.model.metrics.MetricsSettings
 import rocks.inspectit.ocelot.config.model.metrics.definition.MetricDefinitionSettings
 import rocks.inspectit.ocelot.config.model.metrics.definition.ViewDefinitionSettings
 import rocks.inspectit.ocelot.config.model.metrics.definition.ViewDefinitionSettings.ViewDefinitionSettingsBuilder
+import rocks.inspectit.ocelot.config.model.selfmonitoring.SelfMonitoringSettings
 import rocks.inspectit.ocelot.config.model.tracing.LogCorrelationSettings
 import rocks.inspectit.ocelot.config.model.tracing.PropagationFormat
 import rocks.inspectit.ocelot.config.model.tracing.TraceIdAutoInjectionSettings
 import rocks.inspectit.ocelot.config.model.tracing.TracingSettings
 import java.util.*
 
-
 @Mapper
 @Component
-class InspectItOcelotInstrumentationPlanMapper {
+class InspectItOcelotInstrumentationPlanMapper() {
+  private val log = KotlinLogging.logger { }
 
-  private val yamlMapper =
+  private val inspectItMapper =
     ObjectMapper().apply {
-      // setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
+      setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
     }
 
   fun toYamlString(config: InspectitConfig): String {
-    return yamlMapper.writeValueAsString(mapOf(Pair("inspectit", config)))
+    return inspectItMapper.writeValueAsString(mapOf(Pair("inspectit", config)))
   }
-
 
   private fun InstrumentLocation.toScopeName() = "s_" + sanitizeName(this.location)
 
@@ -76,12 +77,19 @@ class InspectItOcelotInstrumentationPlanMapper {
       this.rules = getRules(dam, instrumentation, metrics, scopes, actions)
 
     }
+
     val config = InspectitConfig().apply {
       this.instrumentation = instrumentationSettings
       this.metrics = metrics
       this.logging = LoggingSettings().apply { this.isDebug = true }
       this.tracing = TracingSettings().createTraceSettings(instrumentation)
+
+      // default settings
+      this.threadPoolSize = 2
+      this.selfMonitoring = enableSelfMonitoring()
     }
+
+    log.info { "Created inspectIT Ocelot configuration: $config" }
 
     val yamlString = toYamlString(config)
     return InspectItOcelotInstrumentationPlan(instrumentation, yamlString);
@@ -91,7 +99,11 @@ class InspectItOcelotInstrumentationPlanMapper {
     isEnabled = instrumentation.instruments.any { it.measurementType == MeasurementType.EXECUTION_TIME }
       || instrumentation.instrumentationFramework.hasTraces
 
-    propagationFormat = PropagationFormat.B3
+    sampleProbability = 1.0
+
+    isAddMetricTags = true
+
+    propagationFormat = PropagationFormat.TRACE_CONTEXT
 
     logCorrelation = LogCorrelationSettings().apply {
       traceIdAutoInjection = TraceIdAutoInjectionSettings().apply {
@@ -552,4 +564,11 @@ class InspectItOcelotInstrumentationPlanMapper {
     ActionCallSettings().apply {
       this.action = second
     })
+
+  private fun enableSelfMonitoring(): SelfMonitoringSettings {
+    val selfMonitoring = SelfMonitoringSettings()
+    selfMonitoring.isEnabled = true
+
+    return selfMonitoring
+  }
 }
