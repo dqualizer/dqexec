@@ -1,6 +1,7 @@
 package dqualizer.dqexec.input
 
-import dqualizer.dqexec.adapter.K6AdaptationService
+import dqualizer.dqexec.adapter.resilience.CtkAdaptationService
+import dqualizer.dqexec.adapter.loadtest.K6AdaptationService
 import dqualizer.dqexec.instrumentation.Monitoring
 import io.github.dqualizer.dqlang.types.rqa.configuration.RQAConfiguration
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -13,7 +14,8 @@ import org.springframework.messaging.handler.annotation.Payload
 @Configuration
 class RQAConfigConsumer(
   private val monitoring: Monitoring,
-  private val adaptationService: K6AdaptationService
+  private val k6AdaptationService: K6AdaptationService,
+  private val ctkAdaptationService: CtkAdaptationService
 ) {
 
   private val log = KotlinLogging.logger {}
@@ -23,16 +25,19 @@ class RQAConfigConsumer(
     log.debug { "${"Received an RQA Configuration: {}"} $rqaConfiguration" }
 
     try {
-      if (rqaConfiguration.loadConfiguration.loadTestArtifacts!!.isNotEmpty()) {
+      if (rqaConfiguration.loadConfiguration.loadTestArtifacts.isNotEmpty()) {
         log.debug { "Applying load tests" }
-        Thread({ applyLoadTest(rqaConfiguration) }, "Load-Test-Thread").start()
+        Thread({ applyLoadTest(rqaConfiguration) }, "loadTest-thread").start()
       }
 
       if (rqaConfiguration.monitoringConfiguration.serviceMonitoringConfigurations.isNotEmpty()) {
         log.debug { "Applying monitoring" }
-        Thread({ applyMonitoring(rqaConfiguration) }, "Monitoring-Thread").start()
+        Thread({ applyMonitoring(rqaConfiguration) }, "monitoring-thread").start()
       }
-      // TODO Resilience testing
+      if (rqaConfiguration.resilienceConfiguration.resilienceTestArtifacts.isNotEmpty()) {
+        log.debug { "Applying resilience tests" }
+        Thread({ applyResilienceTest(rqaConfiguration) }, "resilienceTest-thread").start()
+      }
     } catch (e: Exception) {
       log.error { "Applying RQA failed: $e" }
       throw RuntimeException(e)
@@ -41,9 +46,9 @@ class RQAConfigConsumer(
 
   private fun applyLoadTest(rqaConfiguration: RQAConfiguration) {
     // TODO Condition to choose load testing tool
-    adaptationService.adaptToK6(rqaConfiguration.loadConfiguration)
+    k6AdaptationService.adaptToK6(rqaConfiguration.loadConfiguration)
 
-    //adaptationService.adaptToGatling(rqaConfiguration.loadConfiguration)
+    //gatlingAdaptationService.adaptToGatling(rqaConfiguration.loadConfiguration)
   }
 
   private fun applyMonitoring(rqaConfiguration: RQAConfiguration) {
@@ -51,6 +56,6 @@ class RQAConfigConsumer(
   }
 
   private fun applyResilienceTest(rqaConfiguration: RQAConfiguration) {
-    // TODO
+    ctkAdaptationService.adaptToCtk(rqaConfiguration.resilienceConfiguration)
   }
 }

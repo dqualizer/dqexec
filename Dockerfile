@@ -25,8 +25,14 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar /app/dqexec.jar
 COPY --from=k6-builder /tmp/k6 /usr/bin/k6
 
+# k6 script
 VOLUME /app/scripts
+# k6 logging
 VOLUME /app/logging
+# ctk experiments
+VOLUME /app/generated_experiments
+# ctk inputs
+VOLUME /app/input_ressources
 
 EXPOSE 8080
 

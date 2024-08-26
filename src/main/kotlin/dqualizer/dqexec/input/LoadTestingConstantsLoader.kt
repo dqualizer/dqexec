@@ -2,7 +2,7 @@ package dqualizer.dqexec.input
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dqualizer.dqexec.exception.InvalidConstantsSchemaException
-import io.github.dqualizer.dqlang.types.adapter.constants.LoadTestConstants
+import io.github.dqualizer.dqlang.types.adapter.constants.loadTest.LoadTestConstants
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,7 +12,7 @@ import org.springframework.core.io.Resource
 @Configuration
 class LoadTestingConstantsLoader(
   private val objectMapper: ObjectMapper,
-  @Value("classpath:constant/constants.json") private val loadTestingConstants: Resource,
+  @Value("classpath:constant/load_testing_constants.json") private val loadTestingConstants: Resource,
 ) {
 
   @Bean

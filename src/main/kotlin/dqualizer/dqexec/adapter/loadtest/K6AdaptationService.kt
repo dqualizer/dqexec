@@ -1,4 +1,4 @@
-package dqualizer.dqexec.adapter
+package dqualizer.dqexec.adapter.loadtest
 
 import dqualizer.dqexec.loadtest.K6Runner
 import io.github.dqualizer.dqlang.types.rqa.configuration.loadtest.LoadTestConfiguration
@@ -19,8 +19,7 @@ class K6AdaptationService(
 
   // TODO: extract and make generic for different load types (?)
   /**
-   * Adapts the load test configuration to a  k6 configuration.
-   * Afterward the configuration will be exported via RabbitMQ
+   * Adapts the load test configuration to a k6 configuration.
    */
   fun adaptToK6(loadTestConfig: LoadTestConfiguration) {
     log.info("LOAD TEST CONFIGURATION RECEIVED: \n$loadTestConfig")
