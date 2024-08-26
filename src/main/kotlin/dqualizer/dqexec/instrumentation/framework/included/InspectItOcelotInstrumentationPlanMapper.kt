@@ -179,6 +179,9 @@ class InspectItOcelotInstrumentationPlanMapper {
           viewBuilders[definitionNameTemplate.format("/sum")] =
             ViewDefinitionSettings.builder()
               .aggregation(ViewDefinitionSettings.Aggregation.SUM)
+          viewBuilders[definitionNameTemplate.format("/count")] =
+            ViewDefinitionSettings.builder()
+              .aggregation(ViewDefinitionSettings.Aggregation.COUNT)
         }
 
         InstrumentType.COUNTER -> {
