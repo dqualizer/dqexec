@@ -47,6 +47,9 @@ import rocks.inspectit.ocelot.agentconfiguration.ObjectStructureMerger
 import java.time.Duration
 import java.util.*
 
+/**
+ * This got kinda messy. I'm so sorry...
+ */
 @Mapper
 @Component
 class InspectItOcelotInstrumentationPlanMapper {
@@ -165,7 +168,6 @@ class InspectItOcelotInstrumentationPlanMapper {
       val type = it.measurementType
       val instrumentType = it.instrumentType
 
-
       val definitionNameTemplate = getMetricNameTemplateFromType(type)
 
       val viewBuilders = mutableMapOf<String, ViewDefinitionSettingsBuilder>()
@@ -234,15 +236,6 @@ class InspectItOcelotInstrumentationPlanMapper {
     }
   }
 
-  private fun getMetricFromType(settings: MetricsSettings, type: MeasurementType): MetricDefinitionSettings {
-    val name = getMetricNameTemplateFromType(type).format("")
-
-    return settings.definitions.computeIfAbsent(name) {
-      throw IllegalArgumentException("Metric with name $name not found")
-    }
-  }
-
-
   private fun generateScopes(
     dam: DomainArchitectureMapping,
     instrumentation: ServiceMonitoringConfiguration
@@ -303,7 +296,6 @@ class InspectItOcelotInstrumentationPlanMapper {
     }
     return scopes.toImmutableMap()
   }
-
 
   //how to instrument (e.g. java code how to measure)
   private fun generateActions(
@@ -446,9 +438,10 @@ class InspectItOcelotInstrumentationPlanMapper {
 
     val instrumentationRuleSettings = InstrumentationRuleSettings().apply {
       this.include = mapOf(Pair("r_trace_method", true))
-      this.entry = mapOf(getSimpleAction("method_entry_time", "a_timestamp_ms"))
+      // Use the inspectIT default actions
+      this.entry = mapOf(getSimpleAction("method_entry_time", "a_timing_nanos"))
       this.exit = mapOf(Pair("duration", ActionCallSettings().apply {
-        this.action = "a_calculate_time_difference"
+        this.action = "a_timing_elapsedMillis"
         this.dataInput = mapOf(Pair("timestamp", "method_entry_time"))
       }))
       this.scopes = mapOf(Pair(instrument.location.toScopeName(), true))
@@ -543,7 +536,6 @@ class InspectItOcelotInstrumentationPlanMapper {
         Pair("measurement_name", "measurement_name")
       )
     }
-
 
     return InstrumentationRuleSettings().apply {
       this.scopes = scopes
