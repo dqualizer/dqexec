@@ -112,7 +112,13 @@ dependencies {
     Slightly adapted inspectit-ocelot-config-2.6.5.jar for dqualizer
     Changed: Added @JsonIgnore to the methods of InstrumentationScopeSettings
   */
-  implementation(files("inspectit-ocelot-config-dqualizer.jar"))
+  implementation(files("inspectit-ocelot/inspectit-ocelot-config-dqualizer.jar"))
+  // Helpful utility classes to load inspectIT default configuration
+  implementation(files("inspectit-ocelot/inspectit-ocelot-configurationserver-dqualizer.jar"))
+  implementation(files("inspectit-ocelot/inspectit-ocelot-configdocsgenerator-dqualizer.jar"))
+  // Also necessary to load inspectIT default configuration
+  implementation("io.opentelemetry:opentelemetry-sdk-metrics:1.29.0")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
   implementation("io.github.oshai:kotlin-logging:6.0.9")
 
