@@ -10,13 +10,6 @@ import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
 
-private const val INSPECT_IT_OCELOT_VERSION = "2.6.1"
-
-private const val INSPECTIT_OCELOT_JAR = "inspectit-ocelot-agent-$INSPECT_IT_OCELOT_VERSION.jar"
-
-/**
- * @author Lion Wagner
- */
 @Component
 class InspectItOcelotInstrumenter(
   val instrumentationMapper: InspectItOcelotInstrumentationPlanMapper
@@ -27,7 +20,7 @@ class InspectItOcelotInstrumenter(
 
   private val log = KotlinLogging.logger { }
 
-  private val configFileName = "configuration/plan.yaml"
+  private val configFileNameTemplate ="configuration/%s/plan.yaml"
 
   override fun instrument(
     dam: DomainArchitectureMapping,
@@ -37,10 +30,14 @@ class InspectItOcelotInstrumenter(
   ) {
     val instrumentationPlan = instrumentationMapper.map(serviceMonitoringConfiguration, dam)
 
+    val options = serviceMonitoringConfiguration.instrumentationFramework.options
+    val serviceName = options.getOrDefault("INSPECTIT_SERVICE_NAME", "unknown-service")
+    val configFileName = configFileNameTemplate.format(serviceName)
+
     val configPath = Path.of(configFileName)
 
     if(Files.notExists(configPath)) {
-      log.info { "Creating inspectIT ocelot configuration file..." }
+      log.info { "Creating inspectIT Ocelot configuration file: $configFileName" }
       Files.createDirectories(configPath.parent)
       Files.createFile(configPath)
     }
