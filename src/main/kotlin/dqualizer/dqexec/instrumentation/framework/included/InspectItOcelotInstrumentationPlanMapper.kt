@@ -445,7 +445,7 @@ class InspectItOcelotInstrumentationPlanMapper {
       this.entry = mapOf(getSimpleAction("method_entry_time", "a_timing_nanos"))
       this.exit = mapOf(Pair("duration", ActionCallSettings().apply {
         this.action = "a_timing_elapsedMillis"
-        this.dataInput = mapOf(Pair("timestamp", "method_entry_time"))
+        this.dataInput = mapOf(Pair("since_nanos", "method_entry_time"))
       }))
       this.scopes = mapOf(Pair(instrument.location.toScopeName(), true))
       this.metrics = mapOf(
