@@ -1,8 +1,15 @@
 package dqualizer.dqexec.instrumentation.framework.included
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import dqualizer.dqexec.util.take
+import inspectit.ocelot.configdocsgenerator.parsing.ConfigParser
 import io.github.dqualizer.dqlang.types.dam.DomainArchitectureMapping
 import io.github.dqualizer.dqlang.types.dam.architecture.CodeComponent
 import io.github.dqualizer.dqlang.types.dam.mapping.ActivityToCallMapping
@@ -11,12 +18,14 @@ import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.instrumenta
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.instrumentation.InstrumentLocation
 import io.github.dqualizer.dqlang.types.rqa.configuration.monitoring.instrumentation.InstrumentType
 import io.github.dqualizer.dqlang.types.rqa.definition.monitoring.MeasurementType
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.opentelemetry.api.trace.SpanKind
 import okhttp3.internal.toImmutableMap
 import org.mapstruct.Mapper
 import org.springframework.stereotype.Component
+import org.yaml.snakeyaml.Yaml
+import rocks.inspectit.ocelot.config.loaders.ConfigFileLoader
 import rocks.inspectit.ocelot.config.model.InspectitConfig
-import rocks.inspectit.ocelot.config.model.instrumentation.InstrumentationSettings
 import rocks.inspectit.ocelot.config.model.instrumentation.actions.ActionCallSettings
 import rocks.inspectit.ocelot.config.model.instrumentation.actions.GenericActionSettings
 import rocks.inspectit.ocelot.config.model.instrumentation.rules.InstrumentationRuleSettings
@@ -26,7 +35,6 @@ import rocks.inspectit.ocelot.config.model.instrumentation.scope.ElementDescript
 import rocks.inspectit.ocelot.config.model.instrumentation.scope.InstrumentationScopeSettings
 import rocks.inspectit.ocelot.config.model.instrumentation.scope.MatcherMode
 import rocks.inspectit.ocelot.config.model.instrumentation.scope.MethodMatcherSettings
-import rocks.inspectit.ocelot.config.model.logging.LoggingSettings
 import rocks.inspectit.ocelot.config.model.metrics.MetricsSettings
 import rocks.inspectit.ocelot.config.model.metrics.definition.MetricDefinitionSettings
 import rocks.inspectit.ocelot.config.model.metrics.definition.ViewDefinitionSettings
@@ -35,20 +43,56 @@ import rocks.inspectit.ocelot.config.model.tracing.LogCorrelationSettings
 import rocks.inspectit.ocelot.config.model.tracing.PropagationFormat
 import rocks.inspectit.ocelot.config.model.tracing.TraceIdAutoInjectionSettings
 import rocks.inspectit.ocelot.config.model.tracing.TracingSettings
+import rocks.inspectit.ocelot.agentconfiguration.ObjectStructureMerger
+import java.time.Duration
 import java.util.*
 
-
+/**
+ * This got kinda messy. I'm so sorry...
+ */
 @Mapper
 @Component
 class InspectItOcelotInstrumentationPlanMapper {
+  private val log = KotlinLogging.logger { }
 
-  private val yamlMapper =
-    ObjectMapper().apply {
-      setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
+  // JsonSerializer to convert Durations properly
+  class DurationSerializer : JsonSerializer<Duration>() {
+    override fun serialize(value: Duration?, gen: JsonGenerator, serializers: SerializerProvider) {
+      if (value != null) {
+        gen.writeString(value.toString())
+      }
+    }
+  }
+
+  private val inspectItMapper =
+    JsonMapper.builder()
+      .addModule(JavaTimeModule())
+      .addModule(SimpleModule().addSerializer(Duration::class.java, DurationSerializer()))
+      .build().apply {
+      setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+      enable(SerializationFeature.INDENT_OUTPUT)
     }
 
-  fun toYamlString(config: InspectitConfig): String {
-    return yamlMapper.writeValueAsString(mapOf(Pair("inspectit", config)))
+  private val defaultConfigString = run {
+    var mergedConfig: Any? = null
+    val defaultConfigFiles = ConfigFileLoader.getDefaultConfigFiles()
+    // Merge all inspectIT default configuration to one object
+    defaultConfigFiles.forEach {
+      val filePath = it.key
+      val fileContent = it.value
+      mergedConfig = ObjectStructureMerger.loadAndMergeYaml(fileContent, mergedConfig, filePath)
+    }
+    Yaml().dump(mergedConfig)
+  }
+
+  private fun parseDefaultConfig(config: String): InspectitConfig {
+    log.info { "Parsing inspectIT Ocelot default configuration..." }
+    return ConfigParser().parseConfig(config)
+  }
+
+  private fun toYamlString(config: InspectitConfig): String {
+    val configMap = mapOf(Pair("inspectit", config))
+    return inspectItMapper.writeValueAsString(configMap)
   }
 
   private fun InstrumentLocation.toScopeName() = "s_" + sanitizeName(this.location)
@@ -66,23 +110,41 @@ class InspectItOcelotInstrumentationPlanMapper {
     instrumentation: ServiceMonitoringConfiguration,
     dam: DomainArchitectureMapping
   ): InspectItOcelotInstrumentationPlan {
+    val baseConfig = parseDefaultConfig(defaultConfigString)
+    val serviceName = instrumentation.instrumentationFramework.options
+      .getOrDefault("INSPECTIT_SERVICE_NAME", "inspectIT-dqualizer")
 
-    val metrics = generateMetrics(instrumentation)
-
-    val instrumentationSettings = InstrumentationSettings().apply {
-      this.scopes = generateScopes(dam, instrumentation)
-      this.actions = generateActions(dam, instrumentation)
-      this.rules = getRules(dam, instrumentation, metrics, scopes, actions)
-
+    val metrics = baseConfig.metrics.apply {
+      val generatedMetrics = generateMetricsDefinitions(instrumentation)
+      this.definitions.putAll(generatedMetrics)
+      this.tagGuard.isEnabled = false
     }
-    val config = InspectitConfig().apply {
-      this.instrumentation = instrumentationSettings
-      this.metrics = metrics
-      this.logging = LoggingSettings().apply { this.isDebug = true }
-      this.tracing = TracingSettings().createTraceSettings(instrumentation)
 
+    val instrumentationSettings = baseConfig.instrumentation.apply {
+      val generatedScopes = generateScopes(dam, instrumentation)
+      this.scopes.putAll(generatedScopes)
+      val generatedActions = generateActions(dam, instrumentation)
+      this.actions.putAll(generatedActions)
+      val generatedRules = getRules(dam, instrumentation, metrics, this.scopes, this.actions)
+      this.rules.putAll(generatedRules)
     }
-    val yamlString = toYamlString(config)
+
+    val generatedConfig = baseConfig.apply {
+      this.serviceName = serviceName
+      this.logging.isDebug = true
+      this.logging.configFile = null // prevent AccessDeniedException
+      this.tracing.createTraceSettings(instrumentation)
+      this.exporters.tracing.serviceName = serviceName
+
+      // We don't need these properties with dqualizer
+      this.agentCommands = null
+      this.config.http = null
+      this.selfMonitoring.agentHealth = null
+    }
+
+    log.info { "Created inspectIT Ocelot configuration" }
+
+    val yamlString = toYamlString(generatedConfig)
     return InspectItOcelotInstrumentationPlan(instrumentation, yamlString);
   }
 
@@ -90,7 +152,7 @@ class InspectItOcelotInstrumentationPlanMapper {
     isEnabled = instrumentation.instruments.any { it.measurementType == MeasurementType.EXECUTION_TIME }
       || instrumentation.instrumentationFramework.hasTraces
 
-    propagationFormat = PropagationFormat.B3
+    propagationFormat = PropagationFormat.TRACE_CONTEXT
 
     logCorrelation = LogCorrelationSettings().apply {
       traceIdAutoInjection = TraceIdAutoInjectionSettings().apply {
@@ -102,11 +164,10 @@ class InspectItOcelotInstrumentationPlanMapper {
     return this
   }
 
-  private fun generateMetrics(instrumentation: ServiceMonitoringConfiguration): MetricsSettings {
+  private fun generateMetricsDefinitions(instrumentation: ServiceMonitoringConfiguration): Map<String, MetricDefinitionSettings> {
     val definitions = instrumentation.instruments.associate {
       val type = it.measurementType
       val instrumentType = it.instrumentType
-
 
       val definitionNameTemplate = getMetricNameTemplateFromType(type)
 
@@ -119,6 +180,9 @@ class InspectItOcelotInstrumentationPlanMapper {
           viewBuilders[definitionNameTemplate.format("/sum")] =
             ViewDefinitionSettings.builder()
               .aggregation(ViewDefinitionSettings.Aggregation.SUM)
+          viewBuilders[definitionNameTemplate.format("/count")] =
+            ViewDefinitionSettings.builder()
+              .aggregation(ViewDefinitionSettings.Aggregation.COUNT)
         }
 
         InstrumentType.COUNTER -> {
@@ -159,12 +223,7 @@ class InspectItOcelotInstrumentationPlanMapper {
       Pair(definitionNameTemplate.format(""), metricDefinitionSettings);
     }
 
-
-    return MetricsSettings().apply {
-      this.isEnabled = true
-      this.definitions = definitions
-      //TODO: add option for resource monitoring
-    }
+   return definitions
   }
 
   private fun getMetricNameTemplateFromType(type: MeasurementType) = when (type) {
@@ -180,15 +239,6 @@ class InspectItOcelotInstrumentationPlanMapper {
       "[execution_time%s]"
     }
   }
-
-  private fun getMetricFromType(settings: MetricsSettings, type: MeasurementType): MetricDefinitionSettings {
-    val name = getMetricNameTemplateFromType(type).format("")
-
-    return settings.definitions.computeIfAbsent(name) {
-      throw IllegalArgumentException("Metric with name $name not found")
-    }
-  }
-
 
   private fun generateScopes(
     dam: DomainArchitectureMapping,
@@ -250,7 +300,6 @@ class InspectItOcelotInstrumentationPlanMapper {
     }
     return scopes.toImmutableMap()
   }
-
 
   //how to instrument (e.g. java code how to measure)
   private fun generateActions(
@@ -341,11 +390,12 @@ class InspectItOcelotInstrumentationPlanMapper {
 
         MeasurementType.EXECUTION_TIME -> {
           handleExecutionTimeInstrumentation(dam, instrument)
-            .forEach { (k, v) -> rules[k] = v }
+            .forEach { (ruleName, rule) -> rules[ruleName] = rule }
         }
 
         MeasurementType.EXECUTION_COUNT -> {
-          TODO()
+          // TODO()
+          throw NotImplementedError("Execution count measurement not implemented")
         }
       }
 
@@ -391,10 +441,12 @@ class InspectItOcelotInstrumentationPlanMapper {
     val ruleName = "r_" + sanitizeName(instrument.measurementName)
 
     val instrumentationRuleSettings = InstrumentationRuleSettings().apply {
-      this.entry = mapOf(getSimpleAction("method_entry_time", "a_timestamp_ms"))
+      this.include = mapOf(Pair("r_trace_method", true))
+      // Use the inspectIT default actions
+      this.entry = mapOf(getSimpleAction("method_entry_time", "a_timing_nanos"))
       this.exit = mapOf(Pair("duration", ActionCallSettings().apply {
-        this.action = "a_calculate_time_difference"
-        this.dataInput = mapOf(Pair("timestamp", "method_entry_time"))
+        this.action = "a_timing_elapsedMillis"
+        this.dataInput = mapOf(Pair("since_nanos", "method_entry_time"))
       }))
       this.scopes = mapOf(Pair(instrument.location.toScopeName(), true))
       this.metrics = mapOf(
@@ -489,7 +541,6 @@ class InspectItOcelotInstrumentationPlanMapper {
       )
     }
 
-
     return InstrumentationRuleSettings().apply {
       this.scopes = scopes
       this.tracing = tracingSettings
@@ -540,6 +591,7 @@ class InspectItOcelotInstrumentationPlanMapper {
       this.scopes = scopes
       this.metrics = metricsSettings
       this.exit = exitActions
+      this.include["r_trace_method"] = true
     }
   }
 

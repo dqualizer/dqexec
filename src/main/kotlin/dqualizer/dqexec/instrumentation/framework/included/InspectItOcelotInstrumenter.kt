@@ -10,23 +10,17 @@ import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
 
-private const val INSPECT_IT_OCELOT_VERSION = "2.6.1"
-
-private const val INSPECTIT_OCELOT_JAR = "inspectit-ocelot-agent-$INSPECT_IT_OCELOT_VERSION.jar"
-
-/**
- * @author Lion Wagner
- */
 @Component
 class InspectItOcelotInstrumenter(
   val instrumentationMapper: InspectItOcelotInstrumentationPlanMapper
 ) : IRuntimeServiceInstrumenter {
 
-  val supportedNames = listOf("inspectit", "ocelot", "inspectit_ocelot", "InspectIT Ocelot")
+  private val supportedNames = listOf("inspectit", "ocelot", "inspectit_ocelot", "InspectIT Ocelot")
     .map { it.lowercase() }.toSet() //case insensitivity
 
   private val log = KotlinLogging.logger { }
 
+  private val configFileNameTemplate ="configuration/%s/plan.yaml"
 
   override fun instrument(
     dam: DomainArchitectureMapping,
@@ -36,19 +30,33 @@ class InspectItOcelotInstrumenter(
   ) {
     val instrumentationPlan = instrumentationMapper.map(serviceMonitoringConfiguration, dam)
 
+    val options = serviceMonitoringConfiguration.instrumentationFramework.options
+    val serviceName = options.getOrDefault("INSPECTIT_SERVICE_NAME", "unknown-service")
+    val configFileName = configFileNameTemplate.format(serviceName)
+
+    val configPath = Path.of(configFileName)
+
+    if(Files.notExists(configPath)) {
+      log.info { "Creating inspectIT Ocelot configuration file: $configFileName" }
+      Files.createDirectories(configPath.parent)
+      Files.createFile(configPath)
+    }
 
     val output = Files.writeString(
-      Path.of("plan.yaml"),
+      configPath,
       instrumentationPlan.inspectItConfiguration,
       Charsets.UTF_8
     )
 
+    log.info { "InspectIT Ocelot configuration written to ${output.toAbsolutePath()}" }
 
+    /**
+     * To keep it simple, we already start the demo applications with an attached inspectIT Ocelot agent.
+     */
 
+    /*
     platformAccessor.connect()
-
     log.info { "Connected to platform" }
-
 
     //TODOs:
     // - check if container has internet access, otherwise try download locally
@@ -84,7 +92,7 @@ class InspectItOcelotInstrumenter(
     val cmd = """
             export INSPECTIT_CONFIG_FILE_BASED_ENABLED=true && \
             export INSPECTIT_CONFIG_FILE_BASED_PATH=/tmp/inspectit-config.json && \
-            java -jar /tmp/$INSPECTIT_OCELOT_JAR $targetProcessId            
+            java -jar /tmp/$INSPECTIT_OCELOT_JAR $targetProcessId
         """.trimIndent()
     val agentResponse = platformAccessor.executeInServiceContainer(cmd)
 
@@ -93,6 +101,7 @@ class InspectItOcelotInstrumenter(
     if (!agentResponse.contains("Agent successfully attached!")) {
       throw RuntimeException("Agent could not be started")
     }
+    */
   }
 
   override fun deinstrument(

@@ -103,8 +103,20 @@ dependencies {
   implementation("org.apache.httpcomponents.core5:httpcore5-h2:5.2.4") //dependency of docker-java
   implementation("com.squareup.okhttp3:okhttp:4.12.0")
   implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.0")
+
+  /*
+    Slightly adapted inspectit-ocelot-config-2.6.5.jar for dqualizer
+    Changed: Added @JsonIgnore to the methods of InstrumentationScopeSettings
+  */
+  implementation(files("inspectit-ocelot/inspectit-ocelot-config-dqualizer.jar"))
+  // Helpful utility classes to load inspectIT default configuration
+  implementation(files("inspectit-ocelot/inspectit-ocelot-configurationserver-dqualizer.jar"))
+  implementation(files("inspectit-ocelot/inspectit-ocelot-configdocsgenerator-dqualizer.jar"))
+  // Also necessary to load inspectIT default configuration
+  implementation("io.opentelemetry:opentelemetry-sdk-metrics:1.29.0")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+
   implementation("mysql:mysql-connector-java:+")
-  implementation(files("inspectit-ocelot-config-2.6.4.jar"))
   implementation("io.github.oshai:kotlin-logging:6.0.9")
   implementation("io.opentelemetry:opentelemetry-api:1.37.0")
 
