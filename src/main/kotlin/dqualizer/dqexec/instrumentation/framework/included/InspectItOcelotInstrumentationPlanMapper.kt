@@ -558,7 +558,7 @@ class InspectItOcelotInstrumentationPlanMapper {
     val scopeName = instrument.location.toScopeName()
 
     val exitActions = mapOf(
-      getSimpleAction("result_value", instrument.toActionName())
+      getSimpleAction("result_value", instrument.getMeasurementNameActionName())
     )
 
     val scopes = mapOf(Pair(scopeName, true))
