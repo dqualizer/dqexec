@@ -591,7 +591,7 @@ class InspectItOcelotInstrumentationPlanMapper {
       this.scopes = scopes
       this.metrics = metricsSettings
       this.exit = exitActions
-      this.include["r_trace_method"] = true
+      this.include = mapOf(Pair("r_trace_method", true))
     }
   }
 
