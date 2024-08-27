@@ -117,6 +117,7 @@ class InspectItOcelotInstrumentationPlanMapper {
     val metrics = baseConfig.metrics.apply {
       val generatedMetrics = generateMetricsDefinitions(instrumentation)
       this.definitions.putAll(generatedMetrics)
+      this.tagGuard.isEnabled = false
     }
 
     val instrumentationSettings = baseConfig.instrumentation.apply {
