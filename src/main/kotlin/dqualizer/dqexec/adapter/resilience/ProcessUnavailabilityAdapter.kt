@@ -102,14 +102,13 @@ class ProcessUnavailabilityAdapter(private val resilienceTestConstants: Resilien
 
   private fun createActionToStartProcess(artifact: ProcessArtifact): Action {
       val actionName = "start process " + (artifact.processName)
-      val argumentsForFunction =  authenticationParameters + ("path" to artifact.processPath)
+      val argumentsForFunction =  authenticationParameters + ("path" to artifact.processPath) + ("process_name" to artifact.processName)
       val actionProvider = Provider("python", "processStarting", "start_jvm_process_by_path", argumentsForFunction)
       // Hardcoded pause to restart process, since it can't be null
       val pauses = Pauses(2, 5)
 
       return Action(name = actionName, provider = actionProvider, pauses = pauses)
   }
-
 
   fun createSteadyStateHypothesisForUnaivalabilityStimulus(artifact: ProcessArtifact): SteadyStateHypothesis {
       return SteadyStateHypothesis("Application is running", listOf(createProbeToLookIfProcessIsRunning(true, artifact)))
