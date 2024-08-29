@@ -70,8 +70,9 @@ class CmsbFailedDelayedStimulusAdapter {
 
         val argumentsForFunction = mapOf("base_url" to artifact.baseUrl, "assaults_configuration" to assaultsConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
+        val pauses = Pauses(stimulus.pauseBeforeTriggeringSeconds, stimulus.experimentDurationSeconds)
 
-        return Action(name = actionName, provider = provider)
+        return Action(name = actionName, provider = provider, pauses = pauses)
     }
 
     private fun createActionToConfigureAssaultsForFailedRequestStimulus(artifact: CmsbArtifact, stimulus: FailedRequestsStimulus): Action {
@@ -101,8 +102,7 @@ class CmsbFailedDelayedStimulusAdapter {
 
         val argumentsForFunction = mapOf("base_url" to artifact.baseUrl, "assaults_configuration" to assaultsConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_assaults_configuration", argumentsForFunction)
-        // Hardcoded pause, since it can't be null
-        val pauses = Pauses(2, 5)
+        val pauses = Pauses(stimulus.pauseBeforeTriggeringSeconds, stimulus.experimentDurationSeconds)
 
         return Action(name = actionName, provider = provider, pauses = pauses)
     }
@@ -144,7 +144,9 @@ class CmsbFailedDelayedStimulusAdapter {
 
         val argumentsForFunction = mapOf("base_url" to artifact.baseUrl, "watchers_configuration" to watchersConfiguration)
         val provider = Provider("python", "chaosspring.actions", "change_watchers_configuration", argumentsForFunction)
-        return Action(name = actionName, provider = provider)
+        // Hardcoded pause, since it can't be null
+        val pauses = Pauses(2, 5)
+        return Action(name = actionName, provider = provider, pauses = pauses)
     }
 
     private fun createActionToDisableChaosMonkeyForSpringBoot(artifact: CmsbArtifact): Action {
