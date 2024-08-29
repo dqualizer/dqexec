@@ -13,9 +13,9 @@ class CmsbFailedDelayedStimulusAdapter {
     fun createExperimentForLateResponsesStimulus(resilienceTestArtifact: ResilienceTestArtifact): CtkChaosExperiment {
       val csmbArtifact = resilienceTestArtifact.cmsbArtifact!!
       val method = listOf(
-        createActionToConfigureAssaultsForLateResponseStimulus(csmbArtifact, resilienceTestArtifact.stimulus as LateResponsesStimulus),
-        //createActionToChangeWatcherConfiguration(csmbArtifact),
-        createActionToEnableChaosMonkeyForSpringBoot(csmbArtifact, resilienceTestArtifact.stimulus!!)
+        createActionToEnableChaosMonkeyForSpringBoot(csmbArtifact, resilienceTestArtifact.stimulus!!),
+        createActionToConfigureAssaultsForLateResponseStimulus(csmbArtifact, resilienceTestArtifact.stimulus as LateResponsesStimulus)
+        //createActionToChangeWatcherConfiguration(csmbArtifact)
       )
       val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(csmbArtifact))
 
@@ -30,9 +30,9 @@ class CmsbFailedDelayedStimulusAdapter {
     fun createExperimentForFailedRequestsStimulus(resilienceTestArtifact: ResilienceTestArtifact): CtkChaosExperiment {
       val csmbArtifact = resilienceTestArtifact.cmsbArtifact!!
       val method = listOf(
-                createActionToConfigureAssaultsForFailedRequestStimulus(csmbArtifact, resilienceTestArtifact.stimulus as FailedRequestsStimulus),
-                //createActionToChangeWatcherConfiguration(csmbArtifact),
-                createActionToEnableChaosMonkeyForSpringBoot(csmbArtifact, resilienceTestArtifact.stimulus!!),
+          createActionToEnableChaosMonkeyForSpringBoot(csmbArtifact, resilienceTestArtifact.stimulus!!),
+          createActionToConfigureAssaultsForFailedRequestStimulus(csmbArtifact, resilienceTestArtifact.stimulus as FailedRequestsStimulus)
+          //createActionToChangeWatcherConfiguration(csmbArtifact),
         )
         val rollbacks = listOf(createActionToDisableChaosMonkeyForSpringBoot(csmbArtifact))
 
